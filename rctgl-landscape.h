@@ -59,6 +59,7 @@ struct landscapeElement
 	int lowest, highest;
 
 	RCTGLPoly *surface;
+	RCTGLPoly *waterSurface;
 	vector<RCTGLPoly> edges[4];
 
 	bool drawWater;			//this may save some time when rendering
