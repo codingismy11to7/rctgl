@@ -42,6 +42,7 @@ bool RCTGLPark::loadNames(unsigned char *parkData)
 		{
 			MessageBox(NULL, "Error allocating memory for name", "ERROR", MB_SETFOREGROUND | MB_OK);
 			RCTGLLog.writeToLog("Error in malloc. i=%d\n", (long)i);
+			RCTGLLog.endTask();
 			return false;
 		}		
 		
@@ -214,24 +215,44 @@ bool RCTGLPark::loadPark(char *filename)
 					}
 					break;				
 				case SEGMENT_ELEMENT:
-					RCTGLElement *element = new RCTGLElement;
-					element->loadOffset(parkData + offset);
+					{
+						RCTGLElement *element = new RCTGLElement;
+						element->loadOffset(parkData + offset);
 
-					elementList[i][j].push_back(element);
+						elementList[i][j].push_back(element);
+					}
 					break;
 				case SEGMENT_SCENERY_SINGLE:
 				case SEGMENT_SCENERY_MULTI:
-					RCTGLScenery *scenery = new RCTGLScenery;
-					scenery->loadOffset(parkData + offset);
+					{
+						RCTGLScenery *scenery = new RCTGLScenery;
+						scenery->loadOffset(parkData + offset);
 
-					sceneryList[i][j].push_back(scenery);
+						sceneryList[i][j].push_back(scenery);
+					}
 					break;
 				case SEGMENT_ENTRANCE:
+					{
+						RCTGLEntrance *ent = new RCTGLEntrance;
+						ent->loadOffset(parkData + offset);
+
+						entranceList[i][j].push_back(ent);
+					}
 					break;
+
 				case SEGMENT_BANNER:
+					{
+						RCTGLBanner *banner = new RCTGLBanner;
+						banner->loadOffset(parkData + offset);
+
+						bannerList[i][j].push_back(banner);
+					}
 					break;
+
 				*/
 				default:
+					RCTGLLog.writeToLog("Unrecognized item type (%d)", buffer);
+					RCTGLLog.writeToLog(" at byte %ld\n", parkData + offset);
 					break;
 				}
 
@@ -242,9 +263,6 @@ bool RCTGLPark::loadPark(char *filename)
 			}
 		}
 	}
-
-	//for(i=0; i<1024; i++)
-	//	RCTGLLog.writeToLog("retrieved '%s'\n", getName(i));
 
 	//release the uncompressed data
 	free(parkData);
