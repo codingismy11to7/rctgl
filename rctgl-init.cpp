@@ -80,9 +80,15 @@ bool initRCTGL(RCTGLPark *thePark)
 	DWORD temp;
 	char EXELoc[1024];
 
+
+	// TIM: The installer I made now puts the install path
+	// into HKLM\Software\RCTGL\Path.  Use that instead?
+
+	
 	// get current directory so we can restore later
 	temp = GetModuleFileName(NULL, EXELoc, 1024);
 	printf("program location: %s\n", EXELoc);
+
 
 	RCTGL_Location = EXELoc;
 	RCTGL_Location.resize( RCTGL_Location.rfind( '\\' ) );
