@@ -57,6 +57,7 @@ const uchar PATH_SLOPE_WEST	=	8;		//xxx001xx
 const uchar PATH_SLOPE_NORTH=	12;		//xxx010xx
 const uchar PATH_SLOPE_EAST	=	16;		//xxx100xx
 const uchar PATH_SLOPE_SOUTH=	20;		//xxx101xx
+const uchar PATH_SLOPE_MASK=	28;		//xxx111xx
 
 const uchar PATH_QUEUE_ENTRY=	32;		//xx1xxxxx
 
@@ -126,6 +127,8 @@ private:
 	unsigned int queueTextures[4][3];	//4 queue types, with three fundamental
 										//tiles per queue type
 	unsigned int otherTextures[6][4][1];
+
+	bool isPathLinear(uchar i, uchar j, uchar k);
 };
 
 

@@ -89,6 +89,12 @@ bool RCTGLPathSystem::loadOffset(uchar *data, uchar x, uchar z)
 	return true;
 }
 
+bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k)
+{
+	return ((paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_S) ||
+			(paths[i][j][k].m_pathExtensions & PATH_EXTEND_E &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W));
+}
+
 void RCTGLPathSystem::compile()
 {
 	DebugLog::beginTask("RCTGLPathSystem::compile");
@@ -109,6 +115,9 @@ void RCTGLPathSystem::compile()
 			for(k=0; k<paths[i][j].size(); k++)
 			{
 				paths[i][j][k].surface = NULL;
+				rotateClock = false;
+				flipVert = false;
+				flipHoriz = false;
 
 				RCTGLExtendedPoly *pathPoly = new RCTGLExtendedPoly;
 				
@@ -120,6 +129,59 @@ void RCTGLPathSystem::compile()
 
 				xLen = 1;
 				zLen = 1;
+
+				unsigned int texID = 0;
+
+				switch(paths[i][j][k].m_pathModifier1 & PATH_STYLE_MASK)
+				{
+				case PATH_STYLE_QUEUE:
+					//search for the linear path
+					if(isPathLinear(i, j, k))
+					{
+						texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][2];
+
+						if (paths[i][j][k].m_pathExtensions & PATH_EXTEND_E &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+							rotateClock = true;						
+					}
+					else
+					{
+						//standard for N & W
+						texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][1];
+
+						if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+						{
+							//do nothing
+						}						
+						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_E)
+							flipVert = true;
+						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_S &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+							flipHoriz = true;
+						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_S &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_E)
+						{
+							flipHoriz = true;
+							flipVert = true;
+						}
+						else
+							texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];
+					}
+					
+					break;
+				case PATH_STYLE_TARMAC:
+					texID = otherTextures[PATH_STYLE_TARMAC][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					break;
+				case PATH_STYLE_DIRT:
+					texID = otherTextures[PATH_STYLE_DIRT][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					break;
+				case PATH_STYLE_CRAZY_TILE:
+					texID = otherTextures[PATH_STYLE_CRAZY_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					break;
+				case PATH_STYLE_ROAD:
+					break;
+				case PATH_STYLE_TILE:
+					texID = otherTextures[PATH_STYLE_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					break;
+				}	
+
 
 				float texCoord[4][2];
 
@@ -199,69 +261,69 @@ void RCTGLPathSystem::compile()
 
 				RCTGLVertex v, tex;
 
+				//figure out which direction the path slopes
+				switch(paths[i][j][k].m_pathModifier2 & PATH_SLOPE_MASK)
+				{				
+				case PATH_SLOPE_NORTH:
+					rightOffset++;
+					break;
+				case PATH_SLOPE_SOUTH:
+					leftOffset++;
+					break;				
+				case PATH_SLOPE_EAST:
+					bottomOffset++;
+					break;
+				case PATH_SLOPE_WEST:
+					topOffset++;
+					break;					
+				}
+
 				//TL
 				v.x = startX * UNITWIDTH;
-				v.y = paths[i][j][k].m_baseHeight * UNITHEIGHT + 0.1f;
+				v.y = (paths[i][j][k].m_baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
 				v.z = startZ * UNITWIDTH;
 
-				tex.x = 0.0f;
-				tex.y = 0.0f;
+				//originally 0,0
+				tex.x = texCoord[3][0] * (float)xLen;
+				tex.y = texCoord[3][1] * (float)zLen;
 				tex.z = 0.0f;
 
 				pathPoly->addVertex(v, tex);
 
 				//TR
 				v.x = (startX + xLen) * UNITWIDTH;
-				//v.y = land[startX+(xLen-1)][startZ].BL * UNITHEIGHT;
+				v.y = (paths[i][j][k].m_baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
 				v.z = startZ * UNITWIDTH;
 
-				tex.x = (float)xLen;
-				tex.y = 0.0f;
+				//orginally 1,0
+				tex.x = texCoord[2][0] * (float)xLen;
+				tex.y = texCoord[2][1] * (float)zLen;
 
 				pathPoly->addVertex(v, tex);
 
 				//BR
 				v.x = (startX+ xLen) * UNITWIDTH;
-				//v.y = land[startX+(xLen-1)][startZ+(zLen-1)].TL * UNITHEIGHT;
+				v.y = (paths[i][j][k].m_baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
 				v.z = (startZ + zLen) * UNITWIDTH;
 
-				tex.x = (float)xLen;
-				tex.y = (float)zLen;
+				//originally 1,1
+				tex.x = texCoord[0][0] * (float)xLen;
+				tex.y = texCoord[0][1] * (float)zLen;
 				
 				pathPoly->addVertex(v, tex);
 
 				//BL
 				v.x = startX * UNITWIDTH;
-				//v.y = land[startX][startZ+(zLen-1)].TR * UNITHEIGHT;
+				v.y = (paths[i][j][k].m_baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
 				v.z = (startZ + zLen) * UNITWIDTH;
 
-				tex.x = 0.0f;
-				tex.y = (float)zLen;
+				//originally 0,1
+				tex.x = texCoord[1][0] * (float)xLen;
+				tex.y = texCoord[1][1] * (float)zLen;
 
 				pathPoly->addVertex(v, tex);
 
-				unsigned int texID = 0;
-
-				switch(paths[i][j][k].m_pathModifier1 & PATH_STYLE_MASK)
-				{
-				case PATH_STYLE_QUEUE:
-					texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];
-					break;
-				case PATH_STYLE_TARMAC:
-					texID = otherTextures[PATH_STYLE_TARMAC][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
-					break;
-				case PATH_STYLE_DIRT:
-					texID = otherTextures[PATH_STYLE_DIRT][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
-					break;
-				case PATH_STYLE_CRAZY_TILE:
-					texID = otherTextures[PATH_STYLE_CRAZY_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
-					break;
-				case PATH_STYLE_ROAD:
-					break;
-				case PATH_STYLE_TILE:
-					texID = otherTextures[PATH_STYLE_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
-					break;
-				}				
+							
 				
 				pathPoly->setTextureID(texID);
 				
