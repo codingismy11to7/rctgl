@@ -42,7 +42,7 @@ Section "RCTGL (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File ".\rctgl.exe"
+  File ".\Release\rctgl.exe"
   File ".\SERPNTB.TTF"
   File ".\corona.dll"
   File ".\CpwDLL.dll"
