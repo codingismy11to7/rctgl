@@ -1,27 +1,33 @@
-#include <stdio.h>
+#include <fstream>
+#include <string>
 
-class debugLog
+using namespace std;
+
+class DebugLog
 {
 public:
-	debugLog(void);
-	bool openLog(void);
-	bool openLog(char *filename);
+  static DebugLog *self();
 
-	void beginTask(char *taskName);
-	void endTask(void);
+  static void openLog();
+  static void openLog( const string &filename );
 
-	void writeToLog(char *msg);
-	void writeToLog(char *msg, char *p1);
-	void writeToLog(char *msg, long p1);
-	void writeToLog(char *msg, double p1);
+  static void beginTask( const string &taskName );
+  static void endTask();
 
-	void closeLog(void);
+  static void writeToLog( const string &msg );
+  /*static void writeToLog( const string &msg, const string &p1 );
+  static void writeToLog( const string &msg, long p1 );
+  static void writeToLog( const string &msg, double p1 );*/
+
+  static void closeLog();
+
+ protected:
+  DebugLog();
+  static DebugLog *mSelf;
 
 private:
-	FILE *handle;
-	int level;
+  ofstream m_outfile;
+  int m_level;
 
-	bool validLog;
-
-	void printTabs(void);
+  void printTabs();
 };

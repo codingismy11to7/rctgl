@@ -1,72 +1,69 @@
-#include "debugLog.h"
+#include "DebugLog.h"
 
-debugLog::debugLog(void)
+DebugLog *DebugLog::mSelf = 0;
+
+DebugLog *DebugLog::self()
 {
-	validLog = false;
-	handle = NULL;
-	level = 0;
+  if( !mSelf )
+    mSelf = new DebugLog();
+
+  return mSelf;
 }
 
-
-bool debugLog::openLog(void)
+DebugLog::DebugLog() : m_level(0)
 {
-	return openLog("debug.log");
+  mSelf = this;
 }
 
-bool debugLog::openLog(char *filename)
+void DebugLog::openLog()
 {
-	handle = fopen(filename, "wt");
-
-	if(handle == NULL)
-	{
-		printf("bad log opening\n");
-		validLog = false;
-		return false;
-	}
-	
-	validLog = true;
-
-	writeToLog("<RCTGLLog>\n");
-
-	level = 1;
-	
-	return true;
+  openLog( "debug.log" );
 }
 
-void debugLog::printTabs(void)
+void DebugLog::openLog( const string &filename )
 {
-	if(validLog)
-		for(int i=0; i<level; i++)
-			fprintf(handle, "\t");
+  self()->m_outfile.open( filename.c_str() );
+
+  self()->writeToLog( "<RCTGLLog>\n" );
+
+  self()->m_level = 1;
 }
 
-void debugLog::beginTask(char *taskName)
+void DebugLog::printTabs()
 {
-	printTabs();
-
-	if(validLog)
-		fprintf(handle, "<TASK NAME='%s'>\n", taskName);
-
-	level++;
+  for( int i = 0; i < self()->m_level; i++ )
+    self()->m_outfile << "\t";
 }
 
-void debugLog::endTask(void)
+void DebugLog::beginTask( const string &taskName )
 {
-	level--;
+  self()->printTabs();
 
-	printTabs();
+  self()->m_outfile << "<TASK NAME='" << taskName << "'>" << endl;
 
-	if(validLog)
-		fprintf(handle, "</TASK>\n");
+  self()->m_level++;
 }
 
-void debugLog::writeToLog(char *msg)
+void DebugLog::endTask()
 {
-	writeToLog(msg, (char *)NULL);
+  self()->m_level--;
+
+  self()->printTabs();
+
+  self()->m_outfile << "</TASK>" << endl;
 }
 
-void debugLog::writeToLog(char *msg, char *p1)
+void DebugLog::writeToLog(const string &msg)
 {
+  //self()->writeToLog( msg, string() );
+  self()->printTabs();
+  self()->m_outfile << msg << endl;
+}
+
+/*static void DebugLog::writeToLog(const string &msg, const string &p1)
+{
+  self()->printTabs();
+  self()->m_outfile << msg << ": " << p1 << endl;
 	if(validLog)
 	{
 		printTabs();
@@ -93,16 +90,18 @@ void debugLog::writeToLog(char *msg, double p1)
 		fprintf(handle, msg, p1);
 		fflush(handle);
 	}
-}
+}*/
 
-void debugLog::closeLog(void)
+void DebugLog::closeLog()
 {
-	if(validLog)
+  self()->m_outfile << "</RCTGLLog> " << endl;
+  self()->m_outfile.close();
+  /*	if(validLog)
 	{
 		fprintf(handle, "</RCTGLLog>\n");
 		fflush(handle);
 		fclose(handle);
 
 		validLog = false;
-	}
+		}*/
 }
