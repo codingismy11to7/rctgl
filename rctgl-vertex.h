@@ -6,6 +6,9 @@ class RCTGLVertex
 public:
 	float x, y, z;
 
+	RCTGLVertex();
+	RCTGLVertex(float x, float y, float z);
+
 	void copy(RCTGLVertex inVertex);
 };
 

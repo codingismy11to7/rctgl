@@ -17,10 +17,17 @@ namespace RCTPoly
 
 extern float xWaterOffset1, zWaterOffset1, xWaterOffset2, zWaterOffset2;
 
+typedef vector<RCTGLVertex> vertexListType;
+
 class RCTGLPoly
 {
 public:
 	uchar m_polyType;
+	bool needsAlpha;
+
+	//this is public because RCTGLObject needs to modify
+	//the list for translation, rotation, etc
+	vertexListType m_vertexList;
 
 	RCTGLPoly(void);
 	~RCTGLPoly();
@@ -39,8 +46,8 @@ public:
 
 private:
 	vector<RCTGLRGB> m_RGBList;
-	vector<RCTGLVertex> m_vertexList;
-	vector<RCTGLVertex> m_texCoordList;
+	
+	vertexListType m_texCoordList;
 	uchar m_vertexCount;
 	unsigned int m_texID;
 

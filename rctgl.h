@@ -31,8 +31,15 @@ typedef unsigned char uchar;
 
 static const uchar RCT_NUM_COLORS = 32;
 
-static const float UNITWIDTH	= 3.2f;
-static const float UNITHEIGHT = 1.3f;
+//static const float UNITWIDTH	= 3.2f;
+//static const float UNITHEIGHT = 1.3f;
+
+//this is in meters
+//apparantly one tile is 10 m^2, and one height unit is 4/3 meters
+static const float UNITWIDTH	= 3.16228f;
+static const float UNITHEIGHT	= 1.33333f;
+
+const double M_PI   =	3.14159265358979323846;
 
 extern float RCTColorsR[RCT_NUM_COLORS];
 extern float RCTColorsG[RCT_NUM_COLORS];

@@ -136,6 +136,10 @@ SOURCE=".\rctgl-menu.cpp"
 # End Source File
 # Begin Source File
 
+SOURCE=".\rctgl-object.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=".\rctgl-park.cpp"
 # End Source File
 # Begin Source File
@@ -241,6 +245,10 @@ SOURCE=".\rctgl-landscape.h"
 # Begin Source File
 
 SOURCE=".\rctgl-menu.h"
+# End Source File
+# Begin Source File
+
+SOURCE=".\rctgl-object.h"
 # End Source File
 # Begin Source File
 

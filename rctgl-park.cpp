@@ -45,6 +45,11 @@ void RCTGLPark::dumpData()
 		x.str("");
 		x << "itemIndex: " << (int)(e.index);
 		DebugLog::writeToLog(x.str());
+		printf("%s\n", x.str().c_str());
+
+		x.str("");
+		x << "rotation: " << (int)(e.rotation);
+		DebugLog::writeToLog(x.str());
 		printf("%s\n\n", x.str().c_str());
 	}
 		
@@ -365,8 +370,8 @@ bool RCTGLPark::loadPark(const string &filename)
 	userView.ZV = 0.0f;
 
 	userView.XR = 0.0f;
-	userView.YR = 0.0f;
-	userView.ZR = 45.0f;
+	userView.YR = 45.0f;
+	userView.ZR = 0.0f;
 
 	return true;
 }

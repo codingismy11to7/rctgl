@@ -21,6 +21,9 @@ bool RCTGLElementSystem::loadOffset(uchar *data, uchar x, uchar z)
 	//if MSB of first bit is set, then item is lift chain
 	tmpElement.isLift = (bool)(data[0] & 0x80); //10000000
 
+	//lower 2 bits indicate element rotation
+	tmpElement.rotation = (data[0] & 0x03);		//00000011
+
 	//base height = byte 3
 	tmpElement.baseHeight = data[2] / 4;
 
@@ -54,7 +57,83 @@ bool RCTGLElementSystem::isElementSame(RCTGLElementElement sourceElement)
 	return true;	
 }
 
-void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color, float height, float length, float radius, float z, float baseX, float baseY, float baseZ)
+void RCTGLElementSystem::addBMNormalCrosstie(RCTGLElementElement *e, RCTGLRGB color, float xOffset, float top, float bottom, float left, float right)
+{
+	RCTGLVertex vert, tx;
+	RCTGLPoly poly;
+
+	poly.clear();
+	poly.setBaseRGB(color);
+
+	poly.setTextureID(m_textures[BM_NORMAL_CROSSTIE]);
+
+	poly.needsAlpha = true;
+
+	//go in z direction
+	vert.x = xOffset;
+	vert.y = bottom;
+	vert.z = right;
+
+	tx.x = 0.0f;
+	tx.y = 0.0f;
+	poly.addVertex(vert, tx);	
+
+	vert.z += (left - right);
+	//vert.y += UNITHEIGHT;
+	tx.x = 1.0f;	
+	poly.addVertex(vert, tx);
+
+	vert.y += (top - bottom);	
+	tx.y = 1.0f;
+	poly.addVertex(vert, tx);
+
+	vert.z -= (left - right);
+	//vert.y -= UNITHEIGHT;
+	tx.x = 0.0f;	
+	poly.addVertex(vert, tx);
+
+	e->obj.addPoly(poly);
+}
+
+void RCTGLElementSystem::addBMLiftCrosstie(RCTGLElementElement *e, RCTGLRGB color, float xOffset, float top, float bottom, float left, float right)
+{
+	RCTGLVertex vert, tx;
+	RCTGLPoly poly;
+
+	poly.clear();
+	poly.setBaseRGB(color);
+
+	poly.setTextureID(m_textures[BM_LIFT_CROSSTIE]);
+
+	poly.needsAlpha = true;
+
+	//go in z direction
+	vert.x = xOffset;
+	vert.y = bottom;
+	vert.z = right;
+
+	tx.x = 0.0f;
+	tx.y = 0.0f;
+	poly.addVertex(vert, tx);	
+
+	vert.z += (left - right);
+	//vert.y += UNITHEIGHT;
+	tx.x = 1.0f;	
+	poly.addVertex(vert, tx);
+
+	vert.y += (top - bottom);	
+	tx.y = 1.0f;
+	poly.addVertex(vert, tx);
+
+	vert.z -= (left - right);
+	//vert.y -= UNITHEIGHT;
+	tx.x = 0.0f;	
+	poly.addVertex(vert, tx);
+
+	e->obj.addPoly(poly);
+}
+
+void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color, float height, float length, float radius, float z)
 {
 	RCTGLPoly poly;
 	RCTGLVertex vert;
@@ -65,9 +144,9 @@ void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color,
 
 	//top right corner
 	//start at top center of rail
-	vert.x = baseX * UNITWIDTH;
-	vert.y = baseY * UNITHEIGHT + height + 2.0f * radius;
-	vert.z = baseZ * UNITWIDTH + z;
+	vert.x = 0.0f;
+	vert.y = 0.0f + height + 2.0f * radius;
+	vert.z = 0.0f + z;
 	poly.addVertex(vert);
 
 	vert.y -= radius;
@@ -81,13 +160,14 @@ void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color,
 	vert.z += radius;
 	poly.addVertex(vert);
 
-	e->surfaces.push_back(poly);
+	e->obj.addPoly(poly);
+	
 
 	//top left corner	
 	poly.clear();
-	vert.x = baseX * UNITWIDTH;
-	vert.y = baseY * UNITHEIGHT + height + 2.0f * radius;
-	vert.z = baseZ * UNITWIDTH + z;
+	vert.x = 0.0f;
+	vert.y = 0.0f + height + 2.0f * radius;
+	vert.z = 0.0f + z;
 	poly.addVertex(vert);
 
 	vert.y -= radius;
@@ -101,17 +181,105 @@ void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color,
 	vert.z -= radius;
 	poly.addVertex(vert);
 
-	e->surfaces.push_back(poly);
+	e->obj.addPoly(poly);
+}
+
+void RCTGLElementSystem::addBMHandrail(RCTGLElementElement *e, RCTGLRGB rgb, float z, float length, float baseHeight)
+{	
+	RCTGLVertex vert, tx;
+	RCTGLPoly poly;
+
+	poly.clear();
+	poly.setBaseRGB(rgb);
+
+	poly.setTextureID(m_textures[BM_HAND_RAIL]);
+
+	poly.needsAlpha = true;
+
+	vert.x = 0.0f;
+	vert.y = baseHeight;
+	vert.z = z;
+
+	tx.x = 0.0f;
+	tx.y = 0.0f;
+	poly.addVertex(vert, tx);	
+
+	vert.x += length;
+	//vert.y += UNITHEIGHT;
+	tx.x = 1.0f;	
+	poly.addVertex(vert, tx);
+
+	vert.y += BM_RAIL_HEIGHT;	
+	tx.y = 1.0f;
+	poly.addVertex(vert, tx);
+
+	vert.x -= length;
+	//vert.y -= UNITHEIGHT;
+	tx.x = 0.0f;	
+	poly.addVertex(vert, tx);
+
+	e->obj.addPoly(poly);
+}
+
+void RCTGLElementSystem::addBMStairs(RCTGLElementElement *e, RCTGLRGB rgb, float z1, float z2, float length, float baseHeight)
+{
+	RCTGLVertex vert, tx;
+	RCTGLPoly poly;
+
+	poly.setBaseRGB(rgb);
+	poly.setTextureID(m_textures[BM_LIFT_STAIRS]);
+	poly.needsAlpha = true;
+
+	vert.x = 0.0f;
+	vert.y = baseHeight;
+	vert.z = z1;
+
+	tx.x = 1.0f;
+	tx.y = 0.0f;
+	poly.addVertex(vert, tx);	
+
+	vert.x += length;
+	//vert.y += UNITHEIGHT;
+	tx.y = 1.0f;	
+	poly.addVertex(vert, tx);
+
+	vert.z = z2;	
+	tx.x = 0.0f;
+	poly.addVertex(vert, tx);
+
+	vert.x -= length;
+	//vert.y -= UNITHEIGHT;
+	tx.y = 0.0f;	
+	poly.addVertex(vert, tx);
+
+	e->obj.addPoly(poly);
 }
 
 void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y)
 {
-	const float leftRail = 0.75f * UNITWIDTH;
-	const float rightRail = 0.25f * UNITWIDTH;
+	const float leftRail = 0.70f * UNITWIDTH;
+	const float rightRail = 0.30f * UNITWIDTH;
 	const float leftBeam = 0.55f * UNITWIDTH;
 	const float rightBeam = 0.45f * UNITWIDTH;
 	const float railRadius = 0.025f * UNITWIDTH;
 	const float railHeight = 0.9f;
+
+	const float singleAngle = tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;
+	//const float singleAngle = 25.0f;
+	const float singleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + UNITHEIGHT*UNITHEIGHT);
+
+	const float doubleAngle = tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;	
+	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
+
+	RCTGLRGB primaryRGB, secondaryRGB;
+	primaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+
+	secondaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+
 	switch(e->elementID)
 	{
 	//straight piece
@@ -125,120 +293,396 @@ void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementEl
 	case 0x01:
 	case 0x02:
 	case 0x03:
-		RCTGLRGB rgb;
+	{	
+		float trackLen = UNITWIDTH;
 
-		rgb.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-		rgb.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-		rgb.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];			
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
 
-		addStraightRail(e, rgb, railHeight, UNITWIDTH, railRadius, rightRail, x, e->baseHeight, y);
-		addStraightRail(e, rgb, railHeight, UNITWIDTH, railRadius, leftRail, x, e->baseHeight, y);
+		addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+		addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, e->baseHeight * UNITHEIGHT, y * UNITWIDTH));
+
+		//e->obj.rotateAboutCenter(90.0f, false, true, false);
 
 		break;
+	}
+	//25 degree incline
 	case 0x04:
+	{		
+		float trackLen = singleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
 		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
 		{
-			//build a lift for a steel standup/sitdown/floorless twister
-			//left and right rails
-			//center square beam
-			//cross ties (2 per unit)
-			//left and right stairs			
-			RCTGLRGB rgb;
-			RCTGLVertex vert, tx;
-			RCTGLPoly poly;
-			
-			rgb.r = RCTColorsR[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-			rgb.g = RCTColorsG[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-			rgb.b = RCTColorsB[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-			
-			//rgb.r = rgb.g = rgb.b = 1.0f;	
-
-
-			poly.setBaseRGB(rgb);
-			poly.setTextureID(m_textures[BM_LIFT_STAIRS]);
-
-			vert.x = (x * UNITWIDTH);
-			vert.y = (e->baseHeight * UNITHEIGHT) + 0.1f;
-			vert.z = (y * UNITWIDTH);
-
-			tx.x = 1.0f;
-			tx.y = 0.0f;
-			poly.addVertex(vert, tx);	
-
-			vert.x += UNITWIDTH;
-			vert.y += UNITHEIGHT;
-			tx.y = 1.0f;	
-			poly.addVertex(vert, tx);
-
-			vert.z += UNITWIDTH;	
-			tx.x = 0.0f;
-			poly.addVertex(vert, tx);
-
-			vert.x -= UNITWIDTH;
-			vert.y -= UNITHEIGHT;
-			tx.y = 0.0f;	
-			poly.addVertex(vert, tx);
-
-			e->surfaces.push_back(poly);
-
-			//left hand rails
-			poly.clear();
-			poly.setTextureID(m_textures[BM_HAND_RAIL]);
-			vert.x = (x * UNITWIDTH);
-			vert.y = (e->baseHeight * UNITHEIGHT) + 0.1f;
-			vert.z = (y * UNITWIDTH);
-
-			tx.x = 0.0f;
-			tx.y = 0.0f;
-			poly.addVertex(vert, tx);	
-
-			vert.x += UNITWIDTH;
-			vert.y += UNITHEIGHT;
-			tx.x = 1.0f;	
-			poly.addVertex(vert, tx);
-
-			vert.y += BM_RAIL_HEIGHT;	
-			tx.y = 1.0f;
-			poly.addVertex(vert, tx);
-
-			vert.x -= UNITWIDTH;
-			vert.y -= UNITHEIGHT;
-			tx.x = 0.0f;	
-			poly.addVertex(vert, tx);
-
-			e->surfaces.push_back(poly);
-
-			//right hand rail
-			poly.clear();
-			poly.setTextureID(m_textures[BM_HAND_RAIL]);
-			vert.x = (x * UNITWIDTH);
-			vert.y = (e->baseHeight * UNITHEIGHT) + 0.1f;
-			vert.z = ((y + 1)* UNITWIDTH);
-
-			tx.x = 0.0f;
-			tx.y = 0.0f;
-			poly.addVertex(vert, tx);	
-
-			vert.x += UNITWIDTH;
-			vert.y += UNITHEIGHT;
-			tx.x = 1.0f;	
-			poly.addVertex(vert, tx);
-
-			vert.y += BM_RAIL_HEIGHT;	
-			tx.y = 1.0f;
-			poly.addVertex(vert, tx);
-
-			vert.x -= UNITWIDTH;
-			vert.y -= UNITHEIGHT;
-			tx.x = 0.0f;	
-			poly.addVertex(vert, tx);
-
-			e->surfaces.push_back(poly);
-
-			//netting under the track
+			addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
 
 		}
+		
+		e->obj.rotateAboutCenter(singleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
 
+		break;
+	}
+
+	//60 degree incline
+	case 0x05:
+	{		
+		float trackLen = doubleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(doubleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+
+
+	//25 degree decline
+	case 0x0A:
+	{		
+		float trackLen = singleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(-singleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+
+	//60 degree decline
+	case 0x0B:
+	{		
+		float trackLen = doubleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(doubleAngle, false, false, true);
+		e->obj.rotateAboutCenter(180.0f, false, true, false);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+	
+	} //end switch
+
+	switch(e->rotation)
+	{
+	case 0x00:
+		e->obj.rotateAboutCenter(90.0f, false, true, false);
+		break;
+	//this is the base case
+	case 0x01:
+		break;
+	case 0x02:
+		e->obj.rotateAboutCenter(270.0f, false, true, false);
+		break;
+	case 0x03:
+		e->obj.rotateAboutCenter(180.0f, false, true, false);
+		break;
+	}
+
+	//stringstream s;
+	//s << "Adding element to (" << (long)x <<", " << (long)(e->baseHeight) << ", " << (long)y << ")";
+	//DebugLog::writeToLog(s.str());
+}
+
+void RCTGLElementSystem::buildInverted(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y)
+{
+	const float leftRail = 0.70f * UNITWIDTH;
+	const float rightRail = 0.30f * UNITWIDTH;
+	const float leftBeam = 0.55f * UNITWIDTH;
+	const float rightBeam = 0.45f * UNITWIDTH;
+	const float railRadius = 0.025f * UNITWIDTH;
+	const float railHeight = 0.9f;
+
+	const float singleAngle = tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;
+	//const float singleAngle = 25.0f;
+	const float singleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + UNITHEIGHT*UNITHEIGHT);
+
+	const float doubleAngle = tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;	
+	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
+
+	RCTGLRGB primaryRGB, secondaryRGB;
+	primaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+
+	secondaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+
+	switch(e->elementID)
+	{
+	//straight piece
+	case 0x00:
+	//brake
+	case 0x63:
+	case 0x44:
+	case 0x64:
+	case 0x65:
+	//station pieces
+	case 0x01:
+	case 0x02:
+	case 0x03:
+	{	
+		float trackLen = UNITWIDTH;
+
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+
+		//addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+		//addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, e->baseHeight * UNITHEIGHT, y * UNITWIDTH));
+
+		//e->obj.rotateAboutCenter(90.0f, false, true, false);
+
+		break;
+	}
+	//25 degree incline
+	case 0x04:
+	{		
+		float trackLen = singleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			//addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			//addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			//addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			//addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(singleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+
+	//60 degree incline
+	case 0x05:
+	{		
+		float trackLen = doubleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			//addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			//addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(doubleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+
+
+	//25 degree decline
+	case 0x0A:
+	{		
+		float trackLen = singleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			//addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			//addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(-singleAngle, false, false, true);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+
+	//60 degree decline
+	case 0x0B:
+	{		
+		float trackLen = doubleAngleLen;
+
+		RCTGLVertex vert, tx;
+		RCTGLPoly poly;
+
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, rightRail);
+		//addStraightRail(e, secondaryRGB, railHeight, trackLen, railRadius, leftRail);
+		
+		
+		if(e->isLift)
+		{			
+			addBMHandrail(e, primaryRGB, 0.05f * UNITWIDTH, trackLen, railHeight);
+			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
+
+			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+
+			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+		}
+		else
+		{
+			//addBMNormalCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
+			//addBMNormalCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
+
+		}
+		
+		e->obj.rotateAboutCenter(doubleAngle, false, false, true);
+		e->obj.rotateAboutCenter(180.0f, false, true, false);
+		e->obj.translate(RCTGLVertex(x * UNITWIDTH, (e->baseHeight + 1.0f) * UNITHEIGHT, y * UNITWIDTH));
+
+		break;
+	}
+	
+	} //end switch
+
+	switch(e->rotation)
+	{
+	case 0x00:
+		e->obj.rotateAboutCenter(90.0f, false, true, false);
+		break;
+	//this is the base case
+	case 0x01:
+		break;
+	case 0x02:
+		e->obj.rotateAboutCenter(270.0f, false, true, false);
+		break;
+	case 0x03:
+		e->obj.rotateAboutCenter(180.0f, false, true, false);
 		break;
 	}
 
@@ -264,24 +708,29 @@ void RCTGLElementSystem::compile(RCTGLRideSystem rides)
 			for(k=0; k<m_elementItems[i][j].size(); k++)
 				m_elementItems[i][j][k].compiled = false;
 
-	RCTGLElementElement theElement;
+	RCTGLElementElement *theElement;
+	vector<RCTGLElementElement>::iterator it1;
 
 	for(i=0; i<128; i++)
 	{
 		for(j=0; j<128; j++)
 		{
-			for(k=0; k<m_elementItems[i][j].size(); k++)
+			for(it1=m_elementItems[i][j].begin(); it1!=m_elementItems[i][j].end(); it1++)
 			{
-				theElement = m_elementItems[i][j][k];
+				theElement = it1;
 
-				if(!theElement.compiled) // && (theElement.index == 1 || theElement.index == 0))
+				//if(!theElement->compiled) // && (theElement.index == 1 || theElement.index == 0))
 				{
-					if(rides.m_rides[theElement.rideIndex].rideType == 0x33)
+					if(rides.m_rides[theElement->rideIndex].rideType == 0x33)
 					{
-						buildSteelTwister(rides, &(m_elementItems[i][j][k]), i, j);
+						buildSteelTwister(rides, theElement, i, j);
+					}
+					else if(rides.m_rides[theElement->rideIndex].rideType == 0x03)
+					{
+						buildInverted(rides, theElement, i, j);
 					}
 
-					m_elementItems[i][j][k].compiled = true;					
+					theElement->compiled = true;					
 				}
 			}
 		}
@@ -299,7 +748,7 @@ void RCTGLElementSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) co
 	uchar i, j, k, l;
 
 	glAlphaFunc ( GL_LESS, 0.4f );
-	glEnable    ( GL_ALPHA_TEST   );
+	//glEnable    ( GL_ALPHA_TEST   );
 
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
@@ -330,10 +779,7 @@ void RCTGLElementSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) co
 					(float)(UNITWIDTH)))	
 				*/
 				{
-					for(l=0; l<m_elementItems[i][j][k].surfaces.size(); l++)
-					{						
-						m_elementItems[i][j][k].surfaces[l].draw();
-					}
+					m_elementItems[i][j][k].obj.draw();					
 				}				
 			}
 		}
@@ -360,7 +806,7 @@ void RCTGLElementSystem::clear()
 				}
 				*/
 
-				m_elementItems[i][j][k].surfaces.clear();
+				m_elementItems[i][j][k].obj.clear();
 			}
 
 			m_elementItems[i][j].clear();
@@ -378,6 +824,9 @@ void RCTGLElementSystem::loadTextures()
 
 	m_textures[BM_LIFT_STAIRS] = texMan.addTexture("\\elements\\BM-LiftStairs.tga", 0);
 	m_textures[BM_HAND_RAIL] = texMan.addTexture("\\elements\\BM-HandRail.tga", 0);
+	m_textures[BM_LIFT_NETTING] = texMan.addTexture("\\elements\\netting.tga", 0);
+	m_textures[BM_NORMAL_CROSSTIE] = texMan.addTexture("\\elements\\BM-normalCrosstie.tga", 0);
+	m_textures[BM_LIFT_CROSSTIE] = texMan.addTexture("\\elements\\BM-liftCrosstie.tga", 0);
 
 	DebugLog::endTask();
 }

@@ -17,6 +17,8 @@ RCTGLPoly::RCTGLPoly(void)
 	m_polyType = POLY_NORMAL;
 
 	m_baseRGB.r = m_baseRGB.g = m_baseRGB.b = -1;
+
+	needsAlpha = false;
 }
 
 void RCTGLPoly::setBaseRGB(const RCTGLRGB &baseRGB)
@@ -82,7 +84,18 @@ void RCTGLPoly::addVertex(const RCTGLVertex &inVertex, const RCTGLRGB &inColor, 
 void RCTGLPoly::draw() const
 {
 	if(m_texID > 0)
+	{
+		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, m_texID);
+
+		if(needsAlpha)
+			glEnable(GL_ALPHA_TEST);
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_ALPHA_TEST);
+	}
 
 	glColor3f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b);
 	
@@ -183,7 +196,13 @@ void RCTGLPoly::draw() const
 		glBegin(GL_QUADS);	
 
 		for(int i=0; i<m_vertexCount; i++)
-			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+		{
+			float x = m_vertexList[i].x;
+			float y = m_vertexList[i].y;
+			float z = m_vertexList[i].z;
+
+			glVertex3f(x, y, z);
+		}
 
 		glEnd();
 	}
