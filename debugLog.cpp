@@ -26,7 +26,7 @@ bool debugLog::openLog(char *filename)
 	
 	validLog = true;
 
-	writeToLog("<XML>\n");
+	writeToLog("<RCTGLLog>\n");
 
 	level = 1;
 	
@@ -99,7 +99,7 @@ void debugLog::closeLog(void)
 {
 	if(validLog)
 	{
-		fprintf(handle, "</XML>\n");
+		fprintf(handle, "</RCTGLLog>\n");
 		fflush(handle);
 		fclose(handle);
 
