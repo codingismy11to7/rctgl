@@ -314,9 +314,18 @@ void RCTGLPark::loadTextures(void)
 
 void RCTGLPark::draw(void)
 {
-	uchar minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
+	int minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
 
-	//landscape.draw(minX, minZ, maxX, maxZ);
+	minX = (int)(userView.XV / UNITWIDTH) - 40;
+	maxX = (int)(userView.XV / UNITWIDTH) + 40;
 
-	landscape.draw(0, 0, 50, 50);
+	minZ = (int)(userView.ZV / UNITWIDTH) - 40;
+	maxZ = (int)(userView.ZV / UNITWIDTH) + 40;
+
+	if(minX < 0)	minX = 0;
+	if(minZ < 0)	minZ = 0;
+	if(maxX > 127)	maxX = 127;
+	if(maxZ > 127)	maxZ = 127;
+
+	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
 }
