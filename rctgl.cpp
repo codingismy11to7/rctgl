@@ -112,6 +112,9 @@ void displayGame(pCpw cpw)
 {
 	glDisable (GL_BLEND);
 	glEnable(GL_NORMALIZE);
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
 
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
@@ -128,7 +131,7 @@ void displayGame(pCpw cpw)
 	{
 		glRotated(userView.YR, 1.0f, 0.0f, 0.0f);
 		glRotated(userView.XR, 0.0f, 1.0f, 0.0f);
-		glTranslated(-userView.XV, -userView.YV, -userView.ZV);		
+		glTranslated(-userView.XV, userView.YV, -userView.ZV);		
 	}
 
 	float objHeight = 32.0f;

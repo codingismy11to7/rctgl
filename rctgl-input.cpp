@@ -246,7 +246,7 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 	*/
 	
 
-	float moveStep = WALK_SPEED * 0.1f;
+	float moveStep = FLY_SPEED * 0.1f;
 
 	//up arrow, in game
 	if(keycode == CPW_KEY_UP && displayMode == GAME)
