@@ -4,7 +4,30 @@
 
 RCTGLLandscape::RCTGLLandscape(void)
 {
-	clear();
+	for(int i=0; i<128; i++)
+	{
+		for(int j=0; j<128; j++)
+		{
+			land[i][j].edgeType = -1;
+			land[i][j].edgeLL = false;
+
+			land[i][j].surfaceType = -1;
+			land[i][j].surfaceLL = false;
+
+			land[i][j].TR = land[i][j].TL = land[i][j].BR = land[i][j].BL = 0;
+			land[i][j].waterLevel = -1;
+			land[i][j].lowest = land[i][j].highest = -1;
+
+			land[i][j].drawWater = false;
+			land[i][j].allLandUnderwater = false;			
+
+			land[i][j].surface = NULL;
+			land[i][j].waterSurface = NULL;
+
+			land[i][j].edges[EDGE_NORTH] = NULL;
+			land[i][j].edges[EDGE_EAST] = NULL;
+		}
+	}
 }
 
 void RCTGLLandscape::loadTextures(void)
@@ -79,8 +102,21 @@ void RCTGLLandscape::clear(void)
 			land[i][j].drawWater = false;
 			land[i][j].allLandUnderwater = false;
 
+			if(land[i][j].surface)
+				delete land[i][j].surface;
+			if(land[i][j].waterSurface)
+				delete land[i][j].waterSurface;
+
 			land[i][j].surface = NULL;
 			land[i][j].waterSurface = NULL;
+
+			if(land[i][j].edges[EDGE_NORTH])
+				delete land[i][j].edges[EDGE_NORTH];
+			if(land[i][j].edges[EDGE_EAST])
+				delete land[i][j].edges[EDGE_EAST];
+
+			land[i][j].edges[EDGE_NORTH] = NULL;
+			land[i][j].edges[EDGE_EAST] = NULL;
 		}
 	}
 

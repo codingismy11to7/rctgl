@@ -69,6 +69,8 @@ struct landscapeElement
 class RCTGLLandscape
 {
 public:
+	landscapeElement land[128][128];
+
 	RCTGLLandscape(void);
 
 	bool load(uchar *gameData);
@@ -82,7 +84,7 @@ public:
 	void clear(void);
 	bool draw(uchar x1, uchar z1, uchar x2, uchar z2);
 private:
-	landscapeElement land[128][128];
+	
 
 	unsigned int surfaceTextures[16];
 	unsigned int edgeTextures[16];
