@@ -99,6 +99,8 @@ const uchar PATH_EXTEND_E	=	4;		//00000100
 const uchar PATH_EXTEND_N	=	2;		//00000010
 const uchar PATH_EXTEND_W	=	1;		//00000001
 
+const uchar NUM_MASKS = 14;
+
 }
 
 struct RCTGLPathElement {
@@ -126,10 +128,15 @@ public:
 private:
 	unsigned int m_queueTextures[4][3];	//4 queue types, with three fundamental
 										//tiles per queue type
-	unsigned int m_otherTextures[6][4][4];
+	unsigned int m_otherTextures[6][4][RCTPath::NUM_MASKS];
+
+	void loadPathTextureGroup(uchar index1, uchar index2, char *baseFilename);
 
 	bool isPathLinear(uchar i, uchar j, uchar k) const;
 	bool isPathTwoPronged(uchar i, uchar j, uchar k) const;
+
+	uchar numCardinals(uchar i, uchar j, uchar k) const;
+	uchar numDiagonals(uchar i, uchar j, uchar k) const;
 };
 
 

@@ -90,11 +90,11 @@ bool RCTGLPathSystem::loadOffset(uchar *data, uchar x, uchar z)
 	return true;
 }
 
-bool RCTGLPathSystem::isPathTwoPronged(uchar i, uchar j, uchar k) const
+uchar RCTGLPathSystem::numCardinals(uchar i, uchar j, uchar k) const
 {
-	uchar numExt = 0;
-
 	RCTGLPathElement thePath = paths[i][j][k];
+
+	uchar numExt = 0;
 
 	if(thePath.pathExtensions & PATH_EXTEND_N)
 		numExt++;
@@ -105,16 +105,33 @@ bool RCTGLPathSystem::isPathTwoPronged(uchar i, uchar j, uchar k) const
 	if(thePath.pathExtensions & PATH_EXTEND_W)
 		numExt++;
 
-	if(numExt != 2)
-		return false;
+	return numExt;
+}
 
-	if(thePath.pathExtensions & PATH_EXTEND_NW ||
-		thePath.pathExtensions & PATH_EXTEND_NE ||
-		thePath.pathExtensions & PATH_EXTEND_SE ||
-		thePath.pathExtensions & PATH_EXTEND_SW)
-		return false;
+uchar RCTGLPathSystem::numDiagonals(uchar i, uchar j, uchar k) const
+{
+	RCTGLPathElement thePath = paths[i][j][k];
 
-	return true;
+	uchar numExt = 0;
+
+	if(thePath.pathExtensions & PATH_EXTEND_NE)
+		numExt++;
+	if(thePath.pathExtensions & PATH_EXTEND_NW)
+		numExt++;
+	if(thePath.pathExtensions & PATH_EXTEND_SE)
+		numExt++;
+	if(thePath.pathExtensions & PATH_EXTEND_SW)
+		numExt++;
+
+	return numExt;
+}
+
+bool RCTGLPathSystem::isPathTwoPronged(uchar i, uchar j, uchar k) const
+{
+	if(numCardinals(i, j, k) == 2 && numDiagonals(i, j, k) == 0)
+		return true;
+	else
+		return false;
 }
 
 bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k) const
@@ -123,19 +140,14 @@ bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k) const
 
 	thePath = paths[i][j][k];
 
+	if(numCardinals(i, j, k) > 2 || numDiagonals(i, j, k) > 0)
+		return false;
+
 	return ((thePath.pathExtensions & PATH_EXTEND_N &&
-			thePath.pathExtensions & PATH_EXTEND_S &&
-			!(thePath.pathExtensions & PATH_EXTEND_NW ||
-			thePath.pathExtensions & PATH_EXTEND_NE ||
-			thePath.pathExtensions & PATH_EXTEND_SE ||
-			thePath.pathExtensions & PATH_EXTEND_SW))
+			thePath.pathExtensions & PATH_EXTEND_S)
 			||
-			(paths[i][j][k].pathExtensions & PATH_EXTEND_E &&
-			paths[i][j][k].pathExtensions & PATH_EXTEND_W &&
-			!(thePath.pathExtensions & PATH_EXTEND_NW ||
-			thePath.pathExtensions & PATH_EXTEND_NE ||
-			thePath.pathExtensions & PATH_EXTEND_SE ||
-			thePath.pathExtensions & PATH_EXTEND_SW)));
+			(thePath.pathExtensions & PATH_EXTEND_E &&
+			thePath.pathExtensions & PATH_EXTEND_W));
 }
 
 void RCTGLPathSystem::compile()
@@ -210,60 +222,349 @@ void RCTGLPathSystem::compile()
 				else
 				{
 					texID = m_otherTextures
-							[paths[i][j][k].pathModifier1 & PATH_STYLE_MASK]
+							[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
 							[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
 							[0];
 
-					if(i >= 34)
-						texID = texID;
-
-					//linear paths, no corners
-					if(isPathLinear(i, j, k))
+					if(numDiagonals(i, j, k) == 0)
 					{
-						texID = m_otherTextures
-							[paths[i][j][k].pathModifier1 & PATH_STYLE_MASK]
-							[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-							[1];
+						//linear paths, no corners
+						if(isPathLinear(i, j, k))
+						{
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[1];
 
-						if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
-							rotateClock = true;						
+							if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+								rotateClock = true;						
+						}
+						//two pronged paths, no corners
+						else if(numCardinals(i, j, k) == 2)
+						{
+							//standard for N & W
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[2];
+
+							if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+							{
+								//do nothing
+							}						
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+								flipVert = true;
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+								flipHoriz = true;
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+							{
+								flipHoriz = true;
+								flipVert = true;
+							}							
+						}
+						else if(numCardinals(i, j, k) == 3)
+						{
+							texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[3];
+
+							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S))
+								rotateClock = true;
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N))
+							{
+								rotateClock = true;
+								flipVert = true;
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+							
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+								flipVert = true;
+						}
+						else if(numCardinals(i, j, k) == 4)
+						{
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[5];
+						}
+						else if(numCardinals(i, j, k) == 1)
+						{
+							texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[4];
+
+							if((paths[i][j][k].pathExtensions & PATH_EXTEND_S))
+								rotateClock = true;
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_N))
+							{
+								rotateClock = true;
+								flipVert = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+							
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+								flipVert = true;
+						}
+						//we should never get to this point
+
 					}
-					//two pronged paths, no corners
-					else if(isPathTwoPronged(i, j, k))
+					else
 					{
-						//standard for N & W
-						texID = m_otherTextures
-							[paths[i][j][k].pathModifier1 & PATH_STYLE_MASK]
-							[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-							[2];
+						//full pieces
+						if(numCardinals(i, j, k) == 4 &&
+							numDiagonals(i, j, k) == 4)
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[6];
+						//half of a path
+						else if(numCardinals(i, j, k) == 3 &&
+							numDiagonals(i, j, k) ==2)
+						{
+							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[7];
+								rotateClock = true;
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[7];
+								rotateClock = true;
+								flipVert = true;
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[7];
+								//rotateClock = true;
+								//flipVert = true;
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[7];
+								//rotateClock = true;
+								flipVert = true;
+							}							
+						}
+						//one corner notched out
+						else if(numCardinals(i, j, k) == 4 &&
+							numDiagonals(i, j, k) == 3)
+						{
+							texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[8];
 
-						if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+							{
+							}
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+								flipHoriz = true;
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+								flipVert = true;
+							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+							{
+								flipHoriz = true;
+								flipVert = true;
+							}
+						}
+						//an extended corner (2, 1)
+						else if(numCardinals(i, j, k) == 2 &&
+							numDiagonals(i, j, k) == 1)
 						{
-							//do nothing
-						}						
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
-							flipVert = true;
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
-							flipHoriz = true;
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[9];
+
+							if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+								flipHoriz = true;
+
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+							{
+								flipHoriz = true;
+								flipVert = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+								flipVert = true;
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+							{
+							}
+						}
+						//opposite corners and big T pieces
+						else if(numCardinals(i, j, k) == 4 &&
+							numDiagonals(i, j, k) == 2)
 						{
-							flipHoriz = true;
-							flipVert = true;
-						}							
-					}
-					//full pieces
-					else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_S &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_E &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_W &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_NE &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_NW &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_SW &&
-						paths[i][j][k].pathExtensions & PATH_EXTEND_SE)
-						texID = m_otherTextures
-							[paths[i][j][k].pathModifier1 & PATH_STYLE_MASK]
-							[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-							[3];
+							
+							if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[11];
+								//flipHoriz = true;
+
+							}							
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[11];
+								flipHoriz = true;
+							}
+							else
+							{								
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[10];
+									
+								if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+									rotateClock = true;
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+								{
+									rotateClock = true;
+									flipVert = true;
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+									flipVert = true;
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+								{
+								}
+							}
+						}
+						//T with a diagonal piece
+						else if(numCardinals(i, j, k) == 3 &&
+							numDiagonals(i, j, k) == 1)
+						{
+							texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[12];
+
+							if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{								
+								rotateClock = true;
+								flipVert = true;
+								flipHoriz = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+								rotateClock = true;
+								flipVert = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+								rotateClock = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+								rotateClock = true;
+								flipHoriz = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+								flipVert = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+							{
+								flipHoriz = true;
+								flipVert = true;
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+							{
+							}
+							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+								(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+							{
+								flipHoriz = true;
+							}
+						}
+						else if(numCardinals(i, j, k) == 4 &&
+							numDiagonals(i, j, k) == 1)
+						{
+							texID = m_otherTextures
+								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+								[13];
+
+							if(paths[i][j][k].pathExtensions & PATH_EXTEND_NE)
+								flipVert = true;
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_NW)
+							{
+							}
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SW)
+								flipHoriz = true;
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SE)
+							{
+								flipVert = true;
+								flipHoriz = true;
+							}
+						}
+					}					
 				}				
 
 
@@ -467,6 +768,101 @@ void RCTGLPathSystem::clear()
 	DebugLog::endTask();
 }
 
+void RCTGLPathSystem::loadPathTextureGroup(uchar index1, uchar index2, char *baseFilename)
+{
+	RCTGLTextureManager texMan;
+	uchar masks[NUM_MASKS];
+
+	uchar DIAGONAL_MASK = PATH_NW | PATH_NE | PATH_SE | PATH_SW;
+
+	//
+	// NON-DIAGONAL PIECES
+	//
+	
+	//all sides and corners empty
+	//000
+	//010
+	//000
+	masks[0] = PATH_NORTH | PATH_SOUTH | PATH_EAST | PATH_WEST | DIAGONAL_MASK;
+	//path from E->W
+	//000
+	//111
+	//000
+	masks[1] = PATH_NORTH | PATH_SOUTH | DIAGONAL_MASK;
+	//path from E->N
+	//010
+	//011
+	//000
+	masks[2] = PATH_SOUTH | PATH_WEST | DIAGONAL_MASK;
+	//path from E->N & W
+	//010
+	//111
+	//000
+	masks[3] = PATH_SOUTH | DIAGONAL_MASK;
+	//path from S
+	//000
+	//010
+	//010
+	masks[4] = PATH_NORTH | PATH_EAST | PATH_WEST | DIAGONAL_MASK;
+	//paths from all directions
+	//010
+	//111
+	//010
+	masks[5] = DIAGONAL_MASK;
+
+	//
+	// DIAGONAL PIECES
+	//
+	
+	//solid piece (4, 4)
+	//111
+	//111
+	//111
+	masks[6] = 0;
+	//edge piece (3,2)
+	//111
+	//111
+	//000
+	masks[7] = PATH_NE | PATH_NORTH | PATH_NW;
+	//one corner notched in (4, 3)
+	//111
+	//111
+	//110
+	masks[8] = PATH_SE;
+	//extended corners (2, 1)
+	//000
+	//011
+	//011
+	masks[9] = PATH_SW | PATH_WEST | PATH_NW | PATH_NORTH | PATH_NE;
+
+
+
+	//half full - T (4, 2)
+	//010
+	//111
+	//111
+	masks[10] = PATH_NE | PATH_NW;
+	//opposites (4, 2)
+	//110
+	//111
+	//011
+	masks[11] = PATH_NE | PATH_SW;
+	//T with a corner (3, 1)
+	//011
+	//111
+	//000
+	masks[12] = PATH_NW | PATH_SW | PATH_SOUTH | PATH_SE;
+	//full cross with a corner (4, 1)
+	//011
+	//111
+	//010
+	masks[13] = PATH_NW | PATH_SW | PATH_SE;
+	
+
+	for(int i=0; i<NUM_MASKS; i++)
+		m_otherTextures[index1 >> 2][index2][i] = texMan.addTexture(baseFilename, masks[i]);	
+}
+
 void RCTGLPathSystem::loadTextures()
 {
 	DebugLog::beginTask("RCTGLPathSystem::loadTextures");
@@ -496,87 +892,23 @@ void RCTGLPathSystem::loadTextures()
 
 	//load road textures
 
-	uchar masks[3];
-
-	//all sides and corners empty
-	//000
-	//010
-	//000
-	masks[0] = PATH_NORTH | PATH_SOUTH | PATH_EAST | PATH_WEST | PATH_NW | PATH_NE | PATH_SE | PATH_SW;
-	//path from E->W
-	//000
-	//111
-	//000
-	masks[1] = PATH_NORTH | PATH_SOUTH | PATH_NW | PATH_NE | PATH_SE | PATH_SW;
-	//path from E->N
-	//010
-	//110
-	//000
-	masks[2] = PATH_SOUTH | PATH_WEST | PATH_NW | PATH_NE | PATH_SE | PATH_SW;
-	//solid piece
-	//111
-	//111
-	//111
-	masks[3] = 0;
 
 	//load other textures
 	//[path style][path type][connection type]
-	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][0] = texMan.addTexture("\\paths\\04-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][1] = texMan.addTexture("\\paths\\04-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][2] = texMan.addTexture("\\paths\\04-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][3] = texMan.addTexture("\\paths\\04-base.tga", masks[3]);
+	loadPathTextureGroup(PATH_STYLE_TARMAC, GRAY_TARMAC, "\\paths\\04-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TARMAC, RED_TARMAC, "\\paths\\05-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TARMAC, BROWN_TARMAC, "\\paths\\06-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TARMAC, GREEN_TARMAC, "\\paths\\07-base.tga");
+	
+	loadPathTextureGroup(PATH_STYLE_DIRT, BROWN_DIRT, "\\paths\\0D-base.tga");
+	loadPathTextureGroup(PATH_STYLE_DIRT, BLACK_DIRT, "\\paths\\0E-base.tga");
 
-	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][0] = texMan.addTexture("\\paths\\05-00.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][1] = texMan.addTexture("\\paths\\05-00.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][2] = texMan.addTexture("\\paths\\05-00.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][3] = texMan.addTexture("\\paths\\05-00.tga", masks[3]);
+	loadPathTextureGroup(PATH_STYLE_CRAZY_TILE, CRAZY_TILE, "\\paths\\0C-base.tga");
 
-	m_otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][0] = texMan.addTexture("\\paths\\06-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][1] = texMan.addTexture("\\paths\\06-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][2] = texMan.addTexture("\\paths\\06-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][3] = texMan.addTexture("\\paths\\06-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][0] = texMan.addTexture("\\paths\\07-00.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][1] = texMan.addTexture("\\paths\\07-00.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][2] = texMan.addTexture("\\paths\\07-00.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][3] = texMan.addTexture("\\paths\\07-00.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][0] = texMan.addTexture("\\paths\\0D-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][1] = texMan.addTexture("\\paths\\0D-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][2] = texMan.addTexture("\\paths\\0D-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][3] = texMan.addTexture("\\paths\\0D-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][0] = texMan.addTexture("\\paths\\0E-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][1] = texMan.addTexture("\\paths\\0E-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][2] = texMan.addTexture("\\paths\\0E-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][3] = texMan.addTexture("\\paths\\0E-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][0] = texMan.addTexture("\\paths\\0C-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][1] = texMan.addTexture("\\paths\\0C-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][2] = texMan.addTexture("\\paths\\0C-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][3] = texMan.addTexture("\\paths\\0C-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_TILE][PLAIN_TILE][0] = texMan.addTexture("\\paths\\08-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TILE][PLAIN_TILE][1] = texMan.addTexture("\\paths\\08-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TILE][PLAIN_TILE][2] = texMan.addTexture("\\paths\\08-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TILE][PLAIN_TILE][3] = texMan.addTexture("\\paths\\08-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][0] = texMan.addTexture("\\paths\\09-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][1] = texMan.addTexture("\\paths\\09-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][2] = texMan.addTexture("\\paths\\09-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][3] = texMan.addTexture("\\paths\\09-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_TILE][RED_TILE][0] = texMan.addTexture("\\paths\\0A-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TILE][RED_TILE][1] = texMan.addTexture("\\paths\\0A-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TILE][RED_TILE][2] = texMan.addTexture("\\paths\\0A-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TILE][RED_TILE][3] = texMan.addTexture("\\paths\\0A-base.tga", masks[3]);
-
-	m_otherTextures[PATH_STYLE_TILE][GREEN_TILE][0] = texMan.addTexture("\\paths\\0B-base.tga", masks[0]);
-	m_otherTextures[PATH_STYLE_TILE][GREEN_TILE][1] = texMan.addTexture("\\paths\\0B-base.tga", masks[1]);
-	m_otherTextures[PATH_STYLE_TILE][GREEN_TILE][2] = texMan.addTexture("\\paths\\0B-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TILE][GREEN_TILE][3] = texMan.addTexture("\\paths\\0B-base.tga", masks[3]);
-
-
+	loadPathTextureGroup(PATH_STYLE_TILE, PLAIN_TILE, "\\paths\\08-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TILE, GRAY_TILE, "\\paths\\09-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TILE, RED_TILE, "\\paths\\0A-base.tga");
+	loadPathTextureGroup(PATH_STYLE_TILE, GREEN_TILE, "\\paths\\0B-base.tga");	
 
 	DebugLog::endTask();
 }
