@@ -634,9 +634,9 @@ RCTGLMenu::RCTGLMenu(const CpwFontFace &fontFace)
 	m_curPath = "";
 
 	char path[1024];
-	if( FAILED( RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+	if( ( RegOpenKeyEx( HKEY_LOCAL_MACHINE,
 	   "SOFTWARE\\Fish Technology Group\\RollerCoaster Tycoon Setup",
-	   0, KEY_QUERY_VALUE, &hKey )) )
+	   0, KEY_QUERY_VALUE, &hKey )) != ERROR_SUCCESS)
 	{
 		GetModuleFileName(NULL, path, 256);
 		m_curPath = path;
