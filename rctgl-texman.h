@@ -17,7 +17,7 @@
 class RCTGLTextureManager
 {
 public:
-	void loadPathTex(char *filename, int texNum, uchar pathOptions);
+	void loadPathTex(const char *filename, int texNum, uchar pathOptions);
 	unsigned int loadTex(const char *filename, uchar texOptions);		
 
 	unsigned int addTexture(const char *filepath, uchar texOptions);
