@@ -14,46 +14,46 @@ void RCTGLLandscape::loadTextures(void)
 	DebugLog::beginTask("RCTGLLandscape::loadTextures");
 
 	//non LL surfaces
-	surfaceTextures[GRASS_TILE] = texMan.addTexture("\\surfaces\\grass4b.tga", 0);
-	surfaceTextures[SAND_TILE] = texMan.addTexture("\\surfaces\\sand1.tga", 0);
-	surfaceTextures[DIRT_TILE] = texMan.addTexture("\\surfaces\\dirt1.tga", 0);
-	surfaceTextures[ROCK_TILE] = texMan.addTexture("\\surfaces\\gravel1.tga", 0);
-	surfaceTextures[MARTIAN_TILE] = texMan.addTexture("\\surfaces\\mars1.tga", 0);
-	surfaceTextures[CHECKER_TILE] = texMan.addTexture("\\surfaces\\checker1.tga", 0);
-	surfaceTextures[JUNGLE_TILE] = texMan.addTexture("\\surfaces\\jungle1.tga", 0);
-	surfaceTextures[ROOF_TILE] = texMan.addTexture("\\surfaces\\roofing1.tga", 0);	
+	surfaceTextures[GRASS_TILE]		= texMan.addTexture("\\surfaces\\grass4b.tga", 0);
+	surfaceTextures[SAND_TILE]		= texMan.addTexture("\\surfaces\\sand1.tga", 0);
+	surfaceTextures[DIRT_TILE]		= texMan.addTexture("\\surfaces\\dirt1.tga", 0);
+	surfaceTextures[ROCK_TILE]		= texMan.addTexture("\\surfaces\\gravel1.tga", 0);
+	surfaceTextures[MARTIAN_TILE]	= texMan.addTexture("\\surfaces\\mars1.tga", 0);
+	surfaceTextures[CHECKER_TILE]	= texMan.addTexture("\\surfaces\\checker1.tga", 0);
+	surfaceTextures[JUNGLE_TILE]	= texMan.addTexture("\\surfaces\\jungle1.tga", 0);
+	surfaceTextures[ROOF_TILE]		= texMan.addTexture("\\surfaces\\roofing1.tga", 0);	
 
 	// LL surfaces
-	surfaceTextures[8 + GREEN_GRID] = texMan.addTexture("\\surfaces\\green1.tga", 0);
+	surfaceTextures[8 + GREEN_GRID]	 = texMan.addTexture("\\surfaces\\green1.tga", 0);
 	surfaceTextures[8 + PURPLE_GRID] = texMan.addTexture("\\surfaces\\purple1.tga", 0);
 	surfaceTextures[8 + YELLOW_GRID] = texMan.addTexture("\\surfaces\\yellow1.tga", 0);
-	surfaceTextures[8 + RED_GRID] = texMan.addTexture("\\surfaces\\red1.tga", 0);
-	surfaceTextures[8 + GRAY_ROOF] = texMan.addTexture("\\surfaces\\grey1.tga", 0);
-	surfaceTextures[8 + IRON_ROOF] = texMan.addTexture("\\surfaces\\iron1.tga", 0);
-	surfaceTextures[8 + LOG_ROOF] = texMan.addTexture("\\surfaces\\log1.tga", 0);
-	surfaceTextures[8 + ICE_TILE] = texMan.addTexture("\\surfaces\\icetop1.tga", 0);
+	surfaceTextures[8 + RED_GRID]	 = texMan.addTexture("\\surfaces\\red1.tga", 0);
+	surfaceTextures[8 + GRAY_ROOF]	 = texMan.addTexture("\\surfaces\\grey1.tga", 0);
+	surfaceTextures[8 + IRON_ROOF]	 = texMan.addTexture("\\surfaces\\iron1.tga", 0);
+	surfaceTextures[8 + LOG_ROOF]	 = texMan.addTexture("\\surfaces\\log1.tga", 0);
+	surfaceTextures[8 + ICE_TILE]	 = texMan.addTexture("\\surfaces\\icetop1.tga", 0);
 	
 	// non LL edges
-	edgeTextures[WOOD_EDGE] = texMan.addTexture("\\edges\\wood1.tga", 0);
-	edgeTextures[ROCK_EDGE] = texMan.addTexture("\\edges\\dirtwall.tga", 0);
-	edgeTextures[BRICK_EDGE] = texMan.addTexture("\\edges\\bricks.tga", 0);
-	edgeTextures[IRON_EDGE] = texMan.addTexture("\\edges\\rustwall.tga", 0);
-	edgeTextures[BLACK_WALL] = texMan.addTexture("\\edges\\darkwall.tga", 0);
-	edgeTextures[GRAY_WALL] = texMan.addTexture("\\edges\\greywall.tga", 0);
-	edgeTextures[YELLOW_WALL] = texMan.addTexture("\\edges\\yelwall.tga", 0);
-	edgeTextures[RED_WALL] = texMan.addTexture("\\edges\\redwall.tga", 0);
+	edgeTextures[WOOD_EDGE]		= texMan.addTexture("\\edges\\wood1.tga", 0);
+	edgeTextures[ROCK_EDGE]		= texMan.addTexture("\\edges\\dirtwall.tga", 0);
+	edgeTextures[BRICK_EDGE]	= texMan.addTexture("\\edges\\bricks.tga", 0);
+	edgeTextures[IRON_EDGE]		= texMan.addTexture("\\edges\\rustwall.tga", 0);
+	edgeTextures[BLACK_WALL]	= texMan.addTexture("\\edges\\darkwall.tga", 0);
+	edgeTextures[GRAY_WALL]		= texMan.addTexture("\\edges\\greywall.tga", 0);
+	edgeTextures[YELLOW_WALL]	= texMan.addTexture("\\edges\\yelwall.tga", 0);
+	edgeTextures[RED_WALL]		= texMan.addTexture("\\edges\\redwall.tga", 0);
 
 	//LL edges
-	edgeTextures[8 + ICE_WALL] = texMan.addTexture("\\edges\\icewall.tga", 0);
-	edgeTextures[8 + PURPLE_WALL] = texMan.addTexture("\\edges\\purwall.tga", 0);
-	edgeTextures[8 + GREEN_WALL] = texMan.addTexture("\\edges\\grnwall.tga", 0);
-	edgeTextures[8 + BROWN_STONE] = texMan.addTexture("\\edges\\brstwall.tga", 0);
-	edgeTextures[8 + GRAY_STONE] = texMan.addTexture("\\edges\\grstwall.tga", 0);
-	edgeTextures[8 + SKYSCRAPER_A] = texMan.addTexture("\\edges\\skyawall.tga", 0);
-	edgeTextures[8 + SKYSCRAPER_B] = texMan.addTexture("\\edges\\skybwall.tga", 0);
+	edgeTextures[8 + ICE_WALL]		= texMan.addTexture("\\edges\\icewall.tga", 0);
+	edgeTextures[8 + PURPLE_WALL]	= texMan.addTexture("\\edges\\purwall.tga", 0);
+	edgeTextures[8 + GREEN_WALL]	= texMan.addTexture("\\edges\\grnwall.tga", 0);
+	edgeTextures[8 + BROWN_STONE]	= texMan.addTexture("\\edges\\brstwall.tga", 0);
+	edgeTextures[8 + GRAY_STONE]	= texMan.addTexture("\\edges\\grstwall.tga", 0);
+	edgeTextures[8 + SKYSCRAPER_A]	= texMan.addTexture("\\edges\\skyawall.tga", 0);
+	edgeTextures[8 + SKYSCRAPER_B]	= texMan.addTexture("\\edges\\skybwall.tga", 0);
 
 	//water
-	waterTexture = texMan.loadTex("\\surfaces\\water1.tga", 0);
+	waterTexture = texMan.addTexture("\\surfaces\\water1.tga", 0);
 
 	DebugLog::endTask();
 }
