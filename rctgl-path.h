@@ -1,3 +1,6 @@
+#ifndef RCTGL_PATH_H
+#define RCTGL_PATH_H
+
 #include "rctgl.h"
 #include "rctgl-texman.h"
 #include "rctgl-poly.h"
@@ -146,3 +149,4 @@ private:
 
 
 
+#endif

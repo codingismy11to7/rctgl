@@ -9,9 +9,18 @@
 
 using namespace std;
 
+namespace RCTPoly
+{
+	const uchar POLY_NORMAL = 0;
+	const uchar POLY_WATER  = 1;	
+}
+
+extern float xWaterOffset1, zWaterOffset1, xWaterOffset2, zWaterOffset2;
+
 class RCTGLPoly
 {
 public:
+	uchar m_polyType;
 
 	RCTGLPoly(void);
 	~RCTGLPoly();

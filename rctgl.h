@@ -72,4 +72,6 @@ extern RCTGLCamera userView;
 
 extern RCTGLFrustum theFrustum;
 
+extern float timeOfDay;
+
 #endif

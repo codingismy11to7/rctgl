@@ -20,7 +20,7 @@ static CpwWindowInfo windowInfo = { 0,100,100,640,480 }; /* id,posx,posy,w,h */
 
 RCTGLMenu *gameMenu;
 RCTGLPark *thePark;
-
+float timeOfDay;
 
 void printCpwError(pCpw cpw)
 {
@@ -121,16 +121,32 @@ void displayGame(pCpw cpw)
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 	glPushMatrix();
 
+	
 
 	if(displayMode == MAP)
+	{
 		gluLookAt(userView.XV, 200, userView.ZV,
 			userView.XV, 0, userView.ZV,
 			cos((userView.XR - 90.0f) * 3.14f / 180.0f), 0, sin((userView.XR - 90.0f) * 3.14f / 180.0f));
+
+		theFrustum.extractFrustum();
+
+		thePark->draw();
+	}
 	else
 	{
 		glRotated(userView.YR, 1.0f, 0.0f, 0.0f);
-		glRotated(userView.XR, 0.0f, 1.0f, 0.0f);
-		glTranslated(-userView.XV, -userView.YV, -userView.ZV);		
+		glRotated(userView.XR, 0.0f, 1.0f, 0.0f);		
+
+		glPushMatrix();
+			glTranslated(-userView.XV, -userView.YV, -userView.ZV);
+
+			theFrustum.extractFrustum();
+
+			thePark->draw();
+		glPopMatrix();
+
+		thePark->drawSkyDome();
 	}
 
 	float objHeight = 32.0f;
@@ -167,9 +183,9 @@ void displayGame(pCpw cpw)
 	}
 	*/
 
-	theFrustum.extractFrustum();
+	
 
-	thePark->draw();
+	
 
 	glPopMatrix();
 }

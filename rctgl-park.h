@@ -5,6 +5,8 @@
 #include "rctgl-landscape.h"
 #include "rctgl-path.h"
 #include "rctgl-scenery.h"
+#include "rctgl-texman.h"
+#include "skyDome.h"
 
 #include <vector>
 
@@ -42,13 +44,15 @@ public:
 	bool clearPark();
 	string getName(unsigned int index) const;
 	void loadTextures();
-	void draw() const;
+	void draw();
+	void drawSkyDome();
 
 private:
 	uchar m_sizeX, m_sizeZ;
 
 	RCTGLLandscape m_landscape;
 	RCTGLPathSystem m_paths;
+	RCTGLScenerySystem m_scenery;
 	
 	/*
 	vector <RCTGLScenery> sceneryList[128][128];
@@ -56,6 +60,8 @@ private:
 	vector <RCTGLEntrance> entranceList[128][128];
 	vector <RCTGLBanner> bannerList[128][128];
 	*/
+
+	skyDome m_skyDome;
 
 	vector <string> m_rideNameList;
 

@@ -1,3 +1,6 @@
+#ifndef RCTGL_TEXMAN_H
+#define RCTGL_TEXMAN_H
+
 #include "rctgl.h"
 
 #include "depend/corona/corona.h"
@@ -34,3 +37,5 @@ private:
 	unsigned int addPathTexture(const string &filepath, unsigned int options);	
 	
 };
+
+#endif

@@ -194,31 +194,18 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 
 	
 	if(keycode == CPW_KEY_ADD && plusKeyDown == false)
-	{
-		/*
-		int tod;
-		
-		mySkyDome->getTime(&tod);
-		mySkyDome->setTime(tod + 15);
-		
+	{		
 		plusKeyDown = true;
-		
-		timeModified = true;
-		*/
+		timeOfDay += 0.5f;		
 	}
 	else if(keycode == CPW_KEY_ADD && keystate == CPW_KEYMOD_UP && plusKeyDown)
 		plusKeyDown = false;
 
 	if(keycode == CPW_KEY_SUBTRACT && minusKeyDown == false)
 	{
-		/*
-		int tod;
-		mySkyDome->getTime(&tod);
-		mySkyDome->setTime(tod - 15);
+		timeOfDay -= 0.5f;
 
 		minusKeyDown = true;		
-		timeModified = true;
-		*/
 	}
 	else if(keycode == CPW_KEY_SUBTRACT && keystate == CPW_KEYMOD_UP && minusKeyDown)
 		minusKeyDown = false;

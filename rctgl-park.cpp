@@ -2,11 +2,14 @@
 
 using namespace RCTPark;
 
+float xWaterOffset1, zWaterOffset1, xWaterOffset2, zWaterOffset2;
+
 RCTGLPark::RCTGLPark()
 {	
 	//set a default for SV4 files, but add support for SV6
 	//when RCTGL gets to that point
 	m_sizeX = m_sizeZ = 128;
+	xWaterOffset1 = zWaterOffset1 = xWaterOffset2 = zWaterOffset2 = 0.0f;
 }
 
 bool RCTGLPark::clearPark()
@@ -17,6 +20,9 @@ bool RCTGLPark::clearPark()
 	m_rideNameList.clear();
 	m_landscape.clear();
 	m_paths.clear();
+
+	xWaterOffset1 = zWaterOffset1 = 0.0f;
+	xWaterOffset2 = zWaterOffset2 = 0.1f;
 
 	return true;
 }
@@ -244,15 +250,8 @@ bool RCTGLPark::loadPark(const string &filename)
 					*/
 				case SEGMENT_SCENERY_SINGLE:
 				case SEGMENT_SCENERY_MULTI:
-					/*
-					{
-						RCTGLScenery *scenery = new RCTGLScenery;
-						scenery->loadOffset(parkData + offset);
-
-						sceneryList[i][j].push_back(scenery);
-					}
-					break;
-					*/
+					m_scenery.loadOffset(parkData + offset, i, j);
+					break;					
 				case SEGMENT_ENTRANCE:
 					/*
 					{
@@ -327,9 +326,18 @@ void RCTGLPark::loadTextures()
 {
 	m_landscape.loadTextures();
 	m_paths.loadTextures();
+	m_scenery.loadTextures();
+
+	unsigned int texID;
+	RCTGLTextureManager texMan;
+
+	texID = texMan.addTexture("\\clouds.tga", 0);
+	m_skyDome.setCloudTexture(texID);
+	texID = texMan.addTexture("\\clearSky2d.png", 0);
+	m_skyDome.setSkyTexture(texID);
 }
 
-void RCTGLPark::draw() const
+void RCTGLPark::draw()
 {
 	int minX = 0, maxX = m_sizeX, minZ = 0, maxZ = m_sizeZ;
 
@@ -343,12 +351,45 @@ void RCTGLPark::draw() const
 	if(minZ < 0)	minZ = 0;
 	if(maxX > 127)	maxX = 127;
 	if(maxZ > 127)	maxZ = 127;
+
+	xWaterOffset1 += (0.025f / 2.0f);
+	zWaterOffset1 += (0.01f / 2.0f);
+
+	xWaterOffset2 += (0.02f / 2.0f);
+	zWaterOffset2 += (0.005f / 2.0f);
+
+	if(xWaterOffset1 >= 1.0f)
+		xWaterOffset1 = 0.0f;
+	if(xWaterOffset2 >= 1.1f)
+		xWaterOffset2 = 0.1f;
+
+	if(zWaterOffset1 >= 1.0f)
+		zWaterOffset1 = 0.0f;
+	if(zWaterOffset2 >= 1.1f)
+		zWaterOffset2 = 0.1f;
 	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
-
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
 	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+
+	m_scenery.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+
+
+}
+
+void RCTGLPark::drawSkyDome()
+{
+	glDisable(GL_CULL_FACE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	m_skyDome.setTime(timeOfDay);
+	m_skyDome.draw();
+
+	glDisable(GL_BLEND);
+	glBlendFunc (GL_ONE, GL_ONE);
+	glEnable(GL_CULL_FACE);
 }

@@ -1,5 +1,10 @@
 #include "rctgl-poly.h"
 
+using namespace RCTPoly;
+
+#define DRAW_WATER
+#define DRAW_WATER_TWO_PLANED
+
 RCTGLPoly::RCTGLPoly(void)
 {
 	//clear out the lists
@@ -8,6 +13,8 @@ RCTGLPoly::RCTGLPoly(void)
 
 	m_vertexCount = 0;
 	m_texID = 0;
+
+	m_polyType = POLY_NORMAL;
 
 	m_baseRGB.r = m_baseRGB.g = m_baseRGB.b = -1;
 }
@@ -78,22 +85,69 @@ void RCTGLPoly::draw() const
 		glBindTexture(GL_TEXTURE_2D, m_texID);
 
 	glColor3f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b);
-
-	glBegin(GL_QUADS);	
+	
 
 	if(m_texID > 0)
 	{
-		for(int i=0; i<m_vertexCount; i++)
+#ifdef DRAW_WATER
+		if(m_polyType == POLY_WATER)
 		{
-			glTexCoord2f(m_texCoordList[i].x, m_texCoordList[i].y);
-			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+			glBegin(GL_QUADS);	
+
+			//draw bottom quad
+			for(uchar i=0; i<m_vertexCount; i++)
+			{
+				glTexCoord2f(m_texCoordList[i].x + xWaterOffset2, m_texCoordList[i].y + zWaterOffset2);
+				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+			}
+
+			glEnd();
+
+#ifdef DRAW_WATER_TWO_PLANED
+			
+			glEnable(GL_BLEND);
+			glDisable(GL_DEPTH_TEST);
+			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glColor4f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b, 0.50f);
+			glBegin(GL_QUADS);
+			//draw top quad
+			for(i=0; i<m_vertexCount; i++)
+			{
+				glTexCoord2f(m_texCoordList[i].x + xWaterOffset1, m_texCoordList[i].y + zWaterOffset1);
+				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+			}
+
+			glEnd();
+			
+			glDisable(GL_BLEND);
+			glBlendFunc (GL_ONE, GL_ONE);
+			glEnable(GL_DEPTH_TEST);
+
+#endif //#ifdef DRAW_WATER_TWO_PLANED
+
+		}
+		else
+#endif //#ifdef DRAW_WATER
+		{
+			glBegin(GL_QUADS);
+
+			for(int i=0; i<m_vertexCount; i++)
+			{
+				glTexCoord2f(m_texCoordList[i].x, m_texCoordList[i].y);
+				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+			}		
+
+			glEnd();
 		}
 	}
 	else
+	{
 		for(int i=0; i<m_vertexCount; i++)
 			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
-	
-	glEnd();
+
+		glEnd();
+	}
 
 }
 

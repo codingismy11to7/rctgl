@@ -4,6 +4,7 @@
 //#define DETAILED_LOG
 #define OPTIMIZE_LANDSCAPE
 
+using namespace RCTPoly;
 
 RCTGLLandscape::RCTGLLandscape(void)
 {
@@ -79,7 +80,7 @@ void RCTGLLandscape::loadTextures(void)
 	edgeTextures[8 + SKYSCRAPER_B]	= texMan.addTexture("\\edges\\skybwall.tga", 0);
 
 	//water
-	waterTexture = texMan.addTexture("\\surfaces\\water1.tga", 0);
+	waterTexture = texMan.addTexture("\\surfaces\\water2.bmp", 0);
 
 	DebugLog::endTask();
 }
@@ -1141,6 +1142,8 @@ void RCTGLLandscape::compileWater()
 			{
 				//create the surface
 				RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;
+
+				surface->m_polyType = POLY_WATER;
 				
 				surface->setBaseRGB(rgb);
 				
@@ -1235,6 +1238,32 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2) const
 	//as an optimization, we're going to draw the surface, edge, and water separately
 	//this is to attempt to reduce the amount of texture switching we're doing
 
+	//draw water
+	//water is drawn first because we need to disable the depth buffer
+	//to do 2-pass water rendering
+	for(i=x1; i<x2; i++)
+	{
+		for(j=z1; j<z2; j++)
+		{
+			if(land[i][j].waterSurface)
+			{
+				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+					(float)((land[i][j].waterLevel * UNITHEIGHT) - 0.1f),
+					(float)(j*UNITWIDTH),
+					(float)(land[i][j].waterSurface->width * UNITWIDTH),
+					(float)((land[i][j].waterLevel) * UNITHEIGHT + 0.1f),
+					(float)(land[i][j].waterSurface->length * UNITWIDTH)))					
+				{
+					if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
+					{
+						land[i][j].waterSurface->draw();
+						land[i][j].waterSurface->wasDrawn = true;
+					}
+				}
+			}
+		}
+	}
+
 	//draw surface
 	for(i=x1; i<x2; i++)
 	{
@@ -1268,29 +1297,6 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2) const
 		}
 	}
 
-	//draw water
-	for(i=x1; i<x2; i++)
-	{
-		for(j=z1; j<z2; j++)
-		{
-			if(land[i][j].waterSurface)
-			{
-				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
-					(float)((land[i][j].waterLevel * UNITHEIGHT) - 0.1f),
-					(float)(j*UNITWIDTH),
-					(float)(land[i][j].waterSurface->width * UNITWIDTH),
-					(float)((land[i][j].waterLevel) * UNITHEIGHT + 0.1f),
-					(float)(land[i][j].waterSurface->length * UNITWIDTH)))					
-				{
-					if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
-					{
-						land[i][j].waterSurface->draw();
-						land[i][j].waterSurface->wasDrawn = true;
-					}
-				}
-			}
-		}
-	}
 
 	//draw edges
 	for(i=x1; i<x2; i++)
