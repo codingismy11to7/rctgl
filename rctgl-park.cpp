@@ -6,8 +6,8 @@ float xWaterOffset1, zWaterOffset1, xWaterOffset2, zWaterOffset2;
 
 void RCTGLPark::dumpData()
 {
-	int posX = userView.XV / UNITWIDTH;
-	int posZ = userView.ZV / UNITWIDTH;
+	int posX = (int)(userView.XV / UNITWIDTH);
+	int posZ = (int)(userView.ZV / UNITWIDTH);
 
 	stringstream x;
 	x << "User at " << posX << ", " << posZ;

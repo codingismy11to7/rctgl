@@ -119,7 +119,7 @@ void RCTGLObject::rotateAboutCenter(float degrees, bool xAxis, bool yAxis, bool 
 	polyListType::iterator it1;
 
 	//convert degrees to radians
-	degrees = degrees * M_PI / 180.0f;
+	degrees *= (float)(M_PI / 180.0f);
 
 	//rotate all points
 	for(it1 = m_polyList.begin(); it1 != m_polyList.end(); it1++)

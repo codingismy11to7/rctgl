@@ -19,7 +19,7 @@ bool RCTGLElementSystem::loadOffset(uchar *data, uchar x, uchar z)
 	tmpElement.itemHeight = 0;
 
 	//if MSB of first bit is set, then item is lift chain
-	tmpElement.isLift = (bool)(data[0] & 0x80); //10000000
+	tmpElement.isLift = 0 != (data[0] & 0x80); //10000000
 
 	//lower 2 bits indicate element rotation
 	tmpElement.rotation = (data[0] & 0x03);		//00000011
@@ -299,11 +299,11 @@ void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem *rides, RCTGLElementE
 	const float railRadius = 0.025f * UNITWIDTH;
 	const float railHeight = 0.9f;
 
-	const float singleAngle = tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;
+	const float singleAngle = (float)(tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f);
 	//const float singleAngle = 25.0f;
 	const float singleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + UNITHEIGHT*UNITHEIGHT);
 
-	const float doubleAngle = tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;	
+	const float doubleAngle = (float)(tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f);
 	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
 
 	RCTGLRGB primaryRGB, secondaryRGB;
@@ -519,11 +519,11 @@ void RCTGLElementSystem::buildInverted(RCTGLRideSystem *rides, RCTGLElementEleme
 	const float railRadius = 0.025f * UNITWIDTH;
 	const float railHeight = 0.9f;
 
-	const float singleAngle = tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;
+	const float singleAngle = (float)(tan(UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f);
 	//const float singleAngle = 25.0f;
 	const float singleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + UNITHEIGHT*UNITHEIGHT);
 
-	const float doubleAngle = tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f;	
+	const float doubleAngle = (float)(tan(4.0f * UNITHEIGHT / UNITWIDTH) * (360.0f / (2.0f * M_PI)) - 2.75f);
 	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
 
 	RCTGLRGB primaryRGB, secondaryRGB;
@@ -782,7 +782,7 @@ void RCTGLElementSystem::compile(RCTGLRideSystem *rides)
 
 void RCTGLElementSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 {	
-	uchar i, j, k, l;
+	uchar i, j, k;//, l;
 
 	glAlphaFunc ( GL_LESS, 0.4f );
 	//glEnable    ( GL_ALPHA_TEST   );
