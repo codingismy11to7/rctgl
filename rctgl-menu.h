@@ -4,6 +4,7 @@
 #include "rctgl.h"
 #include "rctgl-park.h"
 
+#include <algorithm>
 #include <windows.h>
 
 #include CPWDLL_LOC
@@ -28,29 +29,29 @@ public:
 	void backOneMenu(void);
 	bool isExit(void);
 	bool isMainMenu(void);
-	RCTGLMenu::RCTGLMenu(CpwFontFace fontFace);
+	RCTGLMenu(const CpwFontFace &fontFace);
 
 private:
-	int scrnht;
-	int scrnwid;
-	menuScreens curScreen;
-	int curOption;
-	CpwFontFace menuFont;
+	int m_scrnht;
+	int m_scrnwid;
+	menuScreens m_curScreen;
+	int m_curOption;
+	CpwFontFace m_menuFont;
 
-	int fileListOffset;
+	int m_fileListOffset;
 
-	vector <char*> fileList;
-	vector <char*> dirList;
-	char curPath[1024];
+	vector<string> m_fileList;
+	vector<string> m_dirList;
+	string m_curPath;
 
-	void drawRCTGLLogo(pCpw cpw);
-	void drawRCTGLLogo(pCpw cpw, char *sideText);
-	void drawDetailMenu(pCpw cpw);
-	void drawFileLoader(pCpw cpw);
-	void drawMainMenu(pCpw cpw);
-	void populateFileList(char *path);
-	void addToDirList(char *filename, bool isDir, bool isFile);
-	void sortDirList(void);
+	void drawRCTGLLogo(const pCpw cpw) const;
+	void drawRCTGLLogo(const pCpw cpw, const string &sideText) const;
+	void drawDetailMenu(const pCpw cpw);
+	void drawFileLoader(const pCpw cpw);
+	void drawMainMenu(const pCpw cpw);
+	void populateFileList(const string &path);
+	void addToDirList(const string &filename, bool isDir, bool isFile);
+	//void sortDirList(void);
 };
 
 #endif

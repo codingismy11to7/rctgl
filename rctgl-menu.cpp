@@ -19,24 +19,28 @@ Load Menu
 Visuals Menu
 */
 
-void RCTGLMenu::drawRCTGLLogo(pCpw cpw)
+void RCTGLMenu::drawRCTGLLogo(const pCpw cpw) const
 {
-	glRasterPos2d( 20, scrnht - 50);
+	glRasterPos2d( 20, m_scrnht - 50);
 	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 60 );
-    cpwDrawFont( cpw, menuFont, "RctGL", 1 );
+    cpwDrawFont( cpw, m_menuFont, "RctGL", 1 );
 }
 
-void RCTGLMenu::drawRCTGLLogo(pCpw cpw, char *sideText)
+void RCTGLMenu::drawRCTGLLogo(const pCpw cpw, const string &sideText) const
 {
-	glRasterPos2d( 20, scrnht - 50);
+	glRasterPos2d( 20, m_scrnht - 50);
 	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 60 );
-    cpwDrawFont( cpw, menuFont, "RctGL", 1 );
+    cpwDrawFont( cpw, m_menuFont, "RctGL", 1 );
 
 	glColor4f(0.75f, 0.75f, 0.75f, 1.0f);
-	glRasterPos2d( 250, scrnht - 50);
-	cpwDrawFont( cpw, menuFont, sideText, 1 );
+	glRasterPos2d( 250, m_scrnht - 50);
+
+	char *thisSureIsStupidToHaveToDo = new char[1+sideText.size()];
+	memcpy( thisSureIsStupidToHaveToDo, sideText.c_str(), sideText.size() + 1 );
+	cpwDrawFont( cpw, m_menuFont, thisSureIsStupidToHaveToDo, 1 );
+	delete[] thisSureIsStupidToHaveToDo;
 }
 
 void RCTGLMenu::drawDetailMenu(pCpw cpw)
@@ -51,41 +55,41 @@ void RCTGLMenu::drawDetailMenu(pCpw cpw)
 	char *option3 = "Options";
 	char *option4 = "Here";
 
-	if(curOption == 0)
+	if(m_curOption == 0)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 150);	
-	cpwDrawFont( cpw, menuFont, option1, 1 );
+	glRasterPos2d( 20, m_scrnht - 150);	
+	cpwDrawFont( cpw, m_menuFont, option1, 1 );
 
-	if(curOption == 1)
+	if(m_curOption == 1)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 200);	
-	cpwDrawFont( cpw, menuFont, option2, 1 );
+	glRasterPos2d( 20, m_scrnht - 200);	
+	cpwDrawFont( cpw, m_menuFont, option2, 1 );
 
-	if(curOption == 2)
+	if(m_curOption == 2)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 250);	
-	cpwDrawFont( cpw, menuFont, option3, 1 );
+	glRasterPos2d( 20, m_scrnht - 250);	
+	cpwDrawFont( cpw, m_menuFont, option3, 1 );
 
-	if(curOption == 3)
+	if(m_curOption == 3)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 	
-	glRasterPos2d( 20, scrnht - 300);	
-	cpwDrawFont( cpw, menuFont, option4, 1 );
+	glRasterPos2d( 20, m_scrnht - 300);	
+	cpwDrawFont( cpw, m_menuFont, option4, 1 );
 
 }
 
-int strDiff(char *str1, char *str2)
+/*int strDiff(char *str1, char *str2)
 {
 	int len1, len2, maxlen;
 	len1 = strlen(str1);
@@ -113,12 +117,12 @@ int strDiff(char *str1, char *str2)
 	}
 
 	return 0;
-}
+}*/
 
 
-void RCTGLMenu::sortDirList(void)
+/*void RCTGLMenu::sortDirList(void)
 {
-	int len = fileList.size();
+	int len = m_fileList.size();
 
 	int i, j;
 
@@ -126,85 +130,80 @@ void RCTGLMenu::sortDirList(void)
 	{
 		for(j=0; j<len - 1; j++)
 		{			
-			if(strDiff(fileList[j], fileList[j+1]) > 0 &&
-				((fileList[j][0] == '<' && fileList[j+1][0] == '<')
-				|| (fileList[j][0] != '<' && fileList[j+1][0] != '<')))
+			if(strDiff(m_fileList[j], m_fileList[j+1]) > 0 &&
+				((m_fileList[j][0] == '<' && m_fileList[j+1][0] == '<')
+				|| (m_fileList[j][0] != '<' && m_fileList[j+1][0] != '<')))
 			{
 				char *tmp;
-				tmp = fileList[j];
-				fileList[j] = fileList[j+1];
-				fileList[j+1] = tmp;
+				tmp = m_fileList[j];
+				m_fileList[j] = m_fileList[j+1];
+				m_fileList[j+1] = tmp;
 			}
 		}
 	}
-}
+}*/
 
 
-void RCTGLMenu::addToDirList(char *filename, bool isDir, bool isFile)
+void RCTGLMenu::addToDirList(const string &filename, bool isDir, bool isFile)
 {
-	char *itemElement;
-	itemElement = (char *)malloc(128);
+	string itemElement;
 	
 	if(isDir)
-	{
-		itemElement[0] = '<';
-		strcpy(&itemElement[1], filename);
-		itemElement[strlen(filename) + 1] = '>';
-		itemElement[strlen(filename) + 2] = NULL;
-	}
+		itemElement = "<" + filename + ">";
 	else
-		strcpy(&itemElement[0], filename);
+		itemElement = filename;
 
-	if(!(isDir && *filename == '.' && strlen(filename) == 1))
-		fileList.push_back(itemElement);
+	DebugLog::writeToLog( string("itemElement = ") + itemElement );
+	if( isDir ) DebugLog::writeToLog( "YES dir" );
+	else DebugLog::writeToLog( "NO dir" );
+
+	if(!(isDir && filename == "." && filename.size() == 1))
+		m_fileList.push_back(itemElement);
 }
 
-bool isSV4(char *testStr)
+bool isSV4(const string &testStr)
 {
-	int len;
-	len = strlen(testStr);
+	unsigned int len;
+	len = testStr.size();
 
 	if(len <= 4)
 		return false;
 
-	bool retval = true;
-
 	if(testStr[len - 1] != '4')
-		retval = false;
+		return false;
 	if(toupper(testStr[len - 2]) != 'V')
-		retval = false;
+		return false;
 	if(toupper(testStr[len - 3]) != 'S')
-		retval = false;
+		return false;
 
-	return retval;
+	return true;
 }
 
-void RCTGLMenu::populateFileList(char *path)
+void RCTGLMenu::populateFileList(const string &path)
 {
-	fileList.clear();
-	dirList.clear();
+	m_fileList.clear();
+	m_dirList.clear();
 
-	char *tmpStr;
-	tmpStr = (char *)malloc(128);
+	DebugLog::beginTask( "populateFileList" );
 
-	char *tmpPath;
-	tmpPath = (char *)malloc(256);
-	tmpPath = strcpy(tmpPath, path);
+	string tmpStr;
+
+	string tmpPath = path;
 
 	//add ".."
 	//strcpy(tmpStr, "<..>");
-	//fileList.push_back(tmpStr);
+	//m_fileList.push_back(tmpStr);
 
 	//now add all the directories
 	WIN32_FIND_DATA FindFileData;
 	HANDLE hFind;
 
-	char *dirString;
-	dirString = (char *)malloc(256);
-	dirString = strcat(tmpPath, "\\*.*");
+	string dirString = tmpPath + "\\*.*";
 	//printf("dirString = %s\n", dirString);
 
-	hFind = FindFirstFile(dirString, &FindFileData);
+	DebugLog::writeToLog( string( "dirString = " ) + dirString );
+
+	hFind = FindFirstFile(dirString.c_str(), &FindFileData);
 	if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		addToDirList(FindFileData.cFileName, true, false);
 	
@@ -224,8 +223,10 @@ void RCTGLMenu::populateFileList(char *path)
 		}		
 	}
 
+	DebugLog::writeToLog( "here!" );
+
 	//then add the files
-	hFind = FindFirstFile(dirString, &FindFileData);
+	hFind = FindFirstFile(dirString.c_str(), &FindFileData);
 	if(isSV4(FindFileData.cFileName))
 		addToDirList(FindFileData.cFileName, false, true);
 
@@ -246,38 +247,38 @@ void RCTGLMenu::populateFileList(char *path)
 		}		
 	}
 
+	DebugLog::writeToLog( "here2!" );
 
-
-	sortDirList();
+	//sortDirList();
+	sort( m_fileList.begin(), m_fileList.end() );
 
 	//add the drives
-	char *drivestr;
+	string drivestr = "B:\\";
 	DWORD sectors, bytes, clusters, num;
 	for(char drive='C'; drive<'Z'; drive++)
 	{
-		drivestr = (char*)malloc(4);
-		*drivestr = drive;
-		*(drivestr + 1) = ':';
-		*(drivestr + 2) = '\\';
-		*(drivestr + 3) = NULL;
+		drivestr[0] = drive;
 
-		if(GetDiskFreeSpace(drivestr, &sectors, &bytes, &clusters, &num))
-			fileList.push_back(drivestr);
+		if(GetDiskFreeSpace(drivestr.c_str(), &sectors, &bytes, &clusters, &num))
+			m_fileList.push_back(drivestr);
 	}
 
-	//printf("fileList\n");
-	//for(int i=0; i<fileList.size(); i++)
-	//	printf("- %s\n", fileList[i]);
+	DebugLog::writeToLog( "here3!" );
 
-	fileListOffset = 0;
-	curOption = 0;
+	//printf("m_fileList\n");
+	//for(int i=0; i<m_fileList.size(); i++)
+	//	printf("- %s\n", m_fileList[i]);
+
+	m_fileListOffset = 0;
+	m_curOption = 0;
 
 
 	//now add all of the sv4 (and sv6) files
 
+	DebugLog::endTask();
 }
 
-void RCTGLMenu::drawFileLoader(pCpw cpw)
+void RCTGLMenu::drawFileLoader(const pCpw cpw)
 {
 	
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 15 );
@@ -285,34 +286,41 @@ void RCTGLMenu::drawFileLoader(pCpw cpw)
 	float selectedColor[3] = {1.0f, 1.0f, 1.0f};
 	float unselectedColor[3] = {0.6f, 0.6f, 0.6f};
 
-	char *option1 = curPath;
+	char *option1 = new char[1+m_curPath.size()];
+	memcpy( option1, m_curPath.c_str(), 1+m_curPath.size() );
 	
 	glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
-	glRasterPos2d( 20, scrnht - 75);	
-	cpwDrawFont( cpw, menuFont, option1, 1 );
+	glRasterPos2d( 20, m_scrnht - 75);	
+	cpwDrawFont( cpw, m_menuFont, option1, 1 );
+
+	delete[] option1;
 
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 20 );
 
 	int maxListDisplay;
 
-	if(fileListOffset + 15 < fileList.size())
-		maxListDisplay = fileListOffset + 15;
+	if(m_fileListOffset + 15 < m_fileList.size())
+		maxListDisplay = m_fileListOffset + 15;
 	else
-		maxListDisplay = fileList.size();
+		maxListDisplay = m_fileList.size();
 
 	int offset = 0;
 
-	//printf("min: %d max: %d cur: %d\n", fileListOffset, maxListDisplay, curOption);
+	//printf("min: %d max: %d cur: %d\n", m_fileListOffset, maxListDisplay, m_curOption);
 
-	for(int i=fileListOffset; i<maxListDisplay; i++)
+	for(int i=m_fileListOffset; i<maxListDisplay; i++)
 	{
-		if(curOption == i)
+		if(m_curOption == i)
 			glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 		else
 			glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 		
-		glRasterPos2d( 20, scrnht - (100 + 25 * offset));
-		cpwDrawFont( cpw, menuFont, fileList[i], 1 );
+		glRasterPos2d( 20, m_scrnht - (100 + 25 * offset));
+
+		char *thisSureIsStupidToHaveToDo = new char[1+m_fileList[i].size()];
+		memcpy( thisSureIsStupidToHaveToDo, m_fileList[i].c_str(), 1+m_fileList[i].size() );
+		cpwDrawFont( cpw, m_menuFont, thisSureIsStupidToHaveToDo, 1 );
+		delete[] thisSureIsStupidToHaveToDo;
 
 		offset++;
 	}
@@ -320,12 +328,12 @@ void RCTGLMenu::drawFileLoader(pCpw cpw)
 
 bool RCTGLMenu::isExit(void)
 {
-	return (curScreen == MAINMENU && curOption == 3);
+	return (m_curScreen == MAINMENU && m_curOption == 3);
 }
 
 bool RCTGLMenu::isMainMenu(void)
 {
-	return (curScreen == MAINMENU);
+	return (m_curScreen == MAINMENU);
 }
 
 void RCTGLMenu::drawMainMenu(pCpw cpw)
@@ -340,90 +348,90 @@ void RCTGLMenu::drawMainMenu(pCpw cpw)
 	char *option3 = "Input";
 	char *option4 = "Exit";
 
-	if(curOption == 0)
+	if(m_curOption == 0)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 100);	
-	cpwDrawFont( cpw, menuFont, option1, 1 );
+	glRasterPos2d( 20, m_scrnht - 100);	
+	cpwDrawFont( cpw, m_menuFont, option1, 1 );
 
-	if(curOption == 1)
+	if(m_curOption == 1)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 150);	
-	cpwDrawFont( cpw, menuFont, option2, 1 );
+	glRasterPos2d( 20, m_scrnht - 150);	
+	cpwDrawFont( cpw, m_menuFont, option2, 1 );
 
-	if(curOption == 2)
+	if(m_curOption == 2)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 
-	glRasterPos2d( 20, scrnht - 200);	
-	cpwDrawFont( cpw, menuFont, option3, 1 );
+	glRasterPos2d( 20, m_scrnht - 200);	
+	cpwDrawFont( cpw, m_menuFont, option3, 1 );
 
-	if(curOption == 3)
+	if(m_curOption == 3)
 		glColor3f(selectedColor[0], selectedColor[1], selectedColor[2]);
 	else
 		glColor3f(unselectedColor[0], unselectedColor[1], unselectedColor[2]);
 	
-	glRasterPos2d( 20, scrnht - 250);	
-	cpwDrawFont( cpw, menuFont, option4, 1 );
+	glRasterPos2d( 20, m_scrnht - 250);	
+	cpwDrawFont( cpw, m_menuFont, option4, 1 );
 
 }
 
 void RCTGLMenu::moveUp(void)
 {
-	if(curScreen == MAINMENU)
+	if(m_curScreen == MAINMENU)
 	{
-		if(curOption == 0)
-			curOption = 3;
+		if(m_curOption == 0)
+			m_curOption = 3;
 		else
-			curOption--;		
+			m_curOption--;		
 	}
-	else if(curScreen == SELECTFILE)
+	else if(m_curScreen == SELECTFILE)
 	{
-		if(curOption > 0)
+		if(m_curOption > 0)
 		{
-			if(curOption == fileListOffset)
-				fileListOffset--;
+			if(m_curOption == m_fileListOffset)
+				m_fileListOffset--;
 
-			curOption--;
+			m_curOption--;
 		}
 	}
 }
 
 void RCTGLMenu::movePageUp(void)
 {
-	if(curScreen == SELECTFILE)
+	if(m_curScreen == SELECTFILE)
 	{
-		if(curOption <= 15)
+		if(m_curOption <= 15)
 		{
-			curOption = 0;
-			fileListOffset = 0;
+			m_curOption = 0;
+			m_fileListOffset = 0;
 		}
 		else
 		{
 			//if it's not at the bottom of the screen
 			//move it there
-			if(curOption > fileListOffset)
-				curOption = fileListOffset;
+			if(m_curOption > m_fileListOffset)
+				m_curOption = m_fileListOffset;
 			//move the whole screen down
-			else if(curOption == fileListOffset)
+			else if(m_curOption == m_fileListOffset)
 			{
-				if(curOption - 15 > 0)
+				if(m_curOption - 15 > 0)
 				{
 					//printf("1\n");
-					fileListOffset -= 15;
-					curOption -= 15;
+					m_fileListOffset -= 15;
+					m_curOption -= 15;
 				}
 				else
 				{
 					//printf("2\n");
-					curOption = 0;
-					fileListOffset = 0;
+					m_curOption = 0;
+					m_fileListOffset = 0;
 				}
 			}
 		}
@@ -432,21 +440,21 @@ void RCTGLMenu::movePageUp(void)
 
 void RCTGLMenu::moveDown(void)
 {
-	if(curScreen == MAINMENU)
+	if(m_curScreen == MAINMENU)
 	{
-		if(curOption == 3)
-			curOption = 0;
+		if(m_curOption == 3)
+			m_curOption = 0;
 		else
-			curOption++;		
+			m_curOption++;		
 	}
-	else if(curScreen == SELECTFILE)
+	else if(m_curScreen == SELECTFILE)
 	{
-		if(curOption + 1 < fileList.size())
+		if(m_curOption + 1 < m_fileList.size())
 		{
-			if(curOption == fileListOffset + 14)
-				fileListOffset++;
+			if(m_curOption == m_fileListOffset + 14)
+				m_fileListOffset++;
 
-			curOption++;
+			m_curOption++;
 		}
 	}
 }
@@ -454,30 +462,30 @@ void RCTGLMenu::moveDown(void)
 
 void RCTGLMenu::movePageDown(void)
 {
-	if(curScreen == SELECTFILE)
+	if(m_curScreen == SELECTFILE)
 	{
-		if(fileList.size() <= 15)
-			curOption = fileList.size();
+		if(m_fileList.size() <= 15)
+			m_curOption = m_fileList.size();
 		else
 		{
 			//if it's not at the bottom of the screen
 			//move it there
-			if(curOption < fileListOffset + 14)
-				curOption = fileListOffset + 14;
+			if(m_curOption < m_fileListOffset + 14)
+				m_curOption = m_fileListOffset + 14;
 			//move the whole screen down
-			else if(curOption == fileListOffset + 14)
+			else if(m_curOption == m_fileListOffset + 14)
 			{
-				if(curOption + 15 < fileList.size())
+				if(m_curOption + 15 < m_fileList.size())
 				{
 					//printf("1\n");
-					fileListOffset = curOption + 1;
-					curOption += 15;
+					m_fileListOffset = m_curOption + 1;
+					m_curOption += 15;
 				}
 				else
 				{
 					//printf("2\n");
-					curOption = fileList.size() - 1;
-					fileListOffset = curOption - 14;
+					m_curOption = m_fileList.size() - 1;
+					m_fileListOffset = m_curOption - 14;
 				}
 			}
 		}
@@ -485,9 +493,9 @@ void RCTGLMenu::movePageDown(void)
 	}
 }
 
-bool isDrive(char *teststr)
+bool isDrive(const string &teststr)
 {
-	if(strlen(teststr) == 3)
+	if(teststr.size() == 3)
 		if(teststr[0] >= 'C' && teststr[0] <= 'Z')
 			if(teststr[1] == ':')
 				if(teststr[2] == '\\')
@@ -498,64 +506,54 @@ bool isDrive(char *teststr)
 
 void RCTGLMenu::selectOption(void)
 {
-	if(curScreen == MAINMENU)
+	if(m_curScreen == MAINMENU)
 	{
-		if(curOption == 0)
+		if(m_curOption == 0)
 		{
-			populateFileList(&curPath[0]);
-			curScreen = SELECTFILE;
+			populateFileList(m_curPath);
+			m_curScreen = SELECTFILE;
 			//processFileOpenRequest();
 		}
-		else if(curOption == 1)
-			curScreen = DETAIL;
-		else if(curOption == 2)
-			curScreen = INPUTCONFIG;
+		else if(m_curOption == 1)
+			m_curScreen = DETAIL;
+		else if(m_curOption == 2)
+			m_curScreen = INPUTCONFIG;
 
-		curOption = 0;
+		m_curOption = 0;
 	}
-	else if(curScreen == SELECTFILE)
+	else if(m_curScreen == SELECTFILE)
 	{
 		int iii;
 		iii=0;
 		//check for the ".."
-		if(strcmp(fileList[curOption], "<..>") == 0)
+		if(m_fileList[m_curOption] == "<..>")
 		{
-			char *tmp;
+			/*char *tmp;
 			tmp = strrchr(curPath, '\\');
-			*tmp = NULL;
+			*tmp = NULL;*/
+			//string tmpPath = m_curPath;
+			int slash = m_curPath.rfind( '\\' );
+			m_curPath.resize( slash );
 
-			populateFileList(curPath);
+			populateFileList(m_curPath);
 		}
 		//switch directories
-		else if(fileList[curOption][0] == '<')
+		else if(m_fileList[m_curOption][0] == '<')
 		{
-			int offset = strlen(curPath);
+			string tmpOpt = m_fileList[m_curOption].c_str() + 1;
+			tmpOpt.resize( tmpOpt.size() - 1 );
+			m_curPath += "\\" + tmpOpt;
 
-			curPath[offset++] = '\\';
-
-			for(int i=1; i<strlen(fileList[curOption]); i++)
-			{
-				//printf("fileList[i] = %c\n", fileList[curOption][i]);
-				if(fileList[curOption][i] == '>')
-				{
-					curPath[offset] = NULL;
-					break;
-				}
-				else
-					curPath[offset++] = fileList[curOption][i];
-			}
-
-			populateFileList(curPath);
+			populateFileList(m_curPath);
 
 		}
 		//switch drives
-		else if(isDrive(fileList[curOption]))
+		else if(isDrive(m_fileList[m_curOption]))
 		{
-			strcpy(&curPath[0], fileList[curOption]);
+			m_curPath = m_fileList[m_curOption];
+			m_curPath.resize( 3 );
 
-			curPath[2] = NULL;
-
-			populateFileList(curPath);
+			populateFileList(m_curPath);
 
 		}
 		//it must be a file
@@ -564,7 +562,7 @@ void RCTGLMenu::selectOption(void)
 			//change modes
 			//displayMode = LOADPARK;
 			displayMode = MENU;
-			curScreen = MAINMENU;
+			m_curScreen = MAINMENU;
 
 
 
@@ -578,56 +576,54 @@ void RCTGLMenu::selectOption(void)
 			LoadedWalls = FALSE;
 
 			//build the string with the file path
-			strcpy(&RCTGL_InFile[0], &curPath[0]);
-			strcat(&RCTGL_InFile[0], "\\");
-			strcat(&RCTGL_InFile[0], fileList[curOption]);
+			RCTGL_InFile = m_curPath + "\\" + m_fileList[m_curOption];
 
 			//printf("current file is %s\n", &RCTGL_InFile[0]);
 
-			thePark->loadPark(&RCTGL_InFile[0]);
+			thePark->loadPark(RCTGL_InFile);
 		}
 	}	
 }
 
 void RCTGLMenu::backOneMenu(void)
 {
-	curScreen = MAINMENU;	
-	curOption = 0;
+	m_curScreen = MAINMENU;	
+	m_curOption = 0;
 }
 
 void RCTGLMenu::restartMenu(void)
 {
-	curScreen = MAINMENU;
-	curOption = 0;
+	m_curScreen = MAINMENU;
+	m_curOption = 0;
 }
 
 void RCTGLMenu::drawMenu(pCpw cpw)
 {
 	glDisable(GL_TEXTURE_2D);
 
-	if(curScreen == MAINMENU)
+	if(m_curScreen == MAINMENU)
 	{
 		drawRCTGLLogo(cpw);
 		drawMainMenu(cpw);	
 	}
-	else if(curScreen == SELECTFILE)
+	else if(m_curScreen == SELECTFILE)
 	{
 		drawRCTGLLogo(cpw, "Open Park");
 		drawFileLoader(cpw);		
 	}
-	else if(curScreen == DETAIL)
+	else if(m_curScreen == DETAIL)
 	{
 		drawRCTGLLogo(cpw, "Visuals");
 		drawDetailMenu(cpw);		
 	}
 }
 
-RCTGLMenu::RCTGLMenu(CpwFontFace fontFace)
+RCTGLMenu::RCTGLMenu(const CpwFontFace &fontFace)
 {
-	menuFont = fontFace;
+	m_menuFont = fontFace;
 
-	scrnwid = 640;
-	scrnht = 480;
+	m_scrnwid = 640;
+	m_scrnht = 480;
 
 	// open the registry to get the location of RCT save files
 	HKEY hKey;
@@ -635,21 +631,23 @@ RCTGLMenu::RCTGLMenu(CpwFontFace fontFace)
 	//char *tmp;
 	DWORD dwBufLen;
 
-	curPath[0] = NULL;
+	m_curPath = "";
 
-	RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+	char path[1024];
+	if( FAILED( RegOpenKeyEx( HKEY_LOCAL_MACHINE,
 	   "SOFTWARE\\Fish Technology Group\\RollerCoaster Tycoon Setup",
-	   0, KEY_QUERY_VALUE, &hKey );
-	RegQueryValueEx( hKey, "Path", NULL, NULL,
-	   (LPBYTE) curPath, &dwBufLen);
-	RegCloseKey( hKey );
-
-	if(strlen(curPath) == 0)
+	   0, KEY_QUERY_VALUE, &hKey )) )
 	{
-		GetModuleFileName(NULL, &curPath[0], 256);
-		int len;
-		len = strlen(&curPath[0]);
-		curPath[len - 10] = '\0';
+		GetModuleFileName(NULL, path, 256);
+		m_curPath = path;
+		m_curPath.resize( m_curPath.size() - 10 );
+	}
+	else
+	{
+		RegQueryValueEx( hKey, "Path", NULL, NULL,
+			(LPBYTE) path, &dwBufLen);
+		RegCloseKey( hKey );
+		m_curPath = path;
 	}
 
 	//printf("default path = %s\n", curPath);

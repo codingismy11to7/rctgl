@@ -14,7 +14,7 @@ float tanTable[360];
 
 char RCTGL_Location[256];
 char RCTGL_TempFile[256];
-char RCTGL_InFile[256];
+string RCTGL_InFile;
 
 bool LoadedEdgeTex;
 bool LoadedSurfaceTex;

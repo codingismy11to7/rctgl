@@ -34,7 +34,7 @@ class RCTGLPark
 {
 public:
 	RCTGLPark(void);
-	bool loadPark(char *filename);
+	bool loadPark(const string &filename);
 	bool clearPark(void);
 	char * getName(int index);
 	void loadTextures(void);
@@ -55,7 +55,7 @@ private:
 
 	vector <char*> rideNameList;
 
-	bool uncompressFile(char *inFile, char *outFile);
+	bool uncompressFile(const string &inFile, const string &outFile);
 	bool loadNames(uchar *parkData);
 	void unloadNames(void);
 };

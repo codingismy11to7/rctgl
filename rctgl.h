@@ -15,6 +15,9 @@
 
 #pragma comment(lib, "depend//corona//corona.lib")
 
+#pragma warning(disable:4786)
+#pragma warning(disable:4503)
+
 #include "rctgl-displaymodes.h"
 #include "rctgl-camera.h"
 #include "rctgl-frustum.h"
@@ -37,7 +40,7 @@ extern float tanTable[360];
 
 extern char RCTGL_Location[256];
 extern char RCTGL_TempFile[256];
-extern char RCTGL_InFile[256];
+extern string RCTGL_InFile;
 
 extern bool LoadedEdgeTex;
 extern bool LoadedSurfaceTex;

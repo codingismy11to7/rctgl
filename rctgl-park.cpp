@@ -82,7 +82,7 @@ void RCTGLPark::unloadNames(void)
 	rideNameList.clear();
 }
 
-bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
+bool RCTGLPark::uncompressFile(const string &inFile, const string &outFile)
 {
 	char countbyte;
 	uchar databyte;
@@ -92,13 +92,13 @@ bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 	FILE *input, *output;
 
 	//open the streams
-	if((input = fopen(inFile, "rb")) == NULL)
+	if((input = fopen(inFile.c_str(), "rb")) == NULL)
 	{
 		MessageBox(NULL, "Error opening SV4", "ERROR", MB_SETFOREGROUND | MB_OK);
 		return false;
 	}
 	
-	if((output = fopen(outFile, "wb")) == NULL)
+	if((output = fopen(outFile.c_str(), "wb")) == NULL)
 	{
 		MessageBox(NULL, "Error opening temp file", "ERROR", MB_SETFOREGROUND | MB_OK);
 		return false;
@@ -137,7 +137,7 @@ bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 	return true;
 }
 
-bool RCTGLPark::loadPark(char *filename)
+bool RCTGLPark::loadPark(const string &filename)
 {
 	DebugLog::beginTask("RCTGLPark::loadPark");
 	DebugLog::writeToLog(string("Loading ") + filename);

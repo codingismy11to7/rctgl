@@ -81,8 +81,8 @@ bool initRCTGL(RCTGLPark *thePark)
 	char EXELoc[256];
 
 	// get current directory so we can restore later
-	temp = GetModuleFileName(NULL, &EXELoc[0], 256);
-	printf("program location: %s\n", &EXELoc[0]);
+	temp = GetModuleFileName(NULL, EXELoc, 256);
+	printf("program location: %s\n", EXELoc);
 
 	int len = strlen(&EXELoc[0]);
 
