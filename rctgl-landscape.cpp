@@ -232,11 +232,46 @@ bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)
 	return true;
 }
 
+bool RCTGLLandscape::isFlatLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+	return (land[x1][z1].TL			== land[x2][z2].TL &&
+		land[x1][z1].BL				== land[x2][z2].BL &&
+		land[x1][z1].BR				== land[x2][z2].BR &&
+		land[x1][z1].TR				== land[x2][z2].TR &&	
+		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);
+}
+
+bool RCTGLLandscape::isFlatRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isFlatLandSame(startX, startZ, row, z))
+			return false;	
+
+	return true;
+}
+
+
+bool RCTGLLandscape::isWaterSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+	return (land[x1][z1].drawWater	== land[x2][z2].drawWater &&
+		land[x1][z1].waterLevel		== land[x2][z2].waterLevel);
+}
+
+bool RCTGLLandscape::isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isWaterSame(startX, startZ, row, z))
+			return false;	
+
+	return true;
+}
+
 void RCTGLLandscape::compileSurfaces(void)
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compileSurfaces()");
 
-	uchar i, j, k;
+	uchar i, j, k, l;
 
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
@@ -253,25 +288,41 @@ void RCTGLLandscape::compileSurfaces(void)
 
 			surface->setBaseRGB(rgb);
 
+#ifdef DETAILED_LOG
+			stringstream coords;
+			coords << "Processing " << (unsigned int)i << ", " << (unsigned int)j;
+			DebugLog::writeToLog(coords.str());
+#endif
+
 			//check for optimizations
-			if(land[i][j].TL == land[i][j].TR == land[i][j].BR == land[i][j].BL)
+			if(land[i][j].TL == land[i][j].TR &&
+				land[i][j].TL == land[i][j].BR &&
+				land[i][j].TL == land[i][j].BL &&
+				land[i][j].surface == NULL)			
 			{
 				//find out how long the land segment lasts
-				uchar base = j;
-				uchar offset = 1;
-				while(land[i][base].TL == land[i][base+offset].TL &&
-					land[i][base].BL == land[i][base+offset].BL &&
-					land[i][base].BR == land[i][base+offset].BR &&
-					land[i][base].TR == land[i][base+offset].TR &&
-					base + offset < 128 &&
-					land[i][base].surfaceLL == land[i][base+offset].surfaceLL &&
-					land[i][base].surfaceType == land[i][base+offset].surfaceType)
-					offset++;
+				uchar baseZ = j, baseX = i;
+				uchar offsetZ = 1, offsetX = 1;
+
+#ifdef DETAILED_LOG
+				DebugLog::writeToLog((string)"Optimizing flat land");
+#endif
+
+
+				while(isFlatLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+					baseZ + offsetZ < 128)
+					offsetZ++;				
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isFlatRowSame(baseX, baseZ, offsetX, offsetZ) &&
+					baseX + offsetX < 128)
+					offsetX++;
 
 				//TL
-				v.x = i * UNITWIDTH;
-				v.y = land[i][j].BR * UNITHEIGHT;
-				v.z = j * UNITWIDTH;
+				v.x = baseX * UNITWIDTH;
+				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
+				v.z = baseZ * UNITWIDTH;
 
 				tex.x = 0.0f;
 				tex.y = 0.0f;
@@ -280,35 +331,34 @@ void RCTGLLandscape::compileSurfaces(void)
 				surface->addVertex(v, tex);
 
 				//TR
-				v.x = (i + 1) * UNITWIDTH;
-				v.y = land[i][j].BL * UNITHEIGHT;
-				v.z = j * UNITWIDTH;
+				v.x = (baseX + offsetX) * UNITWIDTH;
+				v.y = land[baseX][baseZ].BL * UNITHEIGHT;
+				v.z = baseZ * UNITWIDTH;
 
-				tex.x = 1.0f;
+				tex.x = (float)offsetX;
 				tex.y = 0.0f;
 
 				surface->addVertex(v, tex);
 
 				//BR
-				v.x = (i + 1) * UNITWIDTH;
-				v.y = land[i][j].TL * UNITHEIGHT;
-				v.z = (j + 1 + offset) * UNITWIDTH;
+				v.x = (baseX+ offsetX) * UNITWIDTH;
+				v.y = land[baseX][baseZ].TL * UNITHEIGHT;
+				v.z = (baseZ + offsetZ) * UNITWIDTH;
 
-				tex.x = 1.0f;
-				tex.y = (float)offset;
+				tex.x = (float)offsetX;
+				tex.y = (float)offsetZ;
 				
 				surface->addVertex(v, tex);
 
 				//BL
-				v.x = i * UNITWIDTH;
-				v.y = land[i][j].TR * UNITHEIGHT;
-				v.z = (j + 1 + offset) * UNITWIDTH;
+				v.x = baseX * UNITWIDTH;
+				v.y = land[baseX][baseZ].TR * UNITHEIGHT;
+				v.z = (baseZ + offsetZ) * UNITWIDTH;
 
 				tex.x = 0.0f;
-				tex.y = (float)offset;
+				tex.y = (float)offsetZ;
 
 				surface->addVertex(v, tex);
-
 				
 				//assign the texture
 				if(land[i][j].surfaceLL)
@@ -316,20 +366,50 @@ void RCTGLLandscape::compileSurfaces(void)
 				else
 					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
 
-				surface->length = offset;
+				surface->length = offsetZ;
+				surface->width = offsetX;
+
+#ifdef DETAILED_LOG
+				if(offsetX > 1 && offsetZ > 1)
+				{
+					stringstream x;
+					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
+					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
+					DebugLog::writeToLog(x.str());
+				}
+#endif
 
 				//assign the pointer to all of the appropriate surfaces
-				for(k=0; k<offset; k++)
-					land[i][j+k].surface = surface;
+				for(k=0; k<offsetZ; k++)
+				{
+					for(l=0; l<offsetX; l++)
+					{
+#ifdef DETAILED_LOG
+						stringstream x;
+						x << "Setting land at " << (unsigned int)(baseX + l);
+						x << ", " << (unsigned int)(baseZ + k);
+						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
+						DebugLog::writeToLog(x.str());
+#endif
+
+						land[baseX + l][baseZ + k].surface = surface;
+					}
+				}
 
 				//move j
-				j+= (offset - 1);
+				j+=(offsetZ-1);
 
 				numPolys++;
-				totalPolys += offset;
+				totalPolys += (offsetZ * offsetX);
 			}
-			else
+			else if(land[i][j].surface == NULL)
 			{
+#ifdef DETAILED_LOG
+				DebugLog::writeToLog((string)"NOT optimizing land");
+				stringstream y;		
+				y << "(" << land[i][j].BL << ", " << land[i][j].TL << ", " << land[i][j].TR << ", " << land[i][j].BR << ")";
+				DebugLog::writeToLog(y.str());
+#endif
 				//TL
 				v.x = i * UNITWIDTH;
 				v.y = land[i][j].BR * UNITHEIGHT;
@@ -381,7 +461,19 @@ void RCTGLLandscape::compileSurfaces(void)
 				land[i][j].surface = surface;
 
 				numPolys++;
-				totalPolys++;
+				totalPolys++;				
+			}
+			else if(!land[i][j].surface)
+			{
+#ifdef DETAILED_LOG
+				DebugLog::writeToLog((string)"NULL surface");
+#endif
+			}
+			else
+			{
+#ifdef DETAILED_LOG
+				DebugLog::writeToLog((string)"Unhandled surface");
+#endif
 			}
 		}
 	}
@@ -570,7 +662,7 @@ void RCTGLLandscape::compileEdges(void)
 
 void RCTGLLandscape::compileWater(void)
 {
-	uchar i, j, k;
+	uchar i, j, k, l;
 
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
@@ -589,20 +681,25 @@ void RCTGLLandscape::compileWater(void)
 			surface->setBaseRGB(rgb);
 
 			//check for optimizations
-			if(land[i][j].drawWater)
+			if(land[i][j].drawWater && !land[i][j].waterSurface)
 			{
 				//find out how long the land segment lasts
-				uchar base = j;
-				uchar offset = 1;
-				while(land[i][base].drawWater == land[i][base+offset].drawWater &&
-					base + offset < 128 &&
-					land[i][base].waterLevel == land[i][base+offset].waterLevel)
-					offset++;
+				uchar baseZ = j, baseX = i;
+				uchar offsetZ = 1, offsetX = 1;
+				while(isWaterSame(i, baseZ, i, baseZ+offsetZ) && 
+					baseZ + offsetZ < 128)
+					offsetZ++;
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isWaterRowSame(baseX, baseZ, offsetX, offsetZ) &&
+					baseX + offsetX < 128)
+					offsetX++;
 
 				//TL
-				v.x = i * UNITWIDTH;
-				v.y = land[i][j].waterLevel * UNITHEIGHT;
-				v.z = j * UNITWIDTH;
+				v.x = baseX * UNITWIDTH;
+				v.y = land[baseX][baseZ].waterLevel * UNITHEIGHT;
+				v.z = baseZ * UNITWIDTH;
 
 				tex.x = 0.0f;
 				tex.y = 0.0f;
@@ -611,47 +708,70 @@ void RCTGLLandscape::compileWater(void)
 				surface->addVertex(v, tex);
 
 				//TR
-				v.x = (i + 1) * UNITWIDTH;				
-				v.z = j * UNITWIDTH;
+				v.x = (baseX + offsetX) * UNITWIDTH;				
+				v.z = baseZ * UNITWIDTH;
 
-				tex.x = 1.0f;
+				tex.x = (float)offsetX;
 				tex.y = 0.0f;
 
 				surface->addVertex(v, tex);
 
 				//BR
-				v.x = (i + 1) * UNITWIDTH;				
-				v.z = (j + offset) * UNITWIDTH;
+				v.x = (baseX+ offsetX) * UNITWIDTH;				
+				v.z = (baseZ + offsetZ) * UNITWIDTH;
 
-				tex.x = 1.0f;
-				tex.y = (float)offset;
+				tex.x = (float)offsetX;
+				tex.y = (float)offsetZ;
 				
 				surface->addVertex(v, tex);
 
 				//BL
-				v.x = i * UNITWIDTH;				
-				v.z = (j + offset) * UNITWIDTH;
+				v.x = baseX * UNITWIDTH;				
+				v.z = (baseZ + offsetZ) * UNITWIDTH;
 
 				tex.x = 0.0f;
-				tex.y = (float)offset;
+				tex.y = (float)offsetZ;
 
 				surface->addVertex(v, tex);
-
 				
 				//assign the texture
 				surface->setTextureID(waterTexture);
 
-				surface->length = offset;
-				
+				surface->length = offsetZ;
+				surface->width = offsetX;
+
+#ifdef DETAILED_LOG
+				if(offsetX > 1 && offsetZ > 1)
+				{
+					stringstream x;
+					x << "Expanding water at " << (unsigned int)i << ", " << (unsigned int)j;
+					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
+					DebugLog::writeToLog(x.str());
+				}
+#endif
+
 				//assign the pointer to all of the appropriate surfaces
-				for(k=0; k<offset; k++)
-					land[i][j+k].waterSurface = surface;
+				for(k=0; k<offsetZ; k++)
+				{
+					for(l=0; l<offsetX; l++)
+					{
+#ifdef DETAILED_LOG
+						stringstream x;
+						x << "Setting water at " << (unsigned int)(baseX + l);
+						x << ", " << (unsigned int)(baseZ + k);
+						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
+						DebugLog::writeToLog(x.str());
+#endif
+
+						land[baseX + l][baseZ + k].waterSurface = surface;
+					}
+				}
 
 				//move j
-				j+= (offset - 1);
+				j+=(offsetZ-1);
 
 				numPolys++;
-				totalPolys += offset;
+				totalPolys += (offsetZ * offsetX);
 			}		
 		}
 	}
@@ -703,8 +823,10 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 		{
 			if(land[i][j].surface)
 				land[i][j].surface->wasDrawn = false;
+			
 			if(land[i][j].waterSurface)
 				land[i][j].waterSurface->wasDrawn = false;
+			
 		}
 	}
 	
@@ -713,26 +835,42 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 	for(i=x1; i<x2; i++)
 	{
 		for(j=z1; j<z2; j++)
-		{			
-			if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+		{
+			if(land[i][j].surface)
+			{
+				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
 					(float)((land[i][j].lowest * UNITHEIGHT) - 0.1f),
 					(float)(j*UNITWIDTH),
-					(float)(UNITWIDTH),
+					(float)(land[i][j].surface->width * UNITWIDTH),
 					(float)((land[i][j].highest - land[i][j].lowest) * UNITHEIGHT + 0.2f),					
 					(float)(land[i][j].surface->length * UNITWIDTH)))					
-			{
-				if(land[i][j].surface && !land[i][j].surface->wasDrawn)
 				{
-					land[i][j].surface->draw();
-					land[i][j].surface->wasDrawn = true;
-				}
-
-				if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
-				{
-					land[i][j].waterSurface->draw();
-					land[i][j].waterSurface->wasDrawn = true;
+					if(!land[i][j].surface->wasDrawn)
+					{
+						land[i][j].surface->draw();
+						land[i][j].surface->wasDrawn = true;
+					}
 				}
 			}
+
+			
+			if(land[i][j].waterSurface)
+			{
+				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+					(float)((land[i][j].lowest * UNITHEIGHT) - 0.1f),
+					(float)(j*UNITWIDTH),
+					(float)(land[i][j].surface->width * UNITWIDTH),
+					(float)((land[i][j].highest - land[i][j].lowest) * UNITHEIGHT + 0.2f),					
+					(float)(land[i][j].surface->length * UNITWIDTH)))					
+				{
+					if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
+					{
+						land[i][j].waterSurface->draw();
+						land[i][j].waterSurface->wasDrawn = true;
+					}
+				}
+			}
+			
 
 			//now we only care about elements 0 and 2			
 			if(land[i][j].edges[EDGE_NORTH])

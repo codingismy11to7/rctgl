@@ -52,7 +52,7 @@ class RCTGLLandscapePoly : public RCTGLPoly
 {
 public:
 	bool wasDrawn;
-	uchar length;
+	uchar length, width;
 };
 
 struct landscapeElement
@@ -106,6 +106,12 @@ private:
 	void compileSurfaces(void);
 	void compileEdges(void);
 	void compileWater(void);
+
+	bool isFlatLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isFlatRowSame(uchar startX, uchar startZ, uchar row, uchar width);
+
+	bool isWaterSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width);
 };
 
 

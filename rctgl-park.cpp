@@ -337,5 +337,8 @@ void RCTGLPark::draw(void)
 	if(maxX > 127)	maxX = 127;
 	if(maxZ > 127)	maxZ = 127;
 
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
 }
