@@ -440,6 +440,83 @@ bool RCTGLLandscape::isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar
 	return true;
 }
 
+
+void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface)
+{
+	//assign the pointer to all of the appropriate surfaces
+	uchar zStep, xStep;
+	for(zStep=0; zStep<zLen; zStep++)
+	{
+		for(xStep=0; xStep<xLen; xStep++)
+		{
+#ifdef DETAILED_LOG
+			stringstream x;
+			x << "Setting land at " << (unsigned int)(startX + xStep);
+			x << ", " << (unsigned int)(startZ + zStep);
+			x << " to value at " << (unsigned int)startX << ", " << (unsigned int)startZ;
+			DebugLog::writeToLog(x.str());
+#endif
+
+			land[startX + xStep][startZ + zStep].surface = surface;
+		}
+	}
+}
+
+void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface)
+{
+	RCTGLVertex v, tex;
+
+	//TL
+	v.x = startX * UNITWIDTH;
+	v.y = land[startX][startZ].BR * UNITHEIGHT;
+	v.z = startZ * UNITWIDTH;
+
+	tex.x = 0.0f;
+	tex.y = 0.0f;
+	tex.z = 0.0f;
+
+	surface->addVertex(v, tex);
+
+	//TR
+	v.x = (startX + xLen) * UNITWIDTH;
+	v.y = land[startX+(xLen-1)][startZ].BL * UNITHEIGHT;
+	v.z = startZ * UNITWIDTH;
+
+	tex.x = (float)xLen;
+	tex.y = 0.0f;
+
+	surface->addVertex(v, tex);
+
+	//BR
+	v.x = (startX+ xLen) * UNITWIDTH;
+	v.y = land[startX+(xLen-1)][startZ+(zLen-1)].TL * UNITHEIGHT;
+	v.z = (startZ + zLen) * UNITWIDTH;
+
+	tex.x = (float)xLen;
+	tex.y = (float)zLen;
+	
+	surface->addVertex(v, tex);
+
+	//BL
+	v.x = startX * UNITWIDTH;
+	v.y = land[startX][startZ+(zLen-1)].TR * UNITHEIGHT;
+	v.z = (startZ + zLen) * UNITWIDTH;
+
+	tex.x = 0.0f;
+	tex.y = (float)zLen;
+
+	surface->addVertex(v, tex);
+	
+	//assign the texture
+	if(land[startX][startZ].surfaceLL)
+		surface->setTextureID(surfaceTextures[8 + land[startX][startZ].surfaceType]);
+	else
+		surface->setTextureID(surfaceTextures[land[startX][startZ].surfaceType]);
+
+	surface->length = zLen;
+	surface->width = xLen;
+}
+
 void RCTGLLandscape::compileSurfaces(void)
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compileSurfaces()");
@@ -457,11 +534,12 @@ void RCTGLLandscape::compileSurfaces(void)
 		for(j=0; j<128; j++)
 		{
 			//create the surface
-			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;
-
-			RCTGLVertex v, tex;
+			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;			
 
 			surface->setBaseRGB(rgb);
+
+			uchar baseZ = j, baseX = i;
+			uchar offsetZ = 1, offsetX = 1;
 
 #ifdef DETAILED_LOG
 			stringstream coords;
@@ -478,15 +556,10 @@ void RCTGLLandscape::compileSurfaces(void)
 				land[i][j].TL == land[i][j].BL &&
 				!land[i][j].surface)			
 			{
-				
-
 #ifdef DETAILED_LOG
 				DebugLog::writeToLog((string)"Optimizing flat land");
 #endif
 				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-
 				while(isFlatLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
 					offsetZ++;				
@@ -496,56 +569,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isFlatRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)
 					offsetX++;
-
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;
-				v.y = land[baseX][baseZ].BL * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;
-				v.y = land[baseX][baseZ].TL * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
-				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].TR * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
 
 #ifdef DETAILED_LOG
 				if(offsetX > 1 && offsetZ > 1)
@@ -557,23 +580,9 @@ void RCTGLLandscape::compileSurfaces(void)
 				}
 #endif
 
-				//assign the pointer to all of the appropriate surfaces
-				uchar zStep, xStep;
-				for(zStep=0; zStep<offsetZ; zStep++)
-				{
-					for(xStep=0; xStep<offsetX; xStep++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + xStep);
-						x << ", " << (unsigned int)(baseZ + zStep);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + xStep][baseZ + zStep].surface = surface;
-					}
-				}
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
+				
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);				
 
 				//move j
 				j+=(offsetZ-1);
@@ -594,9 +603,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				DebugLog::writeToLog((string)"Optimizing left-raised land");
 #endif
 				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-
 				while(isLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
 					offsetZ++;				
@@ -607,83 +613,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					baseX + offsetX < 128)					
 					offsetX++;				
 
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;
-				v.y = land[baseX][baseZ].BL * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;
-				v.y = land[baseX][baseZ+offsetZ-1].TL * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
 				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ+offsetZ-1].TR * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
-				{
-					stringstream x;
-					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
-				}
-#endif
-
-				//assign the pointer to all of the appropriate surfaces
-				uchar zStep, xStep;
-				for(zStep=0; zStep<offsetZ; zStep++)
-				{
-					for(xStep=0; xStep<offsetX; xStep++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + xStep);
-						x << ", " << (unsigned int)(baseZ + zStep);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + xStep][baseZ + zStep].surface = surface;
-					}
-				}
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
 
 				//move j
 				j+=(offsetZ-1);
@@ -705,9 +637,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
 				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-
 				while(isRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
 					offsetZ++;				
@@ -718,83 +647,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					baseX + offsetX < 128)					
 					offsetX++;				
 
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ].BL * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ+offsetZ-1].TL * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
 				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ+offsetZ-1].TR * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
-				{
-					stringstream x;
-					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
-				}
-#endif
-
-				//assign the pointer to all of the appropriate surfaces
-				uchar zStep, xStep;
-				for(zStep=0; zStep<offsetZ; zStep++)
-				{
-					for(xStep=0; xStep<offsetX; xStep++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + xStep);
-						x << ", " << (unsigned int)(baseZ + zStep);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + xStep][baseZ + zStep].surface = surface;
-					}
-				}
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
 
 				//move j
 				j+=(offsetZ-1);
@@ -816,9 +671,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
 				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-
 				while(isLowerRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
 					offsetZ++;				
@@ -829,83 +681,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					baseX + offsetX < 128)					
 					offsetX++;				
 
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ].BL * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ+offsetZ-1].TL * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
 				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ+offsetZ-1].TR * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
-				{
-					stringstream x;
-					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
-				}
-#endif
-
-				//assign the pointer to all of the appropriate surfaces
-				uchar zStep, xStep;
-				for(zStep=0; zStep<offsetZ; zStep++)
-				{
-					for(xStep=0; xStep<offsetX; xStep++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + xStep);
-						x << ", " << (unsigned int)(baseZ + zStep);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + xStep][baseZ + zStep].surface = surface;
-					}
-				}
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
 
 				//move j
 				j+=(offsetZ-1);
@@ -928,9 +706,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
 				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-
 				while(isUpperRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
 					offsetZ++;				
@@ -941,83 +716,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					baseX + offsetX < 128)					
 					offsetX++;				
 
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].BR * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ].BL * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;
-				v.y = land[baseX+offsetX-1][baseZ+offsetZ-1].TL * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
 				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ+offsetZ-1].TR * UNITHEIGHT;
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
-				{
-					stringstream x;
-					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
-				}
-#endif
-
-				//assign the pointer to all of the appropriate surfaces
-				uchar zStep, xStep;
-				for(zStep=0; zStep<offsetZ; zStep++)
-				{
-					for(xStep=0; xStep<offsetX; xStep++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + xStep);
-						x << ", " << (unsigned int)(baseZ + zStep);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + xStep][baseZ + zStep].surface = surface;
-					}
-				}
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
 
 				//move j
 				j+=(offsetZ-1);
@@ -1035,56 +736,9 @@ void RCTGLLandscape::compileSurfaces(void)
 				y << "(" << land[i][j].BL << ", " << land[i][j].TL << ", " << land[i][j].TR << ", " << land[i][j].BR << ")";
 				DebugLog::writeToLog(y.str());
 #endif
-				//TL
-				v.x = i * UNITWIDTH;
-				v.y = land[i][j].BR * UNITHEIGHT;
-				v.z = j * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (i + 1) * UNITWIDTH;
-				v.y = land[i][j].BL * UNITHEIGHT;
-				v.z = j * UNITWIDTH;
-
-				tex.x = 1.0f;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (i + 1) * UNITWIDTH;
-				v.y = land[i][j].TL * UNITHEIGHT;
-				v.z = (j + 1) * UNITWIDTH;
-
-				tex.x = 1.0f;
-				tex.y = 1.0f;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
 				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = i * UNITWIDTH;
-				v.y = land[i][j].TR * UNITHEIGHT;
-				v.z = (j + 1) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = 1.0f;
-
-				surface->addVertex(v, tex);
-
-				if(land[i][j].surfaceLL)
-					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-				else
-					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-				surface->length = 1;
-				surface->width = 1;
-
-				land[i][j].surface = surface;
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);				
 
 				numPolys++;
 				totalPolys++;				
