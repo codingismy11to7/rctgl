@@ -7,7 +7,8 @@ using namespace std;
 class DebugLog
 {
 public:
-  static DebugLog *self();
+  static DebugLog *instance()
+    { if( !m_instance ) m_instance = new DebugLog(); return m_instance; }
 
   static void openLog();
   static void openLog( const string &filename );
@@ -24,7 +25,7 @@ public:
 
  protected:
   DebugLog();
-  static DebugLog *mSelf;
+  static DebugLog m_instance;
 
 private:
   ofstream m_outfile;

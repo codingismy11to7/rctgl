@@ -1,18 +1,10 @@
 #include "DebugLog.h"
 
-DebugLog *DebugLog::mSelf = 0;
-
-DebugLog *DebugLog::self()
-{
-  if( !mSelf )
-    mSelf = new DebugLog();
-
-  return mSelf;
-}
+DebugLog *DebugLog::m_instance = 0;
 
 DebugLog::DebugLog() : m_level(0)
 {
-  mSelf = this;
+  m_instance = this;
 }
 
 void DebugLog::openLog()
@@ -22,48 +14,48 @@ void DebugLog::openLog()
 
 void DebugLog::openLog( const string &filename )
 {
-  self()->m_outfile.open( filename.c_str() );
+  instance()->m_outfile.open( filename.c_str() );
 
-  self()->writeToLog( "<RCTGLLog>\n" );
+  instance()->writeToLog( "<RCTGLLog>\n" );
 
-  self()->m_level = 1;
+  instance()->m_level = 1;
 }
 
 void DebugLog::printTabs()
 {
-  for( int i = 0; i < self()->m_level; i++ )
-    self()->m_outfile << "\t";
+  for( int i = 0; i < instance()->m_level; i++ )
+    instance()->m_outfile << "\t";
 }
 
 void DebugLog::beginTask( const string &taskName )
 {
-  self()->printTabs();
+  instance()->printTabs();
 
-  self()->m_outfile << "<TASK NAME='" << taskName << "'>" << endl;
+  instance()->m_outfile << "<TASK NAME='" << taskName << "'>" << endl;
 
-  self()->m_level++;
+  instance()->m_level++;
 }
 
 void DebugLog::endTask()
 {
-  self()->m_level--;
+  instance()->m_level--;
 
-  self()->printTabs();
+  instance()->printTabs();
 
-  self()->m_outfile << "</TASK>" << endl;
+  instance()->m_outfile << "</TASK>" << endl;
 }
 
 void DebugLog::writeToLog(const string &msg)
 {
-  //self()->writeToLog( msg, string() );
-  self()->printTabs();
-  self()->m_outfile << msg << endl;
+  //instance()->writeToLog( msg, string() );
+  instance()->printTabs();
+  instance()->m_outfile << msg << endl;
 }
 
 /*static void DebugLog::writeToLog(const string &msg, const string &p1)
 {
-  self()->printTabs();
-  self()->m_outfile << msg << ": " << p1 << endl;
+  instance()->printTabs();
+  instance()->m_outfile << msg << ": " << p1 << endl;
 	if(validLog)
 	{
 		printTabs();
@@ -94,8 +86,8 @@ void debugLog::writeToLog(char *msg, double p1)
 
 void DebugLog::closeLog()
 {
-  self()->m_outfile << "</RCTGLLog> " << endl;
-  self()->m_outfile.close();
+  instance()->m_outfile << "</RCTGLLog> " << endl;
+  instance()->m_outfile.close();
   /*	if(validLog)
 	{
 		fprintf(handle, "</RCTGLLog>\n");
