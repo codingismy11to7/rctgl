@@ -1,6 +1,7 @@
 #include "rctgl.h"
 #include "rctgl-displaymodes.h"
 #include "rctgl-camera.h"
+#include "rctgl-frustum.h"
 
 
 float RCTColorsR[RCT_NUM_COLORS];
@@ -36,5 +37,7 @@ displayModes displayMode;
 NavModes navMode;
 
 RCTGLCamera userView;
+
+RCTGLFrustum theFrustum;
 
 

@@ -17,6 +17,7 @@
 
 #include "rctgl-displaymodes.h"
 #include "rctgl-camera.h"
+#include "rctgl-frustum.h"
 #include "DebugLog.h"
 
 #define RCT_NUM_COLORS 32
@@ -61,5 +62,7 @@ enum NavModes { FreeMode, PeepMode };
 extern NavModes navMode;
 
 extern RCTGLCamera userView;
+
+extern RCTGLFrustum theFrustum;
 
 #endif
