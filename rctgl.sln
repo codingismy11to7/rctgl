@@ -1,9 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "installer", "installer.vcproj", "{D12037D5-1BA7-405A-AF90-7DB8B53E4D9B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "installer", "installer.vcproj", "{BAB7BDE1-6B83-4927-BD8F-E5D9DB74DD2B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rctgl", "rctgl.vcproj", "{0171DFB3-33CC-4EFB-8C2D-157FC7C1DD03}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rctgl", "rctgl.vcproj", "{4A48B294-F7C0-4F0A-B0B7-82E550835D9B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -13,14 +13,14 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{D12037D5-1BA7-405A-AF90-7DB8B53E4D9B}.Debug.ActiveCfg = Debug|Win32
-		{D12037D5-1BA7-405A-AF90-7DB8B53E4D9B}.Debug.Build.0 = Debug|Win32
-		{D12037D5-1BA7-405A-AF90-7DB8B53E4D9B}.Release.ActiveCfg = Release|Win32
-		{D12037D5-1BA7-405A-AF90-7DB8B53E4D9B}.Release.Build.0 = Release|Win32
-		{0171DFB3-33CC-4EFB-8C2D-157FC7C1DD03}.Debug.ActiveCfg = Debug|Win32
-		{0171DFB3-33CC-4EFB-8C2D-157FC7C1DD03}.Debug.Build.0 = Debug|Win32
-		{0171DFB3-33CC-4EFB-8C2D-157FC7C1DD03}.Release.ActiveCfg = Release|Win32
-		{0171DFB3-33CC-4EFB-8C2D-157FC7C1DD03}.Release.Build.0 = Release|Win32
+		{BAB7BDE1-6B83-4927-BD8F-E5D9DB74DD2B}.Debug.ActiveCfg = Debug|Win32
+		{BAB7BDE1-6B83-4927-BD8F-E5D9DB74DD2B}.Debug.Build.0 = Debug|Win32
+		{BAB7BDE1-6B83-4927-BD8F-E5D9DB74DD2B}.Release.ActiveCfg = Release|Win32
+		{BAB7BDE1-6B83-4927-BD8F-E5D9DB74DD2B}.Release.Build.0 = Release|Win32
+		{4A48B294-F7C0-4F0A-B0B7-82E550835D9B}.Debug.ActiveCfg = Debug|Win32
+		{4A48B294-F7C0-4F0A-B0B7-82E550835D9B}.Debug.Build.0 = Debug|Win32
+		{4A48B294-F7C0-4F0A-B0B7-82E550835D9B}.Release.ActiveCfg = Release|Win32
+		{4A48B294-F7C0-4F0A-B0B7-82E550835D9B}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
