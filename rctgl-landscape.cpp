@@ -1503,10 +1503,10 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 			if(land[i][j].waterSurface)
 			{
 				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
-					(float)((land[i][j].lowest * UNITHEIGHT) - 0.1f),
+					(float)((land[i][j].waterLevel * UNITHEIGHT) - 0.1f),
 					(float)(j*UNITWIDTH),
 					(float)(land[i][j].waterSurface->width * UNITWIDTH),
-					(float)((land[i][j].highest - land[i][j].lowest) * UNITHEIGHT + 0.2f),					
+					(float)((land[i][j].waterLevel) * UNITHEIGHT + 0.1f),
 					(float)(land[i][j].waterSurface->length * UNITWIDTH)))					
 				{
 					if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
