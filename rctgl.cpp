@@ -130,7 +130,7 @@ void displayGame(pCpw cpw)
 	{
 		glRotated(userView.YR, 1.0f, 0.0f, 0.0f);
 		glRotated(userView.XR, 0.0f, 1.0f, 0.0f);
-		glTranslated(-userView.XV, userView.YV, -userView.ZV);		
+		glTranslated(-userView.XV, -userView.YV, -userView.ZV);		
 	}
 
 	float objHeight = 32.0f;
