@@ -359,7 +359,7 @@ bool RCTGLPark::loadPark(const string &filename)
 	m_landscape.compile();
 	m_paths.compile();
 	m_scenery.compile();
-	m_elements.compile(m_rides);
+	m_elements.compile(&m_rides);
 
 	DebugLog::endTask();
 

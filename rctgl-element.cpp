@@ -221,6 +221,41 @@ void RCTGLElementSystem::addBMHandrail(RCTGLElementElement *e, RCTGLRGB rgb, flo
 	e->obj.addPoly(poly);
 }
 
+void RCTGLElementSystem::addBMLiftBeam(RCTGLElementElement *e, RCTGLRGB rgb, float z1, float z2, float length, float baseHeight)
+{
+	RCTGLVertex vert, tx;
+	RCTGLPoly poly;
+
+	poly.setBaseRGB(rgb);
+	poly.setTextureID(m_textures[BM_LIFT_BEAM]);
+	poly.needsAlpha = true;
+
+	vert.x = 0.0f;
+	vert.y = baseHeight;
+	vert.z = z1;
+
+	tx.x = 1.0f;
+	tx.y = 0.0f;
+	poly.addVertex(vert, tx);	
+
+	vert.x += length;
+	//vert.y += UNITHEIGHT;
+	tx.y = 1.0f;	
+	poly.addVertex(vert, tx);
+
+	vert.z = z2;	
+	tx.x = 0.0f;
+	poly.addVertex(vert, tx);
+
+	vert.x -= length;
+	//vert.y -= UNITHEIGHT;
+	tx.y = 0.0f;	
+	poly.addVertex(vert, tx);
+
+	e->obj.addPoly(poly);
+}
+
+
 void RCTGLElementSystem::addBMStairs(RCTGLElementElement *e, RCTGLRGB rgb, float z1, float z2, float length, float baseHeight)
 {
 	RCTGLVertex vert, tx;
@@ -255,7 +290,7 @@ void RCTGLElementSystem::addBMStairs(RCTGLElementElement *e, RCTGLRGB rgb, float
 	e->obj.addPoly(poly);
 }
 
-void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y)
+void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem *rides, RCTGLElementElement *e, uchar x, uchar y)
 {
 	const float leftRail = 0.70f * UNITWIDTH;
 	const float rightRail = 0.30f * UNITWIDTH;
@@ -272,13 +307,13 @@ void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementEl
 	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
 
 	RCTGLRGB primaryRGB, secondaryRGB;
-	primaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-	primaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-	primaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.r = RCTColorsR[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.g = RCTColorsG[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.b = RCTColorsB[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
 
-	secondaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-	secondaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-	secondaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.r = RCTColorsR[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.g = RCTColorsG[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.b = RCTColorsB[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
 
 	switch(e->elementID)
 	{
@@ -326,6 +361,8 @@ void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementEl
 			addBMHandrail(e, primaryRGB, 0.95f * UNITWIDTH, trackLen, railHeight);
 
 			addBMStairs(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight);
+			
+			addBMLiftBeam(e, primaryRGB, 0.05f * UNITWIDTH, 0.95f * UNITWIDTH, singleAngleLen, railHeight - 0.5f);
 
 			addBMLiftCrosstie(e, primaryRGB, 0.25f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);
 			addBMLiftCrosstie(e, primaryRGB, 0.75f * trackLen, railHeight, railHeight - 0.5f, leftRail, rightRail);			
@@ -473,7 +510,7 @@ void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementEl
 	//DebugLog::writeToLog(s.str());
 }
 
-void RCTGLElementSystem::buildInverted(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y)
+void RCTGLElementSystem::buildInverted(RCTGLRideSystem *rides, RCTGLElementElement *e, uchar x, uchar y)
 {
 	const float leftRail = 0.70f * UNITWIDTH;
 	const float rightRail = 0.30f * UNITWIDTH;
@@ -490,13 +527,13 @@ void RCTGLElementSystem::buildInverted(RCTGLRideSystem rides, RCTGLElementElemen
 	const float doubleAngleLen = sqrt(UNITWIDTH*UNITWIDTH + 4.0f*UNITHEIGHT*4.0f*UNITHEIGHT);
 
 	RCTGLRGB primaryRGB, secondaryRGB;
-	primaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-	primaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
-	primaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.r = RCTColorsR[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.g = RCTColorsG[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
+	primaryRGB.b = RCTColorsB[rides->m_rides[e->rideIndex].primaryColors[e->colorCode]];
 
-	secondaryRGB.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-	secondaryRGB.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
-	secondaryRGB.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.r = RCTColorsR[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.g = RCTColorsG[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+	secondaryRGB.b = RCTColorsB[rides->m_rides[e->rideIndex].secondaryColors[e->colorCode]];
 
 	switch(e->elementID)
 	{
@@ -691,7 +728,7 @@ void RCTGLElementSystem::buildInverted(RCTGLRideSystem rides, RCTGLElementElemen
 	//DebugLog::writeToLog(s.str());
 }
 
-void RCTGLElementSystem::compile(RCTGLRideSystem rides)
+void RCTGLElementSystem::compile(RCTGLRideSystem *rides)
 {
 	DebugLog::beginTask("RCTGLElementSystem::compile");
 
@@ -721,11 +758,11 @@ void RCTGLElementSystem::compile(RCTGLRideSystem rides)
 
 				//if(!theElement->compiled) // && (theElement.index == 1 || theElement.index == 0))
 				{
-					if(rides.m_rides[theElement->rideIndex].rideType == 0x33)
+					if(rides->m_rides[theElement->rideIndex].rideType == 0x33)
 					{
 						buildSteelTwister(rides, theElement, i, j);
 					}
-					else if(rides.m_rides[theElement->rideIndex].rideType == 0x03)
+					else if(rides->m_rides[theElement->rideIndex].rideType == 0x03)
 					{
 						buildInverted(rides, theElement, i, j);
 					}
@@ -827,6 +864,7 @@ void RCTGLElementSystem::loadTextures()
 	m_textures[BM_LIFT_NETTING] = texMan.addTexture("\\elements\\netting.tga", 0);
 	m_textures[BM_NORMAL_CROSSTIE] = texMan.addTexture("\\elements\\BM-normalCrosstie.tga", 0);
 	m_textures[BM_LIFT_CROSSTIE] = texMan.addTexture("\\elements\\BM-liftCrosstie.tga", 0);
+	m_textures[BM_LIFT_BEAM] = texMan.addTexture("\\elements\\BM-liftBeam.tga", 0);
 
 	DebugLog::endTask();
 }
