@@ -11,6 +11,7 @@ class RCTGLPoly
 public:
 
 	RCTGLPoly(void);
+	~RCTGLPoly();
 	void addVertex(RCTGLVertex inVertex);
 	void addVertex(RCTGLVertex inVertex, RCTGLRGB inColor);
 	void addVertex(RCTGLVertex inVertex, RCTGLVertex inTexVertex);

@@ -57,6 +57,7 @@ private:
 
 	bool uncompressFile(char *inFile, char *outFile);
 	bool loadNames(uchar *parkData);
+	void unloadNames(void);
 };
 
 #endif

@@ -74,6 +74,14 @@ bool RCTGLPark::loadNames(uchar *parkData)
 	return true;
 }
 
+void RCTGLPark::unloadNames(void)
+{
+	for(long i=0; i<rideNameList.size(); i++)
+		free(rideNameList[i]);
+	
+	rideNameList.clear();
+}
+
 bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 {
 	char countbyte;
@@ -134,7 +142,7 @@ bool RCTGLPark::loadPark(char *filename)
 	DebugLog::beginTask("RCTGLPark::loadPark");
 	DebugLog::writeToLog(string("Loading ") + filename);
 
-	landscape.clear();
+	clearPark();
 
 	//uncompress the file
 	char *uncompressedFilename = "uncomp.dat";
@@ -337,8 +345,8 @@ void RCTGLPark::draw(void)
 	if(maxX > 127)	maxX = 127;
 	if(maxZ > 127)	maxZ = 127;
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
 }

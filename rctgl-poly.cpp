@@ -110,3 +110,10 @@ void RCTGLPoly::setTextureID(unsigned int texID)
 {
 	this->texID = texID;
 }
+
+RCTGLPoly::~RCTGLPoly()
+{			
+	RGBList.clear();
+	vertexList.clear();
+	texCoordList.clear();
+}

@@ -150,8 +150,14 @@ unsigned int RCTGLTextureManager::addTexture(const char *filepath, uchar texOpti
 	char *tmp = (char *)malloc(256);
 	char tempstr[256];
 
-	tmp = strcpy(&tempstr[0], &RCTGL_Location[0]);
-	tmp = strcat(tmp, filepath);
+	unsigned int ret;
 
-	return loadTex(tmp, texOptions);
+	tmp = strcpy(&tempstr[0], &RCTGL_Location[0]);
+	tmp = strcat(tmp, filepath);	
+
+	ret = loadTex(tmp, texOptions);
+
+	//free(tmp);
+
+	return ret;
 }
