@@ -314,7 +314,7 @@ void RCTGLScenerySystem::loadTreeTextures()
 	RCTGLTextureManager texMan;
 
 	DebugLog::beginTask("RCTGLScenerySystem::loadTreeTextures");
-
+	
 	m_treeTextures[0x00] = texMan.addTexture("\\trees\\00-1.tga", 0);
 	m_treeTextures[0x01] = texMan.addTexture("\\trees\\01-1.tga", 0);
 	m_treeTextures[0x02] = texMan.addTexture("\\trees\\02-1.tga", 0);
@@ -377,6 +377,7 @@ void RCTGLScenerySystem::loadTreeTextures()
 	m_treeTextures[0x9F] = texMan.addTexture("\\trees\\redux\\palm-test-2.tga", 0);
 	//m_treeTextures[0xA3] = texMan.addTexture("\\trees\\A3-1.tga", 0);
 	m_treeTextures[0xA3] = texMan.addTexture("\\trees\\redux\\A3-test1b.tga", 0);
+	
 
 	DebugLog::endTask();
 }

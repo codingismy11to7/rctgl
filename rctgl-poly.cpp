@@ -138,12 +138,24 @@ void RCTGLPoly::draw() const
 			{
 				uchar seqList[4] = {2, 3, 1, 0};
 
+				/*
 				glBegin(GL_TRIANGLE_STRIP);
 
 				for(int i=0; i<4; i++)
 				{
 					glTexCoord2f(m_texCoordList[seqList[i]].x, m_texCoordList[seqList[i]].y);
 					glVertex3f(m_vertexList[seqList[i]].x, m_vertexList[seqList[i]].y, m_vertexList[seqList[i]].z);
+				}		
+
+				glEnd();
+				*/
+
+				glBegin(GL_QUADS);
+
+				for(int i=0; i<4; i++)
+				{
+					glTexCoord2f(m_texCoordList[i].x, m_texCoordList[i].y);
+					glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
 				}		
 
 				glEnd();

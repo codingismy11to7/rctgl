@@ -373,7 +373,7 @@ void RCTGLPark::draw()
 	if(zWaterOffset2 >= 1.1f)
 		zWaterOffset2 = 0.1f;
 	
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);

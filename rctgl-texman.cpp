@@ -42,62 +42,32 @@ unsigned int RCTGLTextureManager::loadTex(const string &filename, uchar texOptio
 	if(texOptions)
 		buildPathTex((uchar *)pixels, width, height, texOptions);
 
+	glGenTextures(1, &texID);
+	glBindTexture(GL_TEXTURE_2D, texID);
 	
-	/*
-	if(texOptions & TEXTURE_CLAMP)
-	{
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);	
-	}
-	else
-	*/
-	{
-	
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	}
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	GLfloat borderColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+	glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 	
 	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	glGenTextures(1, &texID);
-	glBindTexture(GL_TEXTURE_2D, texID);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-
-	switch (format) {
+	switch (format)
+	{
 		case corona::PF_B8G8R8A8:
-			//printf("BGRA \n");
 			BGRA2RGBA((uchar *)pixels, width, height);
-			//break;
-		//	image = corona::CloneImage(image, corona::PF_R8G8B8A8);
-		case corona::PF_R8G8B8A8:  // process image data
-			//printf("found RGBA %4d %4d\n", width, height);
-
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		case corona::PF_R8G8B8A8:
 			gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-			//glTexImage2D ( GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (uchar *)pixels);
 			break;
 		case corona::PF_B8G8R8:
-			//printf("BGR \n");
 			BGR2RGB((uchar *)pixels, width, height);
-			//break;
-		//	image = corona::CloneImage(image, corona::PF_R8G8B8);
-		case corona::PF_R8G8B8:    // process image data
-
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-			//printf("found RGB %4d %4d\n", width, height);
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		case corona::PF_R8G8B8:
 			gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 			break;
-
 		case corona::PF_I8:
-			//printf("I8\n");
 			break;
 		default:  // can't handle the format?
 			printf("unsupported image format\n");

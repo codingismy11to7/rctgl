@@ -121,6 +121,8 @@ void displayGame(pCpw cpw)
 	glLoadIdentity();									// Reset The Current Modelview Matrix
 	glPushMatrix();
 
+	glDisable(GL_POLYGON_SMOOTH);
+
 	
 
 	if(displayMode == MAP)
@@ -348,11 +350,67 @@ void terminateRCTGL(pCpw *cpw)
 	exit(-1);
 }
 
+void doDiagnostics(void)
+{
+	DebugLog::beginTask("systemDiagnostics");
+
+	string x;
+	char *tmp = new char[4096];	//i know this is huge, but some cards
+								//support a TON of extensions, and my
+								//crappy ATI at work had appx 700 chars
+								//worth
+
+	x = "OGL vendor: ";
+	sprintf(tmp, "%s", (char *)glGetString(GL_VENDOR));
+	x += tmp;
+	DebugLog::writeToLog(x);
+
+	x = "OGL renderer: ";
+	sprintf(tmp, "%s", (char *)glGetString(GL_RENDERER));
+	x += tmp;
+	DebugLog::writeToLog(x);
+	
+	x = "OGL version: ";
+	sprintf(tmp, "%s", (char *)glGetString(GL_VERSION));
+	x += tmp;
+	DebugLog::writeToLog(x);
+
+	x = "OGL ext: ";
+	DebugLog::writeToLog(x);
+
+	sprintf(tmp, "%s", (char *)glGetString(GL_EXTENSIONS));
+
+	uchar width = 70;
+	char *tmpEnd = tmp + strlen(tmp);
+	for(char *a = tmp; a < tmpEnd;)
+	{
+		char *tmptmp = a + width;
+
+		if(tmptmp > tmpEnd)
+			break;
+
+		while(*tmptmp != ' ')
+			tmptmp--;
+
+		*tmptmp = NULL;
+
+		x = a;
+
+		DebugLog::writeToLog(x);
+
+		a = tmptmp + 1;
+	}	
+
+	DebugLog::endTask();
+
+	delete tmp;
+}
+
 int main(int argc, char **argv)
 {
 	RedirectIOToConsole();
 
-	DebugLog::openLog();
+	DebugLog::openLog();	
 
     pCpw cpw = null;
 	CpwFontFace menuFont;
@@ -360,7 +418,7 @@ int main(int argc, char **argv)
     cpwInitContext( &cpw );
 	
     windowInfo.id = 
-    cpwCreateWindowEx(cpw, "RCTGL Milestone 6", windowInfo.x, windowInfo.y, 
+    cpwCreateWindowEx(cpw, "RCTGL Milestone 7", windowInfo.x, windowInfo.y, 
                              windowInfo.width, windowInfo.height );
 
 	cpwFontMode( cpw, CPW_FONTOPT_PIXELMAP_GLFORMAT, GL_RGB );	
@@ -368,6 +426,8 @@ int main(int argc, char **argv)
 	//menuFont = cpwLoadFont( cpw, "jadem___.ttf", CPW_FONTLOC_HOST, "", "" ); //cpwLoadFont(cpw, "air_mitalic.ttf", CPW_FONTLOC_RELATIVE, "/", NULL);
 	//menuFont = cpwLoadFont( cpw, "polaroid.ttf", CPW_FONTLOC_HOST, "", "" ); //cpwLoadFont(cpw, "air_mitalic.ttf", CPW_FONTLOC_RELATIVE, "/", NULL);	
 	menuFont = cpwLoadFont( cpw, "serpntb.ttf", CPW_FONTLOC_HOST, "", "" );
+
+	doDiagnostics();
 
 	gameMenu = new RCTGLMenu(menuFont);
 	thePark = new RCTGLPark();
@@ -395,7 +455,7 @@ int main(int argc, char **argv)
 	cpwIdleCallback(cpw, idleProcessor);
 	//cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_DOUBLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR16 | CPW_SURFACE_DEPTH8 );
 	//cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_SINGLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR8 | CPW_SURFACE_DEPTH8 );
-	cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_DOUBLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR16 | CPW_SURFACE_DEPTH8 );
+	cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_DOUBLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR16 | CPW_SURFACE_DEPTH16 );	
 	
     cpwMainLoop( cpw );
 
