@@ -158,7 +158,7 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 			ReturnDown = true;
 			if(gameMenu->isExit())
 			{
-				RCTGLLog.closeLog();
+				DebugLog::closeLog();
 				exit(0);
 			}
 			else

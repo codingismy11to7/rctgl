@@ -31,7 +31,7 @@ bool RCTGLPark::loadNames(uchar *parkData)
 {
 	long i, offset;
 
-	RCTGLLog.beginTask("RCTGLPark::loadNames()");
+	DebugLog::beginTask("RCTGLPark::loadNames()");
 
 	int validNames = 0;
 
@@ -46,8 +46,10 @@ bool RCTGLPark::loadNames(uchar *parkData)
 		if(!tmp)
 		{
 			MessageBox(NULL, "Error allocating memory for name", "ERROR", MB_SETFOREGROUND | MB_OK);
-			RCTGLLog.writeToLog("Error in malloc. i=%d\n", (long)i);
-			RCTGLLog.endTask();
+			stringstream x;
+			x << "Error in malloc. i=" << i;
+			DebugLog::writeToLog(x.str());
+			DebugLog::endTask();
 			return false;
 		}		
 		
@@ -63,9 +65,11 @@ bool RCTGLPark::loadNames(uchar *parkData)
 		rideNameList.push_back(tmp);
 	}
 
-	RCTGLLog.writeToLog("Read %d names\n", (long)validNames);
+	stringstream x;
+	x << "Read " << validNames << " names";
 
-	RCTGLLog.endTask();
+	DebugLog::writeToLog(x.str());
+	DebugLog::endTask();
 
 	return true;
 }
@@ -127,8 +131,8 @@ bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 
 bool RCTGLPark::loadPark(char *filename)
 {
-	RCTGLLog.beginTask("RCTGLPark::loadPark");
-	RCTGLLog.writeToLog("Loading %s\n", filename);
+	DebugLog::beginTask("RCTGLPark::loadPark");
+	DebugLog::writeToLog(string("Loading ") + filename);
 
 	//uncompress the file
 	char *uncompressedFilename = "uncomp.dat";
@@ -190,11 +194,12 @@ bool RCTGLPark::loadPark(char *filename)
 				if(offset >= MAX_GAME_DATA)
 				{
 					MessageBox(NULL, "Error: We are beyond the game map", "ERROR", MB_OK | MB_SETFOREGROUND);
-					
-					RCTGLLog.writeToLog("Aborting. Landscape loader went beyond the game map. ");
-					RCTGLLog.writeToLog("offset=%d. ", (long)offset);
-					RCTGLLog.writeToLog("i=%d ", (long)i);
-					RCTGLLog.writeToLog("j=%d\n", (long)j);
+
+					stringstream x;
+
+					x << "Aborting. Landscape loader went beyond the game map. offset=0x" << hex << offset << dec;
+					x << "i=" << i << " j=" << j;
+					DebugLog::writeToLog(x.str());
 
 					return false;
 				}
@@ -209,9 +214,9 @@ bool RCTGLPark::loadPark(char *filename)
 				{
 				case SEGMENT_LANDSCAPE:
 					landscape.loadOffset(parkData + offset, i, j);
-					break;
-				/*
+					break;				
 				case SEGMENT_PATH:
+					/*
 					{
 						RCTGLPath *path = new RCTGLPath;
 						path->loadOffset(parkData + offset);
@@ -219,7 +224,9 @@ bool RCTGLPark::loadPark(char *filename)
 						pathList[i][j].push_back(path);
 					}
 					break;				
+					*/
 				case SEGMENT_ELEMENT:
+					/*
 					{
 						RCTGLElement *element = new RCTGLElement;
 						element->loadOffset(parkData + offset);
@@ -227,8 +234,10 @@ bool RCTGLPark::loadPark(char *filename)
 						elementList[i][j].push_back(element);
 					}
 					break;
+					*/
 				case SEGMENT_SCENERY_SINGLE:
 				case SEGMENT_SCENERY_MULTI:
+					/*
 					{
 						RCTGLScenery *scenery = new RCTGLScenery;
 						scenery->loadOffset(parkData + offset);
@@ -236,7 +245,9 @@ bool RCTGLPark::loadPark(char *filename)
 						sceneryList[i][j].push_back(scenery);
 					}
 					break;
+					*/
 				case SEGMENT_ENTRANCE:
+					/*
 					{
 						RCTGLEntrance *ent = new RCTGLEntrance;
 						ent->loadOffset(parkData + offset);
@@ -244,20 +255,34 @@ bool RCTGLPark::loadPark(char *filename)
 						entranceList[i][j].push_back(ent);
 					}
 					break;
+					*/
+				case SEGMENT_WALL:
+					/*
+					{
+						RCTGLWall *wall = new RCTGLWall;
+						wall->loadOffset(parkData + offset);
+
+						wallList[i][j].push_back(wall);
+					}
+					break;
+					*/
 
 				case SEGMENT_BANNER:
+					/*
 					{
 						RCTGLBanner *banner = new RCTGLBanner;
 						banner->loadOffset(parkData + offset);
 
 						bannerList[i][j].push_back(banner);
 					}
-					break;
-
-				*/
+					*/
+					break;				
 				default:
-					RCTGLLog.writeToLog("Unrecognized item type (%d)", (double)buffer);
-					RCTGLLog.writeToLog(" at byte %ld\n", (double)(offset));
+					{
+						stringstream x;
+						x << "Unrecognized item type (" << (short)buffer << ") at byte 0x" << hex << offset;
+						DebugLog::writeToLog(x.str());
+					}
 					break;
 				}
 
@@ -272,7 +297,7 @@ bool RCTGLPark::loadPark(char *filename)
 	//release the uncompressed data
 	free(parkData);
 
-	RCTGLLog.endTask();
+	DebugLog::endTask();
 
 	return true;
 }

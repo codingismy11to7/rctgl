@@ -26,7 +26,7 @@ unsigned int RCTGLTextureManager::loadTex(char *filename, uchar texOptions)
 
 	corona::Image* image = corona::OpenImage(filename);
 	if (!image) {
-		RCTGLLog.writeToLog("Error loading image %s\n", filename);
+		DebugLog::writeToLog(string("Error loading image ") + filename);
 		return -1;
 		// error
 	}

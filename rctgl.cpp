@@ -266,7 +266,7 @@ int main(int argc, char **argv)
 {
 	RedirectIOToConsole();
 
-	RCTGLLog.openLog();
+	DebugLog::openLog();
 
     pCpw cpw = null;
 	CpwFontFace menuFont;

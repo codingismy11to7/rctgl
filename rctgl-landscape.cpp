@@ -11,7 +11,7 @@ void RCTGLLandscape::loadTextures(void)
 {
 	RCTGLTextureManager texMan;
 
-	RCTGLLog.beginTask("RCTGLLandscape::loadTextures");
+	DebugLog::beginTask("RCTGLLandscape::loadTextures");
 
 	//non LL surfaces
 	surfaceTextures[GRASS_TILE] = texMan.addTexture("\\surfaces\\grass4b.tga", 0);
@@ -55,12 +55,12 @@ void RCTGLLandscape::loadTextures(void)
 	//water
 	waterTexture = texMan.loadTex("\\surfaces\\water1.tga", 0);
 
-	RCTGLLog.endTask();
+	DebugLog::endTask();
 }
 
 void RCTGLLandscape::clear(void)
 {
-	RCTGLLog.beginTask("RCTGLLandscape::clear");
+	DebugLog::beginTask("RCTGLLandscape::clear");
 
 	for(int i=0; i<128; i++)
 	{
@@ -81,7 +81,7 @@ void RCTGLLandscape::clear(void)
 		}
 	}
 
-	RCTGLLog.endTask();
+	DebugLog::endTask();
 }
 
 bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)

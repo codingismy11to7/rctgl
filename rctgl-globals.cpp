@@ -34,5 +34,5 @@ displayModes displayMode;
 
 NavModes navMode;
 
-debugLog RCTGLLog;
+
 

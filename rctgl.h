@@ -16,7 +16,7 @@
 #pragma comment(lib, "depend//corona//corona.lib")
 
 #include "rctgl-displaymodes.h"
-#include "debuglog.h"
+#include "DebugLog.h"
 
 #define RCT_NUM_COLORS 32
 
@@ -59,6 +59,5 @@ enum NavModes { FreeMode, PeepMode };
 
 extern NavModes navMode;
 
-extern debugLog RCTGLLog;
 
 #endif
