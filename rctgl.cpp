@@ -113,9 +113,8 @@ void displayGame(pCpw cpw)
 	glDisable (GL_BLEND);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_FRONT);
-
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	//glClearDepth(1.0f);
@@ -167,6 +166,8 @@ void displayGame(pCpw cpw)
 			glEnable(GL_FOG);
 	}
 	*/
+
+	theFrustum.extractFrustum();
 
 	thePark->draw();
 
