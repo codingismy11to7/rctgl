@@ -1,5 +1,7 @@
 #include "rctgl-path.h"
 
+using namespace RCTPath;  //import path constants
+
 RCTGLPath::RCTGLPath(void)
 {
 
