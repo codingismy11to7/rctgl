@@ -20,12 +20,12 @@
 #include "rctgl-frustum.h"
 #include "DebugLog.h"
 
-#define RCT_NUM_COLORS 32
-
-#define UNITWIDTH	3.2
-#define UNITHEIGHT	1.3
-
 typedef unsigned char uchar;
+
+static const uchar RCT_NUM_COLORS = 32;
+
+static const float UNITWIDTH	= 3.2f;
+static const float UNITHEIGHT = 1.3f;
 
 extern float RCTColorsR[RCT_NUM_COLORS];
 extern float RCTColorsG[RCT_NUM_COLORS];
