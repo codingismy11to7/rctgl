@@ -12,4 +12,7 @@ public:
 private:
 	float XR, YR, ZR;
 	float XV, YV, ZV;
+
+	void fixRot(bool xChanged, bool yChanged, bool zChanged);
+	void fixAngle(float *angle);
 };
