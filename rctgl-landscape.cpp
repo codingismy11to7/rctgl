@@ -280,32 +280,32 @@ void RCTGLLandscape::compileSurfaces(void)
 				surface->addVertex(v, tex);
 
 				//TR
-				v.x = (i + 1 + offset) * UNITWIDTH;
+				v.x = (i + 1) * UNITWIDTH;
 				v.y = land[i][j].BL * UNITHEIGHT;
 				v.z = j * UNITWIDTH;
 
-				tex.x = (float)offset;
+				tex.x = 1.0f;
 				tex.y = 0.0f;
 
 				surface->addVertex(v, tex);
 
 				//BR
-				v.x = (i + 1 + offset) * UNITWIDTH;
+				v.x = (i + 1) * UNITWIDTH;
 				v.y = land[i][j].TL * UNITHEIGHT;
-				v.z = (j + 1) * UNITWIDTH;
+				v.z = (j + 1 + offset) * UNITWIDTH;
 
-				tex.x = (float)offset;
-				tex.y = 1.0f;
+				tex.x = 1.0f;
+				tex.y = (float)offset;
 				
 				surface->addVertex(v, tex);
 
 				//BL
 				v.x = i * UNITWIDTH;
 				v.y = land[i][j].TR * UNITHEIGHT;
-				v.z = (j + 1) * UNITWIDTH;
+				v.z = (j + 1 + offset) * UNITWIDTH;
 
 				tex.x = 0.0f;
-				tex.y = 1.0f;
+				tex.y = (float)offset;
 
 				surface->addVertex(v, tex);
 
