@@ -7,7 +7,7 @@ void RCTGLObject::addPoly(RCTGLPoly newPoly)
 
 void RCTGLObject::draw() const
 {
-	for(int i=0; i<m_polyList.size(); i++)
+	for(unsigned int i=0; i<m_polyList.size(); i++)
 		m_polyList[i].draw();
 }
 
@@ -130,7 +130,7 @@ void RCTGLObject::rotateAboutCenter(float degrees, bool xAxis, bool yAxis, bool 
 
 		for(it2 = vertList->begin(); it2 != vertList->end(); it2++)
 		{
-			rotatePointAboutCenter(degrees, xAxis, yAxis, zAxis, it2);
+			rotatePointAboutCenter(degrees, xAxis, yAxis, zAxis, &(*it2));
 		}
 	}	
 

@@ -754,7 +754,7 @@ void RCTGLElementSystem::compile(RCTGLRideSystem *rides)
 		{
 			for(it1=m_elementItems[i][j].begin(); it1!=m_elementItems[i][j].end(); it1++)
 			{
-				theElement = it1;
+				theElement = &(*it1);
 
 				//if(!theElement->compiled) // && (theElement.index == 1 || theElement.index == 0))
 				{

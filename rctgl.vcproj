@@ -37,7 +37,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Release/rctgl.exe"
+				OutputFile="rctgl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Release/rctgl.pdb"
@@ -82,7 +82,6 @@
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE;TIXML_USE_STL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
-				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Debug/rctgl.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -95,7 +94,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="rctgl.exe"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/rctgl.pdb"
@@ -170,13 +169,61 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\moon.cpp">
+				RelativePath="moon.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\observer.cpp">
+				RelativePath="observer.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="rctgl-camera.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="rctgl-element.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -302,6 +349,24 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="rctgl-object.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="rctgl-park.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -339,6 +404,42 @@
 			</File>
 			<File
 				RelativePath="rctgl-poly.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="rctgl-rides.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="rctgl-scenery.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -410,13 +511,58 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sky.cpp">
+				RelativePath="sky.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\skyDome.cpp">
+				RelativePath="skyDome.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sun.cpp">
+				RelativePath="sun.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="depend\tinyxml\tinyxml.cpp">
@@ -483,16 +629,19 @@
 				RelativePath="debugLog.h">
 			</File>
 			<File
-				RelativePath=".\moon.h">
+				RelativePath="moon.h">
 			</File>
 			<File
-				RelativePath=".\observer.h">
+				RelativePath="observer.h">
 			</File>
 			<File
 				RelativePath="rctgl-camera.h">
 			</File>
 			<File
 				RelativePath="rctgl-displaymodes.h">
+			</File>
+			<File
+				RelativePath="rctgl-element.h">
 			</File>
 			<File
 				RelativePath="rctgl-frustum.h">
@@ -510,6 +659,9 @@
 				RelativePath="rctgl-menu.h">
 			</File>
 			<File
+				RelativePath="rctgl-object.h">
+			</File>
+			<File
 				RelativePath="rctgl-park.h">
 			</File>
 			<File
@@ -522,7 +674,10 @@
 				RelativePath="rctgl-rgb.h">
 			</File>
 			<File
-				RelativePath=".\rctgl-scenery.h">
+				RelativePath="rctgl-rides.h">
+			</File>
+			<File
+				RelativePath="rctgl-scenery.h">
 			</File>
 			<File
 				RelativePath="rctgl-texman.h">
@@ -534,13 +689,13 @@
 				RelativePath="rctgl.h">
 			</File>
 			<File
-				RelativePath=".\sky.h">
+				RelativePath="sky.h">
 			</File>
 			<File
-				RelativePath=".\skyDome.h">
+				RelativePath="skyDome.h">
 			</File>
 			<File
-				RelativePath=".\sun.h">
+				RelativePath="sun.h">
 			</File>
 			<File
 				RelativePath="depend\tinyxml\tinyxml.h">

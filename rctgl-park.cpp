@@ -18,7 +18,7 @@ void RCTGLPark::dumpData()
 	DebugLog::writeToLog(str);
 	printf("%s\n", str.c_str());
 
-	for(int i=0; i<m_elements.m_elementItems[posX][posZ].size(); i++)
+	for(unsigned int i=0; i<m_elements.m_elementItems[posX][posZ].size(); i++)
 	{
 		RCTGLElementElement e = m_elements.m_elementItems[posX][posZ][i];
 
