@@ -102,11 +102,11 @@ const uchar PATH_EXTEND_W	=	1;		//00000001
 }
 
 struct RCTGLPathElement {
-	uchar m_pathModifier1;
-	uchar m_pathModifier2;		;
-	uchar m_baseHeight;
-	uchar m_pathExtras;
-	uchar m_pathExtensions;
+	uchar pathModifier1;
+	uchar pathModifier2;
+	uchar baseHeight;
+	uchar pathExtras;
+	uchar pathExtensions;
 
 	RCTGLExtendedPoly *surface;
 };
@@ -124,12 +124,12 @@ public:
 	void loadTextures();
 
 private:
-	unsigned int queueTextures[4][3];	//4 queue types, with three fundamental
+	unsigned int m_queueTextures[4][3];	//4 queue types, with three fundamental
 										//tiles per queue type
-	unsigned int otherTextures[6][4][4];
+	unsigned int m_otherTextures[6][4][4];
 
-	bool isPathLinear(uchar i, uchar j, uchar k);
-	bool isPathTwoPronged(uchar i, uchar j, uchar k);
+	bool isPathLinear(uchar i, uchar j, uchar k) const;
+	bool isPathTwoPronged(uchar i, uchar j, uchar k) const;
 };
 
 
