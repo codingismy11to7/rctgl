@@ -38,7 +38,7 @@ namespace RCTScenery
 	const uchar FACES_SOUTH	=48;	//xx11xxxx
 	const uchar FACE_MASK	=48;	//00110000
 
-	const uchar numTreeObjects = 41;
+	const uchar numTreeObjects = 46;
 	const uchar treeList[] = {
 						0x00,
 						0x01,
@@ -80,7 +80,12 @@ namespace RCTScenery
 						0x81,
 						0x82,
 						0x83,
-						0x84};
+						0x84,
+						0x97,
+						0x98,
+						0x9E,
+						0x9F,
+						0xA3};
 
 }
 

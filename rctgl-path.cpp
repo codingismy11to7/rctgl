@@ -952,6 +952,20 @@ void RCTGLPathSystem::compile()
 	x << "Optimized from " << actualPolys << " to " << renderedPolys << " polygons";
 	DebugLog::writeToLog(x.str());
 
+	for(uchar m=0; m<128; m++)
+	{
+		for(uchar n=0; n<128; n++)
+		{
+			if(paths[m][n].size())
+			{
+				stringstream tmp;
+				tmp << "Size of " << (long)m << ", " << (long)n << " = " << (long)paths[m][n].size();
+				DebugLog::writeToLog(tmp.str());
+			}
+		}
+	}
+	
+
 	DebugLog::endTask();
 }
 
@@ -1023,9 +1037,38 @@ void RCTGLPathSystem::clear()
 {
 	DebugLog::beginTask("RCTGLPathSystem::clear");
 
-	for(uchar i=0; i<128; i++)
-		for(uchar j=0; j<128; j++)
+	uchar i, j, k;
+
+	map<RCTGLExtendedPoly *, bool> beenDeleted;
+
+	for(i=0; i<128; i++)	
+		for(j=0; j<128; j++)		
+			for(k=0; k<paths[i][j].size(); k++)
+				beenDeleted[paths[i][j][k].surface] = false;
+
+
+	for(i=0; i<128; i++)
+	{
+		for(j=0; j<128; j++)
+		{
+			for(k=0; k<paths[i][j].size(); k++)
+			{
+				if(!beenDeleted[paths[i][j][k].surface])
+				{
+					beenDeleted[paths[i][j][k].surface] = true;
+
+					delete paths[i][j][k].surface;					
+				}
+
+				paths[i][j][k].surface = NULL;
+			}			
+		}
+	}
+
+	for(i=0; i<128; i++)	
+		for(j=0; j<128; j++)
 			paths[i][j].clear();
+	
 
 	DebugLog::endTask();
 }

@@ -1,5 +1,6 @@
 #include "rctgl.h"
 #include "rctgl-poly.h"
+#include <map>
 
 //standard tiles
 #define GRASS_TILE		0	//000xxxxx

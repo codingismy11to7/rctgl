@@ -287,8 +287,24 @@ void RCTGLScenerySystem::clear()
 	DebugLog::beginTask("RCTGLScenerySystem::clear");
 
 	for(uchar i=0; i<128; i++)
+	{
 		for(uchar j=0; j<128; j++)
+		{
+			for(uchar k=0; k<m_scenItems[i][j].size(); k++)
+			{
+				/*
+				for(uchar l=0; l<m_scenItems[i][j][k].surfaces.size(); l++)
+				{
+					delete m_scenItems[i][j][k].surfaces[l];
+				}
+				*/
+
+				m_scenItems[i][j][k].surfaces.clear();
+			}
+
 			m_scenItems[i][j].clear();
+		}
+	}
 
 	DebugLog::endTask();
 }
@@ -311,7 +327,7 @@ void RCTGLScenerySystem::loadTreeTextures()
 	m_treeTextures[0x0F] = texMan.addTexture("\\trees\\redux\\0F-1.tga", 0);
 
 	m_treeTextures[0x11] = texMan.addTexture("\\trees\\redux\\11-1.tga", 0);
-	m_treeTextures[0x12] = texMan.addTexture("\\trees\\12-1.tga", 0);
+	m_treeTextures[0x12] = texMan.addTexture("\\trees\\redux\\12-1.tga", 0);
 	m_treeTextures[0x13] = texMan.addTexture("\\trees\\redux\\13-1.tga", 0);
 	m_treeTextures[0x14] = texMan.addTexture("\\trees\\redux\\14-1.tga", 0);
 
@@ -351,6 +367,16 @@ void RCTGLScenerySystem::loadTreeTextures()
 	m_treeTextures[0x82] = texMan.addTexture("\\trees\\redux\\82-1.tga", 0);
 	m_treeTextures[0x83] = texMan.addTexture("\\trees\\83-1.tga", 0);
 	m_treeTextures[0x84] = texMan.addTexture("\\trees\\84-1.tga", 0);
+
+	//jungle textures
+	m_treeTextures[0x97] = texMan.addTexture("\\trees\\97-1.tga", 0);
+	m_treeTextures[0x98] = texMan.addTexture("\\trees\\98-1.tga", 0);
+	//m_treeTextures[0x9E] = texMan.addTexture("\\trees\\9E-1.tga", 0);
+	m_treeTextures[0x9E] = texMan.addTexture("\\trees\\redux\\9E-test3.tga", 0);
+	//m_treeTextures[0x9F] = texMan.addTexture("\\trees\\9F-1.tga", 0);
+	m_treeTextures[0x9F] = texMan.addTexture("\\trees\\redux\\palm-test-2.tga", 0);
+	//m_treeTextures[0xA3] = texMan.addTexture("\\trees\\A3-1.tga", 0);
+	m_treeTextures[0xA3] = texMan.addTexture("\\trees\\redux\\A3-test1b.tga", 0);
 
 	DebugLog::endTask();
 }

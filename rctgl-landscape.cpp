@@ -89,50 +89,54 @@ void RCTGLLandscape::clear(void)
 {
 	DebugLog::beginTask("RCTGLLandscape::clear");
 
-	uchar i, j, x, y;
+	uchar i, j;
+
+	map <RCTGLExtendedPoly *, bool> wasDeleted;
+
+	for(i=0; i<128; i++)	
+		for(j=0; j<128; j++)
+			wasDeleted[land[i][j].surface] = false;		
+	
 
 	//clean up the surfaces
 	for(i=0; i<128; i++)
 	{
 		for(j=0; j<128; j++)
 		{
-			if(land[i][j].surface)
+			if(!wasDeleted[land[i][j].surface])
 			{
-				uchar wid, len;
+				wasDeleted[land[i][j].surface] = true;
 
-				wid = land[i][j].surface->width;
-				len = land[i][j].surface->length;
-
-				delete land[i][j].surface;
-
-				for(x=0; x<wid; x++)
-					for(y=0; y<len; y++)
-						if(land[i+x][j+y].surface)
-							land[i+x][j+y].surface = NULL;
+				delete land[i][j].surface;				
 			}
+
+			land[i][j].surface = NULL;
 		}
 	}
 
+	wasDeleted.clear();
+
 	//clean up the water
+
+	for(i=0; i<128; i++)	
+		for(j=0; j<128; j++)
+			wasDeleted[land[i][j].waterSurface] = false;		
+
 	for(i=0; i<128; i++)
 	{
 		for(j=0; j<128; j++)
 		{
-			if(land[i][j].waterSurface)
+			if(!wasDeleted[land[i][j].waterSurface])
 			{
-				uchar wid, len;
+				wasDeleted[land[i][j].waterSurface] = true;
 
-				wid = land[i][j].waterSurface->width;
-				len = land[i][j].waterSurface->length;
-
-				delete land[i][j].waterSurface;
-
-				for(x=0; x<wid; x++)
-					for(y=0; y<len; y++)
-						land[i+x][j+y].waterSurface = NULL;
+				delete land[i][j].waterSurface;				
 			}
+
+			land[i][j].waterSurface = NULL;
 		}
 	}
+
 	//clean up everything else
 	for(i=0; i<128; i++)
 	{

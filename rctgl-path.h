@@ -5,6 +5,7 @@
 #include "rctgl-texman.h"
 #include "rctgl-poly.h"
 #include <vector>
+#include <map>
 
 using namespace std;
 
