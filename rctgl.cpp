@@ -394,7 +394,8 @@ int main(int argc, char **argv)
 	cpwMouseMoveCallback(cpw, mouseMoveCallback);
 	cpwIdleCallback(cpw, idleProcessor);
 	//cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_DOUBLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR16 | CPW_SURFACE_DEPTH8 );
-	cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_SINGLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR8 | CPW_SURFACE_DEPTH8 );
+	//cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_SINGLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR8 | CPW_SURFACE_DEPTH8 );
+	cpwInitDisplayMode(cpw, CPW_SURFACE_RGBA | CPW_SURFACE_DOUBLE | CPW_SURFACE_DEPTH | CPW_SURFACE_COLOR16 | CPW_SURFACE_DEPTH8 );
 	
     cpwMainLoop( cpw );
 

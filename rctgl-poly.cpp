@@ -3,7 +3,7 @@
 using namespace RCTPoly;
 
 #define DRAW_WATER
-#define DRAW_WATER_TWO_PLANED
+//#define DRAW_WATER_TWO_PLANED
 
 RCTGLPoly::RCTGLPoly(void)
 {
