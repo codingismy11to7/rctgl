@@ -12,28 +12,28 @@ bool RCTGLPathSystem::loadOffset(uchar *data, uchar x, uchar z)
 {	
 	RCTGLPathElement tmpPath;
 
-	tmpPath.m_pathModifier1 = 0;
-	tmpPath.m_pathModifier2 = 0;
-	tmpPath.m_pathExtras = 0;
-	tmpPath.m_baseHeight = 0;
-	tmpPath.m_pathExtensions = 0;
+	tmpPath.pathModifier1 = 0;
+	tmpPath.pathModifier2 = 0;
+	tmpPath.pathExtras = 0;
+	tmpPath.baseHeight = 0;
+	tmpPath.pathExtensions = 0;
 
 	//lower 2 bits of byte 0 are path qualifier
 	//mask with 00000011
 	uchar tmp = (data[0] & 0x03);
-	tmpPath.m_pathModifier1 = tmp;
+	tmpPath.pathModifier1 = tmp;
 
 	//middle 2 bits of upper nibble of bit 1 are support type
 	//mask with 01100000 and shift right
 	tmp = ((data[1] & 0x60) >> 5);
-	tmpPath.m_pathModifier2 = tmp;
+	tmpPath.pathModifier2 = tmp;
 
 	//base height = byte 2
-	tmpPath.m_baseHeight = data[2] / 4;
+	tmpPath.baseHeight = data[2] / 4;
 
 	//upper nibble of byte 4 is path type
 	//mask with 11110000 and shift right
-	tmpPath.m_pathModifier1 |= ((data[4] & 0xF0) >> 2);
+	tmpPath.pathModifier1 |= ((data[4] & 0xF0) >> 2);
 
 	//lower nibble of byte 4 is path slope
 	//mask with 00001111
@@ -42,57 +42,57 @@ bool RCTGLPathSystem::loadOffset(uchar *data, uchar x, uchar z)
 	switch(tmp)
 	{
 	case 0x00:
-		tmpPath.m_pathModifier2 |= PATH_SLOPE_NONE;
+		tmpPath.pathModifier2 |= PATH_SLOPE_NONE;
 		break;
 	case 0x04:
-		tmpPath.m_pathModifier2 |= PATH_SLOPE_WEST;
+		tmpPath.pathModifier2 |= PATH_SLOPE_WEST;
 		break;
 	case 0x05:
-		tmpPath.m_pathModifier2 |= PATH_SLOPE_NORTH;
+		tmpPath.pathModifier2 |= PATH_SLOPE_NORTH;
 		break;
 	case 0x06:
-		tmpPath.m_pathModifier2 |= PATH_SLOPE_EAST;
+		tmpPath.pathModifier2 |= PATH_SLOPE_EAST;
 		break;
 	case 0x07:
-		tmpPath.m_pathModifier2 |= PATH_SLOPE_SOUTH;
+		tmpPath.pathModifier2 |= PATH_SLOPE_SOUTH;
 		break;
 	}
 
 	//if bit 3 is set, then the path is a queue entry point
 	if(tmp & 0x08)
-		tmpPath.m_pathModifier2 |= PATH_QUEUE_ENTRY;
+		tmpPath.pathModifier2 |= PATH_QUEUE_ENTRY;
 
 	//byte 5 has additions to the path
-	tmpPath.m_pathExtras = data[5];
+	tmpPath.pathExtras = data[5];
 
 	//byte 6 has path extensions
-	tmpPath.m_pathExtensions = data[6];
+	tmpPath.pathExtensions = data[6];
 
 	//byte 7 has edge info (extras)
 	tmp = data[7];
 
 	//upper 2 bits are for S (11000000)
 	if(tmp & 0xC0)
-		tmpPath.m_pathExtras |= MOD_APPLY_SOUTH;
+		tmpPath.pathExtras |= MOD_APPLY_SOUTH;
 	//next 2 bits are for E (00110000)
 	if(tmp & 0x30)
-		tmpPath.m_pathExtras |= MOD_APPLY_EAST;
+		tmpPath.pathExtras |= MOD_APPLY_EAST;
 	//next 2 bits are for N (00001100)
 	if(tmp & 0x0C)
-		tmpPath.m_pathExtras |= MOD_APPLY_NORTH;
+		tmpPath.pathExtras |= MOD_APPLY_NORTH;
 	//bottom 2 bits are for W (00000011)
 	if(tmp & 0x03)
-		tmpPath.m_pathExtras |= MOD_APPLY_WEST;
+		tmpPath.pathExtras |= MOD_APPLY_WEST;
 
 	paths[x][z].push_back(tmpPath);
 
 	return true;
 }
 
-bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k)
+bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k) const
 {
-	return ((paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_S) ||
-			(paths[i][j][k].m_pathExtensions & PATH_EXTEND_E &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W));
+	return ((paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_S) ||
+			(paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W));
 }
 
 void RCTGLPathSystem::compile()
@@ -132,53 +132,53 @@ void RCTGLPathSystem::compile()
 
 				unsigned int texID = 0;
 
-				switch(paths[i][j][k].m_pathModifier1 & PATH_STYLE_MASK)
+				switch(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK)
 				{
 				case PATH_STYLE_QUEUE:
 					//search for the linear path
 					if(isPathLinear(i, j, k))
 					{
-						texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][2];
+						texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][2];
 
-						if (paths[i][j][k].m_pathExtensions & PATH_EXTEND_E &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+						if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 							rotateClock = true;						
 					}
 					else
 					{
 						//standard for N & W
-						texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][1];
+						texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][1];
 
-						if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+						if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 						{
 							//do nothing
 						}						
-						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_N &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_E)
+						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
 							flipVert = true;
-						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_S &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_W)
+						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 							flipHoriz = true;
-						else if(paths[i][j][k].m_pathExtensions & PATH_EXTEND_S &&paths[i][j][k].m_pathExtensions & PATH_EXTEND_E)
+						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
 						{
 							flipHoriz = true;
 							flipVert = true;
 						}
 						else
-							texID = queueTextures[paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];
+							texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];
 					}
 					
 					break;
 				case PATH_STYLE_TARMAC:
-					texID = otherTextures[PATH_STYLE_TARMAC][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					texID = m_otherTextures[PATH_STYLE_TARMAC][paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];					
 					break;
 				case PATH_STYLE_DIRT:
-					texID = otherTextures[PATH_STYLE_DIRT][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					texID = m_otherTextures[PATH_STYLE_DIRT][paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];					
 					break;
 				case PATH_STYLE_CRAZY_TILE:
-					texID = otherTextures[PATH_STYLE_CRAZY_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					texID = m_otherTextures[PATH_STYLE_CRAZY_TILE][paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];					
 					break;
 				case PATH_STYLE_ROAD:
 					break;
 				case PATH_STYLE_TILE:
-					texID = otherTextures[PATH_STYLE_TILE][paths[i][j][k].m_pathModifier1 & PATH_SUBTYPE_MASK][0];					
+					texID = m_otherTextures[PATH_STYLE_TILE][paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];					
 					break;
 				}	
 
@@ -262,7 +262,7 @@ void RCTGLPathSystem::compile()
 				RCTGLVertex v, tex;
 
 				//figure out which direction the path slopes
-				switch(paths[i][j][k].m_pathModifier2 & PATH_SLOPE_MASK)
+				switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
 				{				
 				case PATH_SLOPE_NORTH:
 					rightOffset++;
@@ -280,7 +280,7 @@ void RCTGLPathSystem::compile()
 
 				//TL
 				v.x = startX * UNITWIDTH;
-				v.y = (paths[i][j][k].m_baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
+				v.y = (paths[i][j][k].baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
 				v.z = startZ * UNITWIDTH;
 
 				//originally 0,0
@@ -292,7 +292,7 @@ void RCTGLPathSystem::compile()
 
 				//TR
 				v.x = (startX + xLen) * UNITWIDTH;
-				v.y = (paths[i][j][k].m_baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
+				v.y = (paths[i][j][k].baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
 				v.z = startZ * UNITWIDTH;
 
 				//orginally 1,0
@@ -303,7 +303,7 @@ void RCTGLPathSystem::compile()
 
 				//BR
 				v.x = (startX+ xLen) * UNITWIDTH;
-				v.y = (paths[i][j][k].m_baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
+				v.y = (paths[i][j][k].baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
 				v.z = (startZ + zLen) * UNITWIDTH;
 
 				//originally 1,1
@@ -314,7 +314,7 @@ void RCTGLPathSystem::compile()
 
 				//BL
 				v.x = startX * UNITWIDTH;
-				v.y = (paths[i][j][k].m_baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
+				v.y = (paths[i][j][k].baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
 				v.z = (startZ + zLen) * UNITWIDTH;
 
 				//originally 0,1
@@ -394,40 +394,40 @@ void RCTGLPathSystem::loadTextures()
 	//slot 0 = no connections
 	//slot 1 = N/S connection
 	//slot 2 = N/E connection
-	queueTextures[BLUE_QUEUE][0] = texMan.addTexture("\\paths\\00-00.tga", 0);
-	queueTextures[BLUE_QUEUE][1] = texMan.addTexture("\\paths\\00-10.tga", 0);
-	queueTextures[BLUE_QUEUE][2] = texMan.addTexture("\\paths\\00-06.tga", 0);
+	m_queueTextures[BLUE_QUEUE][0] = texMan.addTexture("\\paths\\00-00.tga", 0);
+	m_queueTextures[BLUE_QUEUE][1] = texMan.addTexture("\\paths\\00-10.tga", 0);
+	m_queueTextures[BLUE_QUEUE][2] = texMan.addTexture("\\paths\\00-06.tga", 0);
 
-	queueTextures[RED_QUEUE][0] = texMan.addTexture("\\paths\\01-00.tga", 0);
-	queueTextures[RED_QUEUE][1] = texMan.addTexture("\\paths\\01-10.tga", 0);
-	queueTextures[RED_QUEUE][2] = texMan.addTexture("\\paths\\01-06.tga", 0);
+	m_queueTextures[RED_QUEUE][0] = texMan.addTexture("\\paths\\01-00.tga", 0);
+	m_queueTextures[RED_QUEUE][1] = texMan.addTexture("\\paths\\01-10.tga", 0);
+	m_queueTextures[RED_QUEUE][2] = texMan.addTexture("\\paths\\01-06.tga", 0);
 
-	queueTextures[YELLOW_QUEUE][0] = texMan.addTexture("\\paths\\02-00.tga", 0);
-	queueTextures[YELLOW_QUEUE][1] = texMan.addTexture("\\paths\\02-10.tga", 0);
-	queueTextures[YELLOW_QUEUE][2] = texMan.addTexture("\\paths\\02-06.tga", 0);
+	m_queueTextures[YELLOW_QUEUE][0] = texMan.addTexture("\\paths\\02-00.tga", 0);
+	m_queueTextures[YELLOW_QUEUE][1] = texMan.addTexture("\\paths\\02-10.tga", 0);
+	m_queueTextures[YELLOW_QUEUE][2] = texMan.addTexture("\\paths\\02-06.tga", 0);
 
-	queueTextures[GREEN_QUEUE][0] = texMan.addTexture("\\paths\\03-00.tga", 0);
-	queueTextures[GREEN_QUEUE][1] = texMan.addTexture("\\paths\\03-10.tga", 0);
-	queueTextures[GREEN_QUEUE][2] = texMan.addTexture("\\paths\\03-06.tga", 0);
+	m_queueTextures[GREEN_QUEUE][0] = texMan.addTexture("\\paths\\03-00.tga", 0);
+	m_queueTextures[GREEN_QUEUE][1] = texMan.addTexture("\\paths\\03-10.tga", 0);
+	m_queueTextures[GREEN_QUEUE][2] = texMan.addTexture("\\paths\\03-06.tga", 0);
 
 	//load road textures
 
 	//load other textures
 	//[path style][path type][connection type]
-	otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][0] = texMan.addTexture("\\paths\\04-base.tga", 0);
-	otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][0] = texMan.addTexture("\\paths\\05-00.tga", 0);
-	otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][0] = texMan.addTexture("\\paths\\06-base.tga", 0);
-	otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][0] = texMan.addTexture("\\paths\\07-00.tga", 0);
+	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][0] = texMan.addTexture("\\paths\\04-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][0] = texMan.addTexture("\\paths\\05-00.tga", 0);
+	m_otherTextures[PATH_STYLE_TARMAC][BROWN_TARMAC][0] = texMan.addTexture("\\paths\\06-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TARMAC][GREEN_TARMAC][0] = texMan.addTexture("\\paths\\07-00.tga", 0);
 
-	otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][0] = texMan.addTexture("\\paths\\0D-base.tga", 0);
-	otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][0] = texMan.addTexture("\\paths\\0E-base.tga", 0);
+	m_otherTextures[PATH_STYLE_DIRT][BROWN_DIRT][0] = texMan.addTexture("\\paths\\0D-base.tga", 0);
+	m_otherTextures[PATH_STYLE_DIRT][BLACK_DIRT][0] = texMan.addTexture("\\paths\\0E-base.tga", 0);
 
-	otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][0] = texMan.addTexture("\\paths\\0C-base.tga", 0);
+	m_otherTextures[PATH_STYLE_CRAZY_TILE][CRAZY_TILE][0] = texMan.addTexture("\\paths\\0C-base.tga", 0);
 
-	otherTextures[PATH_STYLE_TILE][PLAIN_TILE][0] = texMan.addTexture("\\paths\\08-base.tga", 0);
-	otherTextures[PATH_STYLE_TILE][GRAY_TILE][0] = texMan.addTexture("\\paths\\09-base.tga", 0);
-	otherTextures[PATH_STYLE_TILE][RED_TILE][0] = texMan.addTexture("\\paths\\0A-base.tga", 0);
-	otherTextures[PATH_STYLE_TILE][GREEN_TILE][0] = texMan.addTexture("\\paths\\0B-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TILE][PLAIN_TILE][0] = texMan.addTexture("\\paths\\08-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][0] = texMan.addTexture("\\paths\\09-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TILE][RED_TILE][0] = texMan.addTexture("\\paths\\0A-base.tga", 0);
+	m_otherTextures[PATH_STYLE_TILE][GREEN_TILE][0] = texMan.addTexture("\\paths\\0B-base.tga", 0);
 
 
 
