@@ -524,7 +524,7 @@ void RCTGLPathSystem::loadTextures()
 	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][0] = texMan.addTexture("\\paths\\04-base.tga", masks[0]);
 	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][1] = texMan.addTexture("\\paths\\04-base.tga", masks[1]);
 	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][2] = texMan.addTexture("\\paths\\04-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][3] = texMan.addTexture("\\paths\\04-base.tga", masks[2]);
+	m_otherTextures[PATH_STYLE_TARMAC][GRAY_TARMAC][3] = texMan.addTexture("\\paths\\04-base.tga", masks[3]);
 
 	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][0] = texMan.addTexture("\\paths\\05-00.tga", masks[0]);
 	m_otherTextures[PATH_STYLE_TARMAC][RED_TARMAC][1] = texMan.addTexture("\\paths\\05-00.tga", masks[1]);
@@ -564,7 +564,7 @@ void RCTGLPathSystem::loadTextures()
 	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][0] = texMan.addTexture("\\paths\\09-base.tga", masks[0]);
 	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][1] = texMan.addTexture("\\paths\\09-base.tga", masks[1]);
 	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][2] = texMan.addTexture("\\paths\\09-base.tga", masks[2]);
-	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][3] = texMan.addTexture("\\paths\\09-base.tga", masks[2]);
+	m_otherTextures[PATH_STYLE_TILE][GRAY_TILE][3] = texMan.addTexture("\\paths\\09-base.tga", masks[3]);
 
 	m_otherTextures[PATH_STYLE_TILE][RED_TILE][0] = texMan.addTexture("\\paths\\0A-base.tga", masks[0]);
 	m_otherTextures[PATH_STYLE_TILE][RED_TILE][1] = texMan.addTexture("\\paths\\0A-base.tga", masks[1]);
