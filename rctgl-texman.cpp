@@ -39,6 +39,9 @@ unsigned int RCTGLTextureManager::loadTex(const string &filename, uchar texOptio
 	image = corona::FlipImage(image, corona::CA_X);
 	void* pixels = image->getPixels();
 
+	if(texOptions)
+		buildPathTex((uchar *)pixels, width, height, texOptions);
+
 	
 	if(texOptions & TEXTURE_CLAMP)
 	{
@@ -139,8 +142,42 @@ void RCTGLTextureManager::BGR2RGB(uchar *pixels, int w, int h)
 
 void RCTGLTextureManager::buildPathTex(uchar *pixels, int w, int h, unsigned int pathOptions)
 {
+	//white is invisible (100% alpha)
+	//the tile starts out as all black (0% alpha)
+	//options specifies the areas we want to make invisible
 
+	//crop width = 1/8 of total width
+	int cropWidth = w/8;
+
+	long offset = 3;
+
+	for(int j=0; j<h; j++)
+	{
+		for(int i=0 ;i<w; i++)
+		{
+			if((pathOptions & PATH_NW) && (i<cropWidth) && (j<cropWidth))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_NE) && (i>(w-cropWidth)) && (j<cropWidth))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_SE) && (i>(w-cropWidth)) && (j>(h-cropWidth)))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_SW) && (i<cropWidth) && (j>(h-cropWidth)))
+				*(pixels + offset) = 0xFF;
+
+			else if((pathOptions & PATH_NORTH) && (i>=cropWidth) && (i<=(w-cropWidth)) && (j<cropWidth))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_SOUTH) && (i>=cropWidth) && (i<=(w-cropWidth)) && (j>(h-cropWidth)))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_EAST) && (i>(w-cropWidth)) && (j>=cropWidth) && (j<=(h-cropWidth)))
+				*(pixels + offset) = 0xFF;
+			else if((pathOptions & PATH_WEST) && (i<cropWidth) && (j>=cropWidth) && (j<=(h-cropWidth)))
+				*(pixels + offset) = 0xFF;
+
+			offset += 4;
+		}
+	}
 }
+
 
 unsigned int RCTGLTextureManager::addPathTexture(const string &filepath, unsigned int options)
 {
