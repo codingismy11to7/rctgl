@@ -9,7 +9,7 @@ unsigned int RCTGLTextureManager::loadTex(char *filename, uchar texOptions)
 {
 	enum fileTypes {TGA, PNG};
 
-	fileTypes fileType;
+	//fileTypes fileType;
 
 	//loop through the textures to see if the path exists
 	//(if the path exists, then the texture already exists)
