@@ -48,6 +48,7 @@ public:
 	void loadTextures();
 	void draw();
 	void drawSkyDome();
+	void dumpData();
 
 private:
 	uchar m_sizeX, m_sizeZ;

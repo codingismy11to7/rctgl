@@ -14,10 +14,22 @@ bool PgUpDown = false;
 bool plusKeyDown = false;
 bool minusKeyDown = false;
 bool modeKeyDown = false;
+bool dumpKeyDown = false;
 
 bool menusShown = false;
 bool isFullScreen = false;
 uint_32 menuID = -1;
+
+extern RCTGLPark *thePark;
+
+void dumpData(void)
+{
+	DebugLog::beginTask("data dump");
+
+	thePark->dumpData();	
+
+	DebugLog::endTask();
+}
 
 void showMenu(pCpw cpw, uint_32 windowID)
 {
@@ -200,6 +212,15 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 	}
 	else if(keycode == CPW_KEY_ADD && keystate == CPW_KEYMOD_UP && plusKeyDown)
 		plusKeyDown = false;
+
+	if(keycode == CPW_KEY_F7 && dumpKeyDown == false)
+	{		
+		dumpKeyDown = true;
+		dumpData();		
+	}
+	else if(keycode == CPW_KEY_F7 && keystate == CPW_KEYMOD_UP && dumpKeyDown)
+		dumpKeyDown = false;
+
 
 	if(keycode == CPW_KEY_SUBTRACT && minusKeyDown == false)
 	{

@@ -4,6 +4,53 @@ using namespace RCTPark;
 
 float xWaterOffset1, zWaterOffset1, xWaterOffset2, zWaterOffset2;
 
+void RCTGLPark::dumpData()
+{
+	int posX = userView.XV / UNITWIDTH;
+	int posZ = userView.ZV / UNITWIDTH;
+
+	stringstream x;
+	x << "User at " << posX << ", " << posZ;
+	DebugLog::writeToLog(x.str());
+	printf("%s\n", x.str().c_str());
+
+	string str = "=== Elements ===";
+	DebugLog::writeToLog(str);
+	printf("%s\n", str.c_str());
+
+	for(int i=0; i<m_elements.m_elementItems[posX][posZ].size(); i++)
+	{
+		RCTGLElementElement e = m_elements.m_elementItems[posX][posZ][i];
+
+		x.str("");
+		x << "Element #" << (int)(i);
+		DebugLog::writeToLog(x.str());
+		printf("%s\n", x.str().c_str());
+
+		x.str("");
+		x << "baseHeight: " << (int)(e.baseHeight);
+		DebugLog::writeToLog(x.str());
+		printf("%s\n", x.str().c_str());
+
+		x.str("");
+		x << "elementID: " << (int)(e.elementID);
+		DebugLog::writeToLog(x.str());
+		printf("%s\n", x.str().c_str());
+
+		x.str("");
+		x << "rideID: " << (int)(e.rideIndex);
+		DebugLog::writeToLog(x.str());
+		printf("%s\n", x.str().c_str());
+
+		x.str("");
+		x << "itemIndex: " << (int)(e.index);
+		DebugLog::writeToLog(x.str());
+		printf("%s\n\n", x.str().c_str());
+	}
+		
+
+}
+
 RCTGLPark::RCTGLPark()
 {	
 	//set a default for SV4 files, but add support for SV6

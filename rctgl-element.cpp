@@ -54,11 +54,87 @@ bool RCTGLElementSystem::isElementSame(RCTGLElementElement sourceElement)
 	return true;	
 }
 
+void RCTGLElementSystem::addStraightRail(RCTGLElementElement *e, RCTGLRGB color, float height, float length, float radius, float z, float baseX, float baseY, float baseZ)
+{
+	RCTGLPoly poly;
+	RCTGLVertex vert;
+
+	poly.setBaseRGB(color);
+
+	//go in positive x direction
+
+	//top right corner
+	//start at top center of rail
+	vert.x = baseX * UNITWIDTH;
+	vert.y = baseY * UNITHEIGHT + height + 2.0f * radius;
+	vert.z = baseZ * UNITWIDTH + z;
+	poly.addVertex(vert);
+
+	vert.y -= radius;
+	vert.z -= radius;
+	poly.addVertex(vert);
+
+	vert.x += length;
+	poly.addVertex(vert);
+
+	vert.y += radius;
+	vert.z += radius;
+	poly.addVertex(vert);
+
+	e->surfaces.push_back(poly);
+
+	//top left corner	
+	poly.clear();
+	vert.x = baseX * UNITWIDTH;
+	vert.y = baseY * UNITHEIGHT + height + 2.0f * radius;
+	vert.z = baseZ * UNITWIDTH + z;
+	poly.addVertex(vert);
+
+	vert.y -= radius;
+	vert.z += radius;
+	poly.addVertex(vert);
+
+	vert.x += length;
+	poly.addVertex(vert);
+
+	vert.y += radius;
+	vert.z -= radius;
+	poly.addVertex(vert);
+
+	e->surfaces.push_back(poly);
+}
+
 void RCTGLElementSystem::buildSteelTwister(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y)
 {
+	const float leftRail = 0.75f * UNITWIDTH;
+	const float rightRail = 0.25f * UNITWIDTH;
+	const float leftBeam = 0.55f * UNITWIDTH;
+	const float rightBeam = 0.45f * UNITWIDTH;
+	const float railRadius = 0.025f * UNITWIDTH;
+	const float railHeight = 0.9f;
 	switch(e->elementID)
 	{
+	//straight piece
+	case 0x00:
+	//brake
+	case 0x63:
+	case 0x44:
+	case 0x64:
+	case 0x65:
+	//station pieces
+	case 0x01:
+	case 0x02:
+	case 0x03:
+		RCTGLRGB rgb;
 
+		rgb.r = RCTColorsR[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+		rgb.g = RCTColorsG[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];
+		rgb.b = RCTColorsB[rides.m_rides[e->rideIndex].secondaryColors[e->colorCode]];			
+
+		addStraightRail(e, rgb, railHeight, UNITWIDTH, railRadius, rightRail, x, e->baseHeight, y);
+		addStraightRail(e, rgb, railHeight, UNITWIDTH, railRadius, leftRail, x, e->baseHeight, y);
+
+		break;
 	case 0x04:
 		if(e->isLift)
 		{
@@ -198,7 +274,7 @@ void RCTGLElementSystem::compile(RCTGLRideSystem rides)
 			{
 				theElement = m_elementItems[i][j][k];
 
-				if(!theElement.compiled && !theElement.index == 1)
+				if(!theElement.compiled) // && (theElement.index == 1 || theElement.index == 0))
 				{
 					if(rides.m_rides[theElement.rideIndex].rideType == 0x33)
 					{
@@ -237,9 +313,11 @@ void RCTGLElementSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) co
 	*/	
 
 
-	for(i=minX; i<maxX; i++)
+	//for(i=minX; i<maxX; i++)
+	for(i=0; i<128; i++)
 	{
-		for(j=minZ; j<maxZ; j++)
+		//for(j=minZ; j<maxZ; j++)
+		for(j=0; j<128; j++)
 		{
 			for(k=0; k<m_elementItems[i][j].size(); k++)
 			{

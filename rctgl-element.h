@@ -55,6 +55,8 @@ private:
 
 	bool isElementSame(RCTGLElementElement sourceElement);
 	void buildSteelTwister(RCTGLRideSystem rides, RCTGLElementElement *e, uchar x, uchar y);
+
+	void addStraightRail(RCTGLElementElement *e, RCTGLRGB color, float height, float length, float radius, float z, float baseX, float baseY, float baseZ);
 };
 
 #endif
