@@ -21,6 +21,13 @@
 //MSB on a single byte
 #define SEGMENT_LAST			0x80
 
+#define MAX_GAME_DATA			0x6000F //393231
+
+#define PARK_MAX_NAMES			1024
+#define PARK_NAME_SIZE			32
+
+#define SV4_NAME_START			0x19B89C
+
 using namespace std;
 
 class RCTGLPark
@@ -34,6 +41,8 @@ public:
 	void draw(void);
 
 private:
+	unsigned char sizeX, sizeZ;
+
 	RCTGLLandscape landscape;
 
 	vector <RCTGLPath> pathList[128][128];

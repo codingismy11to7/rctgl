@@ -2,6 +2,9 @@
 
 RCTGLPark::RCTGLPark(void)
 {	
+	//set a default for SV4 files, but add support for SV6
+	//when RCTGL gets to that point
+	sizeX = sizeZ = 128;
 }
 
 bool RCTGLPark::clearPark(void)
@@ -32,11 +35,13 @@ bool RCTGLPark::loadNames(unsigned char *parkData)
 
 	int validNames = 0;
 
-	for(i=0; i<1024; i++)
+	unsigned char nameStart = SV4_NAME_START;
+
+	for(i=0; i<PARK_MAX_NAMES; i++)
 	{
 		char *tmp;
 
-		tmp = (char *)malloc(32);
+		tmp = (char *)malloc(PARK_NAME_SIZE);
 
 		if(!tmp)
 		{
@@ -46,10 +51,10 @@ bool RCTGLPark::loadNames(unsigned char *parkData)
 			return false;
 		}		
 		
-		offset = 32 * i;
+		offset = PARK_NAME_SIZE * i;
 
-		for(int j=0; j<32; j++)
-			tmp[j] = (char)parkData[0x19B89C + offset + j];
+		for(int j=0; j<PARK_NAME_SIZE; j++)
+			tmp[j] = (char)parkData[nameStart + offset + j];
 
 
 		if(strlen(tmp) > 0)
@@ -174,15 +179,15 @@ bool RCTGLPark::loadPark(char *filename)
 
 	bool lastItem;
 
-	for(i=0; i<128; i++)
+	for(i=0; i<sizeX; i++)
 	{
-		for(int j=0; j<128; j++)
+		for(int j=0; j<sizeZ; j++)
 		{
 			lastItem = false;
 
 			while(!lastItem)
 			{
-				if(offset >= 393231)
+				if(offset >= MAX_GAME_DATA)
 				{
 					MessageBox(NULL, "Error: We are beyond the game map", "ERROR", MB_OK | MB_SETFOREGROUND);
 					
@@ -279,7 +284,7 @@ void RCTGLPark::loadTextures(void)
 
 void RCTGLPark::draw(void)
 {
-	unsigned char minX = 0, maxX = 128, minZ = 0, maxZ = 128;
+	unsigned char minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
 
 	landscape.draw(minX, minZ, maxX, maxZ);
 }
