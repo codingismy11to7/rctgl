@@ -138,6 +138,7 @@ private:
 	bool isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width);
 
 	void assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface);
+	void assignWaterSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface);
 	void addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface, bool isWater);
 };
 

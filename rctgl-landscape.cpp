@@ -583,7 +583,42 @@ void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ,
 			DebugLog::writeToLog(x.str());
 #endif
 
-			land[startX + xStep][startZ + zStep].surface = surface;
+			if(land[startX + xStep][startZ + zStep].surface)
+			{
+				stringstream x;
+				x << "Error: Polygon at " << (unsigned int)(startX + xStep) << ", " << (unsigned int)(startZ + zStep) << " was reassigned";
+				DebugLog::writeToLog(x.str());
+			}
+			else
+				land[startX + xStep][startZ + zStep].surface= surface;
+		}
+	}
+}
+
+void RCTGLLandscape::assignWaterSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface)
+{
+	//assign the pointer to all of the appropriate surfaces
+	uchar zStep, xStep;
+	for(zStep=0; zStep<zLen; zStep++)
+	{
+		for(xStep=0; xStep<xLen; xStep++)
+		{
+#ifdef DETAILED_LOG
+			stringstream x;
+			x << "Setting land at " << (unsigned int)(startX + xStep);
+			x << ", " << (unsigned int)(startZ + zStep);
+			x << " to value at " << (unsigned int)startX << ", " << (unsigned int)startZ;
+			DebugLog::writeToLog(x.str());
+#endif
+
+			if(land[startX + xStep][startZ + zStep].waterSurface)
+			{
+				stringstream x;
+				x << "Error: Polygon at " << (unsigned int)(startX + xStep) << ", " << (unsigned int)(startZ + zStep) << " was reassigned";
+				DebugLog::writeToLog(x.str());
+			}
+			else
+				land[startX + xStep][startZ + zStep].waterSurface= surface;
 		}
 	}
 }
@@ -668,248 +703,242 @@ void RCTGLLandscape::compileSurfaces()
 	{
 		for(j=0; j<128; j++)
 		{
-			//create the surface
-			RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;			
-
-			surface->setBaseRGB(rgb);
-
-			uchar baseZ = j, baseX = i;
-			uchar offsetZ = 1, offsetX = 1;
-
+			if(!land[i][j].surface)
+			{
+				//create the surface
+				RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;			
+				
+				surface->setBaseRGB(rgb);
+				
+				uchar baseZ = j, baseX = i;
+				uchar offsetZ = 1, offsetX = 1;
+				
 #ifdef DETAILED_LOG
-			stringstream coords;
-			coords << " === Processing " << (unsigned int)i << ", " << (unsigned int)j << " ===";
-			DebugLog::writeToLog(coords.str());
+				stringstream coords;
+				coords << " === Processing " << (unsigned int)i << ", " << (unsigned int)j << " ===";
+				DebugLog::writeToLog(coords.str());
 #endif
-
+				
 #ifdef OPTIMIZE_LANDSCAPE
-			//check for optimizations
-			//handle flat pieces
-			// 0 0
-			// 0 0
-			if(land[i][j].TL == land[i][j].TR &&
-				land[i][j].TL == land[i][j].BR &&
-				land[i][j].TL == land[i][j].BL &&
-				!land[i][j].surface)			
-			{
-#ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Optimizing flat land");
-#endif
-				//find out how long the land segment lasts
-				while(isFlatLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isFlatRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)
-					offsetX++;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
+				//check for optimizations
+				//handle flat pieces
+				// 0 0
+				// 0 0
+				if(land[i][j].TL == land[i][j].TR &&
+					land[i][j].TL == land[i][j].BR &&
+					land[i][j].TL == land[i][j].BL)			
 				{
-					stringstream x;
-					x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
+#ifdef DETAILED_LOG
+					DebugLog::writeToLog((string)"Optimizing flat land");
+#endif
+					//find out how long the land segment lasts
+					while(isFlatLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isFlatRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)
+						offsetX++;
+					
+#ifdef DETAILED_LOG
+					if(offsetX > 1 && offsetZ > 1)
+					{
+						stringstream x;
+						x << "Expanding flat land at " << (unsigned int)i << ", " << (unsigned int)j;
+						x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
+						DebugLog::writeToLog(x.str());
+					}
+#endif
 				}
-#endif
-			}
-			//handle left-raised land
-			// 1 0
-			// 1 0
-			else if(land[i][j].BL == land[i][j].BR &&
+				//handle left-raised land
+				// 1 0
+				// 1 0
+				else if(land[i][j].BL == land[i][j].BR &&
 					land[i][j].TL == land[i][j].TR &&
 					land[i][j].BL == land[i][j].TL + 1 &&
-					land[i][j].BR == land[i][j].TR + 1 &&
-					!land[i][j].surface)
-			{
+					land[i][j].BR == land[i][j].TR + 1)
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Optimizing left-raised land");
+					DebugLog::writeToLog((string)"Optimizing left-raised land");
 #endif
-				//find out how long the land segment lasts
-				while(isLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;				
-			}
-			//handle right-raised land
-			// 0 1
-			// 0 1
-			else if(land[i][j].BL == land[i][j].BR &&
+					//find out how long the land segment lasts
+					while(isLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;				
+				}
+				//handle right-raised land
+				// 0 1
+				// 0 1
+				else if(land[i][j].BL == land[i][j].BR &&
 					land[i][j].TL == land[i][j].TR &&
 					land[i][j].BL == land[i][j].TL - 1 &&
-					land[i][j].BR == land[i][j].TR - 1 &&
-					!land[i][j].surface)
-			{
+					land[i][j].BR == land[i][j].TR - 1)
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Optimizing right-raised land");
+					DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
-				//find out how long the land segment lasts
-				while(isRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;				
-			}
-			//lower raised land
-			// 0 0
-			// 1 1
-			else if(land[i][j].BL == land[i][j].TL &&
+					//find out how long the land segment lasts
+					while(isRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;				
+				}
+				//lower raised land
+				// 0 0
+				// 1 1
+				else if(land[i][j].BL == land[i][j].TL &&
 					land[i][j].BR == land[i][j].TR &&
 					land[i][j].BL == land[i][j].BR - 1 &&
-					land[i][j].TL == land[i][j].TR - 1 &&
-					!land[i][j].surface)
-			{
+					land[i][j].TL == land[i][j].TR - 1)
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Optimizing right-raised land");
+					DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
-				//find out how long the land segment lasts
-				while(isLowerRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isLowerRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;				
-			}
-			//upper raised land
-			// 1 1
-			// 0 0
-			else if(land[i][j].BL == land[i][j].TL &&
+					//find out how long the land segment lasts
+					while(isLowerRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isLowerRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;				
+				}
+				//upper raised land
+				// 1 1
+				// 0 0
+				else if(land[i][j].BL == land[i][j].TL &&
 					land[i][j].BR == land[i][j].TR &&
 					land[i][j].BL == land[i][j].BR + 1 &&
-					land[i][j].TL == land[i][j].TR + 1 &&
-					!land[i][j].surface)
-			{
+					land[i][j].TL == land[i][j].TR + 1)
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Optimizing right-raised land");
+					DebugLog::writeToLog((string)"Optimizing right-raised land");
 #endif
-				//find out how long the land segment lasts
-				while(isUpperRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isUpperRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;				
-			}
-			//upper right raised land
-			// 1 2
-			// 0 1
-			else if(land[i][j].BL == land[i][j].TR &&
+					//find out how long the land segment lasts
+					while(isUpperRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isUpperRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;				
+				}
+				//upper right raised land
+				// 1 2
+				// 0 1
+				else if(land[i][j].BL == land[i][j].TR &&
 					land[i][j].BL == land[i][j].TL - 1 &&
-					land[i][j].BL == land[i][j].BR + 1 &&
-					!land[i][j].surface)
-			{
-				//find out how long the land segment lasts
-				while(isUpperRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isUpperRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;
-			}
-			//bottom left raised land
-			// 1 0
-			// 2 1
-			else if(land[i][j].BL == land[i][j].TR &&
+					land[i][j].BL == land[i][j].BR + 1)
+				{
+					//find out how long the land segment lasts
+					while(isUpperRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isUpperRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;
+				}
+				//bottom left raised land
+				// 1 0
+				// 2 1
+				else if(land[i][j].BL == land[i][j].TR &&
 					land[i][j].BL == land[i][j].TL + 1 &&
-					land[i][j].BL == land[i][j].BR - 1 &&
-					!land[i][j].surface)
-			{
-				//find out how long the land segment lasts
-				while(isLowerLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isLowerLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;
-			}
-			//upper left raised land
-			// 2 1
-			// 1 0
-			else if(land[i][j].BR == land[i][j].TL &&
+					land[i][j].BL == land[i][j].BR - 1)
+				{
+					//find out how long the land segment lasts
+					while(isLowerLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isLowerLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;
+				}
+				//upper left raised land
+				// 2 1
+				// 1 0
+				else if(land[i][j].BR == land[i][j].TL &&
 					land[i][j].BR == land[i][j].TR + 1 &&
-					land[i][j].BR == land[i][j].BL - 1 &&
-					!land[i][j].surface) 
-			{
-				//find out how long the land segment lasts
-				while(isUpperLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isUpperLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;
-			}
-			//lower right raised land
-			// 0 1
-			// 1 2
-			else if(land[i][j].BR == land[i][j].TL &&
+					land[i][j].BR == land[i][j].BL - 1) 
+				{
+					//find out how long the land segment lasts
+					while(isUpperLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isUpperLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;
+				}
+				//lower right raised land
+				// 0 1
+				// 1 2
+				else if(land[i][j].BR == land[i][j].TL &&
 					land[i][j].BR == land[i][j].TR - 1 &&
-					land[i][j].BR == land[i][j].BL + 1 &&
-					!land[i][j].surface) 
-			{
-				//find out how long the land segment lasts
-				while(isLowerRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
-					baseZ + offsetZ < 128)
-					offsetZ++;				
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isLowerRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)					
-					offsetX++;
-			}
-			else if(land[i][j].surface)
-			{
+					land[i][j].BR == land[i][j].BL + 1) 
+				{
+					//find out how long the land segment lasts
+					while(isLowerRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+						baseZ + offsetZ < 128)
+						offsetZ++;				
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isLowerRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)					
+						offsetX++;
+				}
+				else if(land[i][j].surface)
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Surface already assigned");
+					DebugLog::writeToLog((string)"Surface already assigned");
 #endif
-				continue;
-			}
-			else if(!land[i][j].surface)
+					continue;
+				}
+				else if(!land[i][j].surface)
 #endif //#ifdef OPTIMIZE_LANDSCAPE
-			{
+				{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"NOT optimizing land");
-				stringstream y;		
-				y << "(" << land[i][j].BL << ", " << land[i][j].TL << ", " << land[i][j].TR << ", " << land[i][j].BR << ")";
-				DebugLog::writeToLog(y.str());
+					DebugLog::writeToLog((string)"NOT optimizing land");
+					stringstream y;		
+					y << "(" << land[i][j].BL << ", " << land[i][j].TL << ", " << land[i][j].TR << ", " << land[i][j].BR << ")";
+					DebugLog::writeToLog(y.str());
 #endif
+				}
+				
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, false);
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
+				
+				//move j
+				j+=(offsetZ-1);
+				
+				numPolys++;
+				totalPolys += (offsetZ * offsetX);
 			}
-
-			addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, false);
-			assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-			//move j
-			j+=(offsetZ-1);
-
-			numPolys++;
-			totalPolys += (offsetZ * offsetX);
 		}
 	}
 
@@ -1108,40 +1137,43 @@ void RCTGLLandscape::compileWater()
 	{
 		for(j=0; j<128; j++)
 		{
-			//create the surface
-			RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;
-
-			surface->setBaseRGB(rgb);
-
-			//check for optimizations
-			if(land[i][j].drawWater && !land[i][j].waterSurface)
+			if(!land[i][j].waterSurface)
 			{
-				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
-#ifdef OPTIMIZE_LANDSCAPE
-				while(isWaterSame(i, baseZ, i, baseZ+offsetZ) && 
-					baseZ + offsetZ < 128)
-					offsetZ++;
-
-				//now that we have the maximum Z for this segment, let's
-				//find how far it extends in the X direction
-				while(isWaterRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
-					baseX + offsetX < 128)
-					offsetX++;
-#endif //#ifdef OPTIMIZE_LANDSCAPE
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, true);
-
-				surface->setTextureID(waterTexture);
+				//create the surface
+				RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;
 				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
+				surface->setBaseRGB(rgb);
+				
+				//check for optimizations
+				if(land[i][j].drawWater && !land[i][j].waterSurface)
+				{
+					//find out how long the land segment lasts
+					uchar baseZ = j, baseX = i;
+					uchar offsetZ = 1, offsetX = 1;
+#ifdef OPTIMIZE_LANDSCAPE
+					while(isWaterSame(i, baseZ, i, baseZ+offsetZ) && 
+						baseZ + offsetZ < 128)
+						offsetZ++;
+					
+					//now that we have the maximum Z for this segment, let's
+					//find how far it extends in the X direction
+					while(isWaterRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+						baseX + offsetX < 128)
+						offsetX++;
+#endif //#ifdef OPTIMIZE_LANDSCAPE
+					
+					addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, true);
+					
+					surface->setTextureID(waterTexture);
+					
+					assignWaterSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
+					
+					//move j
+					j+=(offsetZ-1);
+					
+					numPolys++;
+					totalPolys += (offsetZ * offsetX);
+				}
 			}		
 		}
 	}
