@@ -13,6 +13,7 @@ public:
 	RCTGLPoly(void);
 	void addVertex(RCTGLVertex inVertex);
 	void addVertex(RCTGLVertex inVertex, RCTGLRGB inColor);
+	void addVertex(RCTGLVertex inVertex, RCTGLVertex inTexVertex);
 	void addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex inTexVert);
 
 	void setBaseRGB(RCTGLRGB baseRGB);

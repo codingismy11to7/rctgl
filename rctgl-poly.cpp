@@ -45,6 +45,20 @@ void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor)
 	vertexCount++;
 }
 
+void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLVertex inTexVertex)
+{
+	RCTGLVertex vert; // = new RCTGLVertex;
+	vert.copy(inVertex);
+	vertexList.push_back(vert);
+
+	RCTGLVertex newTexVert; // = new RCTGLRGB;
+	newTexVert.copy(inTexVertex);	
+
+	texCoordList.push_back(newTexVert);
+
+	vertexCount++;
+}
+
 void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex inTexVert)
 {
 	addVertex(inVertex, inColor);
@@ -61,7 +75,15 @@ void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex in
 void RCTGLPoly::draw(void)
 {
 	if(texID > 0)
+	{
 		glBindTexture(GL_TEXTURE_2D, texID);
+		stringstream x;
+		x << "TexID=" << (long)texID;
+
+		//DebugLog::writeToLog(x.str());
+	}
+	//else	
+		//DebugLog::writeToLog((string)"No Texture ID");
 
 	glColor3f(baseRGB.r, baseRGB.g, baseRGB.b);
 
@@ -86,5 +108,5 @@ void RCTGLPoly::draw(void)
 
 void RCTGLPoly::setTextureID(unsigned int texID)
 {
-	texID = texID;
+	this->texID = texID;
 }
