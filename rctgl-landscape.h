@@ -52,6 +52,7 @@ class RCTGLLandscapePoly : public RCTGLPoly
 {
 public:
 	bool wasDrawn;
+	uchar length;
 };
 
 struct landscapeElement
