@@ -134,6 +134,8 @@ bool RCTGLPark::loadPark(char *filename)
 	DebugLog::beginTask("RCTGLPark::loadPark");
 	DebugLog::writeToLog(string("Loading ") + filename);
 
+	landscape.clear();
+
 	//uncompress the file
 	char *uncompressedFilename = "uncomp.dat";
 
@@ -303,6 +305,14 @@ bool RCTGLPark::loadPark(char *filename)
 	DebugLog::endTask();
 
 	displayMode = GAME;
+
+	userView.XV = 0.0f;
+	userView.YV = landscape.land[1][1].highest + 10.0f;
+	userView.ZV = 0.0f;
+
+	userView.XR = 0.0f;
+	userView.YR = 0.0f;
+	userView.ZR = 45.0f;
 
 	return true;
 }
