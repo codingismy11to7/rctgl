@@ -522,6 +522,9 @@
 				RelativePath="rctgl-rgb.h">
 			</File>
 			<File
+				RelativePath=".\rctgl-scenery.h">
+			</File>
+			<File
 				RelativePath="rctgl-texman.h">
 			</File>
 			<File
