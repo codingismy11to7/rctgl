@@ -1,5 +1,7 @@
 #include "rctgl-input.h"
 
+using namespace RCTInput;
+
 displayModes oldState;
 
 bool escapeDown = false;

@@ -6,10 +6,14 @@
 
 #include CPWDLL_LOC
 
-#define WALK_SPEED		6
-#define WALK_SPEED_FAST	14
-#define FLY_SPEED		10
-#define FLY_SPEED_FAST	25
+namespace RCTInput {
+
+const uchar WALK_SPEED		=6;
+const uchar WALK_SPEED_FAST	=14;
+const uchar FLY_SPEED		=10;
+const uchar FLY_SPEED_FAST	=25;
+
+}
 
 extern RCTGLMenu *gameMenu;
 
