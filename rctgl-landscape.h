@@ -91,15 +91,18 @@ public:
 
 	void clear(void);
 	bool draw(uchar x1, uchar z1, uchar x2, uchar z2);
-private:
-	
 
+private:
 	unsigned int surfaceTextures[16];
 	unsigned int edgeTextures[16];
 	unsigned int waterTexture;
 
 	float getLowestPoint(int i, int j);
 	float getHighestPoint(int i, int j);
+
+	void compileSurfaces(void);
+	void compileEdges(void);
+	void compileWater(void);
 };
 
 

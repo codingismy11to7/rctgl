@@ -232,12 +232,14 @@ bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)
 	return true;
 }
 
-void RCTGLLandscape::compile(void)
+void RCTGLLandscape::compileSurfaces(void)
 {
+	DebugLog::beginTask((string)"RCTGLLandscape::compileSurfaces()");
+
+	uchar i, j, k;
+
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
-
-	int i, j;
 
 	//build the surfaces
 	for(i=0; i<128; i++)
@@ -251,119 +253,138 @@ void RCTGLLandscape::compile(void)
 
 			surface->setBaseRGB(rgb);
 
-			//TL
-			v.x = i * UNITWIDTH;
-			v.y = land[i][j].BR * UNITHEIGHT;
-			v.z = j * UNITWIDTH;
-
-			tex.x = 0.0f;
-			tex.y = 0.0f;
-			tex.z = 0.0f;
-
-			surface->addVertex(v, tex);
-
-			//TR
-			v.x = (i + 1) * UNITWIDTH;
-			v.y = land[i][j].BL * UNITHEIGHT;
-			v.z = j * UNITWIDTH;
-
-			tex.x = 1.0f;
-			tex.y = 0.0f;
-
-			surface->addVertex(v, tex);
-
-			//BR
-			v.x = (i + 1) * UNITWIDTH;
-			v.y = land[i][j].TL * UNITHEIGHT;
-			v.z = (j + 1) * UNITWIDTH;
-
-			tex.x = 1.0f;
-			tex.y = 1.0f;
-			
-			surface->addVertex(v, tex);
-
-			//BL
-			v.x = i * UNITWIDTH;
-			v.y = land[i][j].TR * UNITHEIGHT;
-			v.z = (j + 1) * UNITWIDTH;
-
-			tex.x = 0.0f;
-			tex.y = 1.0f;
-
-			surface->addVertex(v, tex);
-
-			if(land[i][j].surfaceLL)
-				surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
-			else
-				surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
-
-			
-			land[i][j].surface = surface;
-
-
-			//add the water if necessary
-			if(land[i][j].TR < land[i][j].waterLevel ||
-				land[i][j].BR < land[i][j].waterLevel ||
-				land[i][j].BL < land[i][j].waterLevel ||
-				land[i][j].TL < land[i][j].waterLevel)
+			//check for optimizations
+			if(land[i][j].TL == land[i][j].TR == land[i][j].BR == land[i][j].BL)
 			{
-				RCTGLLandscapePoly *waterSurface = new RCTGLLandscapePoly;
-
-				waterSurface->setBaseRGB(rgb);
+				//find out how long the land segment lasts
+				uchar base = j;
+				uchar offset = 1;
+				while(land[i][base].TL == land[i][base+offset].TL &&
+					land[i][base].BL == land[i][base+offset].BL &&
+					land[i][base].BR == land[i][base+offset].BR &&
+					land[i][base].TR == land[i][base+offset].TR &&
+					base + offset < 128)
+					offset++;
 
 				//TL
 				v.x = i * UNITWIDTH;
-				v.y = land[i][j].waterLevel * UNITHEIGHT;
+				v.y = land[i][j].BR * UNITHEIGHT;
 				v.z = j * UNITWIDTH;
 
 				tex.x = 0.0f;
 				tex.y = 0.0f;
 				tex.z = 0.0f;
 
-				waterSurface->addVertex(v, tex);
+				surface->addVertex(v, tex);
 
 				//TR
-				v.x = (i + 1) * UNITWIDTH;				
+				v.x = (i + 1 + offset) * UNITWIDTH;
+				v.y = land[i][j].BL * UNITHEIGHT;
 				v.z = j * UNITWIDTH;
 
-				tex.x = 1.0f;
+				tex.x = (float)offset;
 				tex.y = 0.0f;
 
-				waterSurface->addVertex(v, tex);
+				surface->addVertex(v, tex);
 
 				//BR
-				v.x = (i + 1) * UNITWIDTH;				
+				v.x = (i + 1 + offset) * UNITWIDTH;
+				v.y = land[i][j].TL * UNITHEIGHT;
 				v.z = (j + 1) * UNITWIDTH;
 
-				tex.x = 1.0f;
+				tex.x = (float)offset;
 				tex.y = 1.0f;
 				
-				waterSurface->addVertex(v, tex);
+				surface->addVertex(v, tex);
 
 				//BL
-				v.x = i * UNITWIDTH;				
+				v.x = i * UNITWIDTH;
+				v.y = land[i][j].TR * UNITHEIGHT;
 				v.z = (j + 1) * UNITWIDTH;
 
 				tex.x = 0.0f;
 				tex.y = 1.0f;
 
-				waterSurface->addVertex(v, tex);
+				surface->addVertex(v, tex);
 
-				waterSurface->setTextureID(waterTexture);
+				
+				//assign the texture
+				if(land[i][j].surfaceLL)
+					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
+				else
+					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
 
-				land[i][j].waterSurface = waterSurface;
+				//assign the pointer to all of the appropriate surfaces
+				for(k=0; k<offset; k++)
+					land[i][j+k].surface = surface;
 
-				if(land[i][j].TR < land[i][j].waterLevel &&
-					land[i][j].BR < land[i][j].waterLevel &&
-					land[i][j].BL < land[i][j].waterLevel &&
-					land[i][j].TL < land[i][j].waterLevel)
-				{
-					land[i][j].surface = NULL;
-					delete land[i][j].surface;
-				}
-			}			
+				//move j
+				j+= (offset - 1);				
+			}
+			else
+			{
+				//TL
+				v.x = i * UNITWIDTH;
+				v.y = land[i][j].BR * UNITHEIGHT;
+				v.z = j * UNITWIDTH;
+
+				tex.x = 0.0f;
+				tex.y = 0.0f;
+				tex.z = 0.0f;
+
+				surface->addVertex(v, tex);
+
+				//TR
+				v.x = (i + 1) * UNITWIDTH;
+				v.y = land[i][j].BL * UNITHEIGHT;
+				v.z = j * UNITWIDTH;
+
+				tex.x = 1.0f;
+				tex.y = 0.0f;
+
+				surface->addVertex(v, tex);
+
+				//BR
+				v.x = (i + 1) * UNITWIDTH;
+				v.y = land[i][j].TL * UNITHEIGHT;
+				v.z = (j + 1) * UNITWIDTH;
+
+				tex.x = 1.0f;
+				tex.y = 1.0f;
+				
+				surface->addVertex(v, tex);
+
+				//BL
+				v.x = i * UNITWIDTH;
+				v.y = land[i][j].TR * UNITHEIGHT;
+				v.z = (j + 1) * UNITWIDTH;
+
+				tex.x = 0.0f;
+				tex.y = 1.0f;
+
+				surface->addVertex(v, tex);
+
+				if(land[i][j].surfaceLL)
+					surface->setTextureID(surfaceTextures[8 + land[i][j].surfaceType]);
+				else
+					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
+
+				land[i][j].surface = surface;
+			}
 		}
 	}
+
+	DebugLog::endTask();
+}
+
+void RCTGLLandscape::compileEdges(void)
+{
+	uchar i, j, k;
+
+	RCTGLRGB rgb;
+	rgb.r = rgb.g = rgb.b = 1.0f;
+
+	DebugLog::beginTask((string)"RCTGLLandscape::compileEdges()");
 
 	/*
 	BR (0, 0)	BL (1, 0)
@@ -525,6 +546,104 @@ void RCTGLLandscape::compile(void)
 			}
 		}
 	}
+
+	DebugLog::endTask();
+}
+
+
+void RCTGLLandscape::compileWater(void)
+{
+	uchar i, j, k;
+
+	RCTGLRGB rgb;
+	rgb.r = rgb.g = rgb.b = 1.0f;
+
+	DebugLog::beginTask((string)"RCTGLLandscape::compileWater()");
+
+	for(i=0; i<128; i++)
+	{
+		for(j=0; j<128; j++)
+		{
+			//add the water if necessary
+			if(land[i][j].TR < land[i][j].waterLevel ||
+				land[i][j].BR < land[i][j].waterLevel ||
+				land[i][j].BL < land[i][j].waterLevel ||
+				land[i][j].TL < land[i][j].waterLevel)
+			{
+				RCTGLLandscapePoly *waterSurface = new RCTGLLandscapePoly;
+
+				RCTGLVertex v, tex;
+
+				waterSurface->setBaseRGB(rgb);
+
+				//TL
+				v.x = i * UNITWIDTH;
+				v.y = land[i][j].waterLevel * UNITHEIGHT;
+				v.z = j * UNITWIDTH;
+
+				tex.x = 0.0f;
+				tex.y = 0.0f;
+				tex.z = 0.0f;
+
+				waterSurface->addVertex(v, tex);
+
+				//TR
+				v.x = (i + 1) * UNITWIDTH;				
+				v.z = j * UNITWIDTH;
+
+				tex.x = 1.0f;
+				tex.y = 0.0f;
+
+				waterSurface->addVertex(v, tex);
+
+				//BR
+				v.x = (i + 1) * UNITWIDTH;				
+				v.z = (j + 1) * UNITWIDTH;
+
+				tex.x = 1.0f;
+				tex.y = 1.0f;
+				
+				waterSurface->addVertex(v, tex);
+
+				//BL
+				v.x = i * UNITWIDTH;				
+				v.z = (j + 1) * UNITWIDTH;
+
+				tex.x = 0.0f;
+				tex.y = 1.0f;
+
+				waterSurface->addVertex(v, tex);
+
+				waterSurface->setTextureID(waterTexture);
+
+				land[i][j].waterSurface = waterSurface;
+
+				if(land[i][j].TR < land[i][j].waterLevel &&
+					land[i][j].BR < land[i][j].waterLevel &&
+					land[i][j].BL < land[i][j].waterLevel &&
+					land[i][j].TL < land[i][j].waterLevel)
+				{
+					land[i][j].surface = NULL;
+					delete land[i][j].surface;
+				}
+			}			
+		}
+	}
+
+
+	DebugLog::endTask();
+}
+
+
+void RCTGLLandscape::compile(void)
+{
+	DebugLog::beginTask((string)"RCTGLLandscape::compile()");
+
+	compileSurfaces();
+	compileWater();
+	compileEdges();	
+
+	DebugLog::endTask();
 }
 
 
