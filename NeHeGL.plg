@@ -1,0 +1,269 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: NeHeGL - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1381.tmp" with contents
+[
+/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Release/" /Fp"Release/NeHeGL.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"F:\glstuff\rctgl\vr-woodenrollercoaster.cpp"
+]
+Creating command line "cl.exe @G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1381.tmp" 
+Creating temporary file "G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1382.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /incremental:no /pdb:"Release/RCTGL.pdb" /machine:I386 /out:"RCTGL.exe" 
+.\Release\Example.obj
+.\Release\glfont.obj
+.\Release\guicon.obj
+.\Release\NeHeGL.obj
+.\Release\rctgl.obj
+.\Release\ResourceIO.obj
+.\Release\skyDome.obj
+.\Release\tga1.obj
+.\Release\tga2.obj
+".\Release\vr-atmospheres.obj"
+".\Release\vr-audio.obj"
+".\Release\vr-carride.obj"
+".\Release\vr-display.obj"
+".\Release\vr-elements.obj"
+".\Release\vr-entrances.obj"
+".\Release\vr-file.obj"
+".\Release\vr-font.obj"
+".\Release\vr-ghosttrain.obj"
+".\Release\vr-init.obj"
+".\Release\vr-input.obj"
+".\Release\vr-invertedrollercoaster.obj"
+".\Release\vr-landscape.obj"
+".\Release\vr-logflume.obj"
+".\Release\vr-menu.obj"
+".\Release\vr-minetrain.obj"
+".\Release\vr-monorail.obj"
+".\Release\vr-observationtower.obj"
+".\Release\vr-paths.obj"
+".\Release\vr-railroad.obj"
+".\Release\vr-rapids.obj"
+".\Release\vr-rides.obj"
+".\Release\vr-riverride.obj"
+".\Release\vr-rotodrop.obj"
+".\Release\vr-singlerailrollercoaster.obj"
+".\Release\vr-skyway.obj"
+".\Release\vr-slc.obj"
+".\Release\vr-spaceshot.obj"
+".\Release\vr-steelcorkscrewrollercoaster.obj"
+".\Release\vr-steelmini.obj"
+".\Release\vr-steelrollercoaster.obj"
+".\Release\vr-steeltwisterrollercoaster.obj"
+".\Release\vr-steelwildmouse.obj"
+".\Release\vr-suspendedsinglerail.obj"
+".\Release\vr-trees1.obj"
+".\Release\vr-virginiareel.obj"
+".\Release\vr-walls.obj"
+".\Release\vr-wildmouse.obj"
+".\Release\vr-woodenrollercoaster.obj"
+.\Release\NeheResource.res
+"H:\program files\Microsoft Visual Studio\VC98\Lib\GLU32.LIB"
+"H:\program files\Microsoft Visual Studio\VC98\Lib\GLAUX.LIB"
+"H:\program files\Microsoft Visual Studio\VC98\Lib\OPENGL32.LIB"
+.\corona.lib
+.\basictemplate\CpwDLL.lib
+..\..\DXSDK\lib\dxguid.lib
+..\..\DXSDK\lib\dinput8.lib
+..\..\DXSDK\lib\dsetup.lib
+..\..\DXSDK\lib\dinput.lib
+"H:\program files\Microsoft Visual Studio\VC98\Lib\WINMM.LIB"
+..\..\fmod\api\lib\fmodvc.lib
+".\Release\vr-tracks.obj"
+]
+Creating command line "link.exe @G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1382.tmp"
+<h3>Output Window</h3>
+Compiling...
+vr-woodenrollercoaster.cpp
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(103) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(104) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(123) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(134) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(135) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(154) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(165) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(166) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(185) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(196) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(197) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(216) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(227) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(228) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(248) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(259) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(260) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(280) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(291) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(292) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(310) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(323) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(324) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(342) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(355) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(356) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(374) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(387) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(388) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(406) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(419) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(420) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(438) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(451) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(452) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(470) : warning C4305: '=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(483) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(484) : warning C4305: '+=' : truncation from 'const double' to 'float'
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1496) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1496) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1496) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1496) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1585) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1585) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1590) : warning C4101: 'halfRailDiameter' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1584) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1585) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1585) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1670) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1670) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1670) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1670) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1762) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1762) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1767) : warning C4101: 'halfRailDiameter' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1761) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1762) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(1762) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2159) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2159) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2159) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2159) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2248) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2248) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2253) : warning C4101: 'halfRailDiameter' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2247) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2248) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2248) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2333) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2333) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2333) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2333) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2425) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2425) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2430) : warning C4101: 'halfRailDiameter' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2424) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2425) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2425) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2511) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2514) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2511) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2511) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2511) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2594) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2599) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2594) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2593) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2594) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2594) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2674) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2677) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2674) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2674) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2674) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2758) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2758) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2758) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2758) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2842) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2845) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2842) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2842) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2842) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2925) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2930) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2925) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2924) : warning C4101: 'radius' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2925) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(2925) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3005) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3008) : warning C4101: 'angledHeight' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3005) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3005) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3005) : warning C4101: 'radius2b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3089) : warning C4101: 'radius1a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3089) : warning C4101: 'radius1b' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3089) : warning C4101: 'radius2a' : unreferenced local variable
+F:\glstuff\rctgl\vr-woodenrollercoaster.cpp(3089) : warning C4101: 'radius2b' : unreferenced local variable
+Linking...
+LINK : warning LNK4089: all references to "DINPUT8.dll" discarded by /OPT:REF
+LINK : warning LNK4089: all references to "WINMM.dll" discarded by /OPT:REF
+LINK : warning LNK4089: all references to "comdlg32.dll" discarded by /OPT:REF
+LINK : warning LNK4089: all references to "fmod.dll" discarded by /OPT:REF
+Creating temporary file "G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1384.tmp" with contents
+[
+/nologo /o"Release/NeHeGL.bsc" 
+.\Release\Example.sbr
+.\Release\glfont.sbr
+.\Release\guicon.sbr
+.\Release\NeHeGL.sbr
+.\Release\rctgl.sbr
+.\Release\ResourceIO.sbr
+.\Release\skyDome.sbr
+.\Release\tga1.sbr
+.\Release\tga2.sbr
+".\Release\vr-atmospheres.sbr"
+".\Release\vr-audio.sbr"
+".\Release\vr-carride.sbr"
+".\Release\vr-display.sbr"
+".\Release\vr-elements.sbr"
+".\Release\vr-entrances.sbr"
+".\Release\vr-file.sbr"
+".\Release\vr-font.sbr"
+".\Release\vr-ghosttrain.sbr"
+".\Release\vr-init.sbr"
+".\Release\vr-input.sbr"
+".\Release\vr-invertedrollercoaster.sbr"
+".\Release\vr-landscape.sbr"
+".\Release\vr-logflume.sbr"
+".\Release\vr-menu.sbr"
+".\Release\vr-minetrain.sbr"
+".\Release\vr-monorail.sbr"
+".\Release\vr-observationtower.sbr"
+".\Release\vr-paths.sbr"
+".\Release\vr-railroad.sbr"
+".\Release\vr-rapids.sbr"
+".\Release\vr-rides.sbr"
+".\Release\vr-riverride.sbr"
+".\Release\vr-rotodrop.sbr"
+".\Release\vr-singlerailrollercoaster.sbr"
+".\Release\vr-skyway.sbr"
+".\Release\vr-slc.sbr"
+".\Release\vr-spaceshot.sbr"
+".\Release\vr-steelcorkscrewrollercoaster.sbr"
+".\Release\vr-steelmini.sbr"
+".\Release\vr-steelrollercoaster.sbr"
+".\Release\vr-steeltwisterrollercoaster.sbr"
+".\Release\vr-steelwildmouse.sbr"
+".\Release\vr-suspendedsinglerail.sbr"
+".\Release\vr-trees1.sbr"
+".\Release\vr-virginiareel.sbr"
+".\Release\vr-walls.sbr"
+".\Release\vr-wildmouse.sbr"
+".\Release\vr-woodenrollercoaster.sbr"
+".\Release\vr-tracks.sbr"]
+Creating command line "bscmake.exe @G:\DOCUME~1\DARKHE~1\LOCALS~1\Temp\RSP1384.tmp"
+Creating browse info file...
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+RCTGL.exe - 0 error(s), 122 warning(s)
+</pre>
+</body>
+</html>
