@@ -555,7 +555,8 @@ bool RCTGLLandscape::isLowerRightRaisedRowSame(uchar startX, uchar startZ, uchar
 bool RCTGLLandscape::isWaterSame(uchar x1, uchar z1, uchar x2, uchar z2)
 {
 	return (land[x1][z1].drawWater	== land[x2][z2].drawWater &&
-		land[x1][z1].waterLevel		== land[x2][z2].waterLevel);
+		land[x1][z1].waterLevel		== land[x2][z2].waterLevel &&
+		!land[x2][z2].waterSurface);
 }
 
 bool RCTGLLandscape::isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width)
@@ -1154,9 +1155,10 @@ void RCTGLLandscape::compileWater()
 					uchar baseZ = j, baseX = i;
 					uchar offsetZ = 1, offsetX = 1;
 #ifdef OPTIMIZE_LANDSCAPE
-					while(isWaterSame(i, baseZ, i, baseZ+offsetZ) && 
+					//find out how long the land segment lasts
+					while(isWaterSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 						baseZ + offsetZ < 128)
-						offsetZ++;
+						offsetZ++;				
 					
 					//now that we have the maximum Z for this segment, let's
 					//find how far it extends in the X direction

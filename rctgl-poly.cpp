@@ -89,56 +89,81 @@ void RCTGLPoly::draw() const
 
 	if(m_texID > 0)
 	{
-#ifdef DRAW_WATER
-		if(m_polyType == POLY_WATER)
+		if(m_vertexCount == 4)
 		{
+#ifdef DRAW_WATER
+			if(m_polyType == POLY_WATER)
+			{				
+				glBegin(GL_QUADS);	
+
+				//draw bottom quad
+				for(uchar i=0; i<m_vertexCount; i++)
+				{
+					glTexCoord2f(m_texCoordList[i].x + xWaterOffset2, m_texCoordList[i].y + zWaterOffset2);
+					glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+				}
+
+				glEnd();
+
+	#ifdef DRAW_WATER_TWO_PLANED
+
+				glEnable(GL_BLEND);
+				glDisable(GL_DEPTH_TEST);
+				glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);				
+				
+
+				glColor4f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b, 0.65f); //used to be 0.50f
+				glBegin(GL_QUADS);
+				//draw top quad
+				for(i=0; i<m_vertexCount; i++)
+				{
+					glTexCoord2f(2.0f * (m_texCoordList[i].x + xWaterOffset1), 2.0f * (m_texCoordList[i].y + zWaterOffset1));
+					glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
+				}
+
+				glEnd();
+
+				glDisable(GL_BLEND);
+				glBlendFunc (GL_ONE, GL_ONE);
+				glEnable(GL_DEPTH_TEST);
+
+				
+				
+	#endif //#ifdef DRAW_WATER_TWO_PLANED
+
+
+			}
+			else
+	#endif //#ifdef DRAW_WATER
+			{
+				uchar seqList[4] = {2, 3, 1, 0};
+
+				glBegin(GL_TRIANGLE_STRIP);
+
+				for(int i=0; i<4; i++)
+				{
+					glTexCoord2f(m_texCoordList[seqList[i]].x, m_texCoordList[seqList[i]].y);
+					glVertex3f(m_vertexList[seqList[i]].x, m_vertexList[seqList[i]].y, m_vertexList[seqList[i]].z);
+				}		
+
+				glEnd();
+				
+			}
+		}
+		else
+		{		
+			//not 4 verticies. do this the old fashioned way
+
 			glBegin(GL_QUADS);	
 
 			//draw bottom quad
 			for(uchar i=0; i<m_vertexCount; i++)
 			{
-				glTexCoord2f(m_texCoordList[i].x + xWaterOffset2, m_texCoordList[i].y + zWaterOffset2);
-				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
-			}
-
-			glEnd();
-
-#ifdef DRAW_WATER_TWO_PLANED
-			
-			glEnable(GL_BLEND);
-			glDisable(GL_DEPTH_TEST);
-			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-			glColor4f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b, 0.50f);
-			glBegin(GL_QUADS);
-			//draw top quad
-			for(i=0; i<m_vertexCount; i++)
-			{
-				glTexCoord2f(m_texCoordList[i].x + xWaterOffset1, m_texCoordList[i].y + zWaterOffset1);
-				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
-			}
-
-			glEnd();
-			
-			glDisable(GL_BLEND);
-			glBlendFunc (GL_ONE, GL_ONE);
-			glEnable(GL_DEPTH_TEST);
-
-#endif //#ifdef DRAW_WATER_TWO_PLANED
-
-		}
-		else
-#endif //#ifdef DRAW_WATER
-		{
-			glBegin(GL_QUADS);
-
-			for(int i=0; i<m_vertexCount; i++)
-			{
 				glTexCoord2f(m_texCoordList[i].x, m_texCoordList[i].y);
 				glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
-			}		
+			}
 
-			glEnd();
+			glEnd();			
 		}
 	}
 	else
@@ -154,6 +179,15 @@ void RCTGLPoly::draw() const
 void RCTGLPoly::setTextureID(unsigned int texID)
 {
 	m_texID = texID;
+}
+
+void RCTGLPoly::clear()
+{
+	m_RGBList.clear();
+	m_vertexList.clear();
+	m_texCoordList.clear();
+
+	m_vertexCount = 0;
 }
 
 RCTGLPoly::~RCTGLPoly()

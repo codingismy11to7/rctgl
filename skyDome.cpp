@@ -6,6 +6,8 @@
 
 #include <math.h>
 
+#include <vector>
+
 const double PI     = 3.14159265358979;
 const double TWOPI  = 6.28318530717958;
 const double PIDIV2 = 1.57079632679489;
@@ -550,7 +552,7 @@ void skyDome::draw() const
 	glDisable(GL_BLEND);
 
 	m_counter++;
-	if(m_counter == 1000)
+	if(m_counter == 2000)
 		m_counter = 0;
 
 }
@@ -599,4 +601,135 @@ void skyDome::getLightColor(double *r, double *g, double *b) const
 	*r = (1.0f - floatOffset) * m_lightRData[intOffset] + (floatOffset) * m_lightRData[intOffset + 1];
 	*g = (1.0f - floatOffset) * m_lightGData[intOffset] + (floatOffset) * m_lightGData[intOffset + 1];
 	*b = (1.0f - floatOffset) * m_lightBData[intOffset] + (floatOffset) * m_lightBData[intOffset + 1];	
+}
+
+void skyDome::generatePerlin(float *data, int dim) const
+{
+	//generate a base perlin map, then expand it 
+
+	float *baseData = new float[32*32];
+
+	delete baseData;
+}
+
+void skyDome::smoothPerlin(float *data, int dim) const
+{
+	//blurs a perlin map a bit
+
+	float net;
+
+	//blur the interior
+	for(int i=1; i<(dim-1); i++)
+	{
+		for(int j=1; j<(dim-1); j++)
+		{			
+			//average a 9 pixel area
+			net = 0;
+
+			//-1, -1
+			net += *(data + (i - 1) * dim + j - 1);
+			//-1, 0
+			net += *(data + (i - 1) * dim + j);
+			//-1, 1
+			net += *(data + (i - 1) * dim + j + 1);
+			// 0, -1
+			net += *(data + (i) * dim + j - 1);
+			// 0, 0
+			net += *(data + (i) * dim + j);
+			// 0, 1
+			net += *(data + (i) * dim + j + 1);
+			// 1, -1
+			net += *(data + (i + 1) * dim + j - 1);
+			// 1, 0
+			net += *(data + (i + 1) * dim + j);
+			// 1, 1
+			net += *(data + (i + 1) * dim + j + 1);
+
+			*(data + (i * dim) + j) = (net / 9.0f);
+		}
+	}	
+}
+
+//void skyDome::combinePerlin(float *data1, float *data2, float *data3, float *data4, float *data5) const
+void skyDome::combinePerlin(float **data, uchar numLayers, int dim) const
+{
+	//combines all numLayers octaves
+
+	//assumes that the first layer is non-tiled,
+	//and that every layer thereafter is tiled 2^n	
+
+	vector <float *> layers;
+
+	for(uchar x=0; x<numLayers; x++)
+		layers.push_back(*(data + x));
+
+	int i, j;
+
+	for(i=0; i<dim; i++)
+		for(j=0; j<dim; j++)
+			for(x=1; x<numLayers; x++)
+				*(layers[0] + (i * dim) + j) += *(layers[x] + (i * dim) + j) / (2 ^ x);
+
+	//at this point, each pixel of data1 is equal to 
+	// 100% of the original +
+	// 1/2 of the corresponding pixel in data2 +
+	// 1/4 of the corresponding pixel in data3 +
+	// 1/8 of the corresponding pixel in data4 +
+	// 1/16 of the corresponding pixel in data5
+}
+
+uchar *skyDome::buildClouds(float density, float thickness, float sharpness)
+{
+	/*
+	density = [0..1]
+		(1 - density) defines bottom cutoff for cloud noise
+		this value will be applied to both the RGB and alpha layers
+		i.e. density 1.0f = full cloud cover
+	thickness = [0..1]
+		defines the max alpha the clouds will have
+		this value will only be applied to the alpha layer
+		(1 - thickness) 
+	sharpness = [0..1]
+		defines how wide the range from fully opaque and fully transparent is
+	*/
+
+	float *map512, *map256, *map128, *map64, *map32;
+	map512 = new float[512 * 512];
+	map256 = new float[256 * 256];
+	map128 = new float[128 * 128];
+	map64  = new float[64 * 64];
+	map32  = new float[32 * 32];
+
+	float *perlinArrays[] = {map512, map256, map128, map64, map32};
+
+	uchar *imageData;
+	imageData = new uchar[512*512*4];
+
+	//buildPerlin(data);
+	//tilePerlin(data, layer[i], 2 ^ i);
+
+	//generate perlin noise
+	generatePerlin(map512, 512);
+	generatePerlin(map256, 256);
+	generatePerlin(map128, 128);
+	generatePerlin(map64, 64);
+	generatePerlin(map32, 32);
+
+	smoothPerlin(map512, 512);
+	smoothPerlin(map256, 256);
+	smoothPerlin(map128, 128);
+	smoothPerlin(map64, 64);
+	smoothPerlin(map32, 32);
+
+	combinePerlin(perlinArrays, 5, 512);
+
+	//copy to imageData
+
+	delete map512;
+	delete map256;
+	delete map128;
+	delete map64;
+	delete map32;
+
+	return imageData;
 }

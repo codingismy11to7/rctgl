@@ -974,8 +974,8 @@ void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 		for(j=minZ; j<maxZ; j++)
 			for(k=0; k<paths[i][j].size(); k++)
 				paths[i][j][k].surface->wasDrawn = false;	
-	
 
+	bool doDraw;
 
 	for(i=minX; i<maxX; i++)
 	{
@@ -987,8 +987,25 @@ void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 				{
 					if(!paths[i][j][k].surface->wasDrawn)
 					{
-						paths[i][j][k].surface->draw();
-						paths[i][j][k].surface->wasDrawn = true;
+						doDraw = true;
+
+						switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+						{
+						case PATH_SLOPE_NONE:
+							doDraw = theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+								(float)((paths[i][j][k].baseHeight * UNITHEIGHT) - 0.1f),
+								(float)(j*UNITWIDTH),
+								(float)(paths[i][j][k].surface->width * UNITWIDTH),
+								(float)(0.2f),
+								(float)(paths[i][j][k].surface->length * UNITWIDTH));
+							break;
+						}
+
+						if(doDraw)
+						{
+							paths[i][j][k].surface->draw();
+							paths[i][j][k].surface->wasDrawn = true;
+						}
 					}
 				}
 			}

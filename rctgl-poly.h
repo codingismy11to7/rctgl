@@ -33,6 +33,8 @@ public:
 
 	void draw() const;
 
+	void clear();
+
 	void setTextureID(unsigned int texID);
 
 private:

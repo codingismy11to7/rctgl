@@ -1,6 +1,7 @@
 #ifndef SKYDOME_H
 #define SKYDOME_H
 
+#include "rctgl.h"
 #include "rctgl-vertex.h"
 
 class skyDome
@@ -17,6 +18,7 @@ public:
 	void getLightColor(double *r, double *g, double *b) const;
 	void setSkyTexture(unsigned int texID);
 	void setCloudTexture(unsigned int texID);
+	uchar *buildClouds(float density, float thickness, float sharpness);
 
 private:
 	void calcSkyDomeCoords();
@@ -27,6 +29,12 @@ private:
 	void drawClouds() const;
 	int random(int low, int high) const;
 	void getLightOffset(int *intOffset, float *floatOffset) const;
+
+	void generatePerlin(float *data, int dim) const;
+	void smoothPerlin(float *data, int dim) const;
+	//void combinePerlin(float *data1, float *data2, float *data3, float *data4, float *data5) const;
+	void combinePerlin(float **data, uchar numLayers, int largestDimension) const;
+
 
 	int m_minute;
 

@@ -20,9 +20,12 @@ bool RCTGLPark::clearPark()
 	m_rideNameList.clear();
 	m_landscape.clear();
 	m_paths.clear();
+	m_scenery.clear();
 
 	xWaterOffset1 = zWaterOffset1 = 0.0f;
 	xWaterOffset2 = zWaterOffset2 = 0.1f;
+
+	timeOfDay = 12.0f;
 
 	return true;
 }
@@ -245,12 +248,14 @@ bool RCTGLPark::loadPark(const string &filename)
 						element->loadOffset(parkData + offset);
 
 						elementList[i][j].push_back(element);
-					}
-					break;
+					}					
 					*/
+					break;
 				case SEGMENT_SCENERY_SINGLE:
+					m_scenery.loadOffset(parkData + offset, i, j, RCTScenery::SINGLE_TILE);
+					break;	
 				case SEGMENT_SCENERY_MULTI:
-					m_scenery.loadOffset(parkData + offset, i, j);
+					m_scenery.loadOffset(parkData + offset, i, j, RCTScenery::MULTI_TILE);
 					break;					
 				case SEGMENT_ENTRANCE:
 					/*
@@ -259,9 +264,9 @@ bool RCTGLPark::loadPark(const string &filename)
 						ent->loadOffset(parkData + offset);
 
 						entranceList[i][j].push_back(ent);
-					}
-					break;
+					}					
 					*/
+					break;
 				case SEGMENT_WALL:
 					/*
 					{
@@ -269,10 +274,9 @@ bool RCTGLPark::loadPark(const string &filename)
 						wall->loadOffset(parkData + offset);
 
 						wallList[i][j].push_back(wall);
-					}
-					break;
+					}					
 					*/
-
+					break;
 				case SEGMENT_BANNER:
 					/*
 					{
@@ -306,6 +310,7 @@ bool RCTGLPark::loadPark(const string &filename)
 	//compile the landscape
 	m_landscape.compile();
 	m_paths.compile();
+	m_scenery.compile();
 
 	DebugLog::endTask();
 
@@ -372,10 +377,8 @@ void RCTGLPark::draw()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
-	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
-
+	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
 	m_scenery.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
-
 
 }
 
