@@ -98,6 +98,10 @@ SOURCE=".\rctgl-camera.cpp"
 # End Source File
 # Begin Source File
 
+SOURCE=".\rctgl-frustum.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=".\rctgl-globals.cpp"
 # End Source File
 # Begin Source File
@@ -175,6 +179,10 @@ SOURCE=".\rctgl-camera.h"
 # Begin Source File
 
 SOURCE=".\rctgl-displaymodes.h"
+# End Source File
+# Begin Source File
+
+SOURCE=".\rctgl-frustum.h"
 # End Source File
 # Begin Source File
 
