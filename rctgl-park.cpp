@@ -35,7 +35,7 @@ bool RCTGLPark::loadNames(uchar *parkData)
 
 	int validNames = 0;
 
-	uchar nameStart = SV4_NAME_START;
+	long nameStart = SV4_NAME_START;
 
 	for(i=0; i<PARK_MAX_NAMES; i++)
 	{
@@ -179,7 +179,7 @@ bool RCTGLPark::loadPark(char *filename)
 	long offset = 0x10;
 	long nextSegment = 0x10;
 
-	uchar buffer, buf1;
+	uchar buffer;
 
 	bool lastItem;
 
@@ -316,5 +316,7 @@ void RCTGLPark::draw(void)
 {
 	uchar minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
 
-	landscape.draw(minX, minZ, maxX, maxZ);
+	//landscape.draw(minX, minZ, maxX, maxZ);
+
+	landscape.draw(0, 0, 50, 50);
 }
