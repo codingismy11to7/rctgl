@@ -43,7 +43,7 @@ void RCTGLMenu::drawRCTGLLogo(const pCpw cpw, const string &sideText) const
 	delete[] thisSureIsStupidToHaveToDo;
 }
 
-void RCTGLMenu::drawDetailMenu(pCpw cpw)
+void RCTGLMenu::drawDetailMenu(const pCpw cpw) const
 {
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 45 );
 
@@ -89,60 +89,6 @@ void RCTGLMenu::drawDetailMenu(pCpw cpw)
 
 }
 
-/*int strDiff(char *str1, char *str2)
-{
-	int len1, len2, maxlen;
-	len1 = strlen(str1);
-	len2 = strlen(str2);
-
-	if(len1 > len2)
-		maxlen = len1;
-	else
-		maxlen = len2;
-
-	//returns -1 if str1 < str2
-	//returns  1 if str1 > str2
-	//returns  0 if str1 == str2
-	for(int i=0; i<maxlen; i++)
-	{
-		if(str1[i] == NULL)
-			return -1;
-		if(str2[i] == NULL)
-			return 1;
-
-		if(toupper(str1[i]) > toupper(str2[i]))
-			return 1;
-		if(toupper(str1[i]) < toupper(str2[i]))
-			return -1;
-	}
-
-	return 0;
-}*/
-
-
-/*void RCTGLMenu::sortDirList(void)
-{
-	int len = m_fileList.size();
-
-	int i, j;
-
-	for(i=0; i<len - 1; i++)
-	{
-		for(j=0; j<len - 1; j++)
-		{			
-			if(strDiff(m_fileList[j], m_fileList[j+1]) > 0 &&
-				((m_fileList[j][0] == '<' && m_fileList[j+1][0] == '<')
-				|| (m_fileList[j][0] != '<' && m_fileList[j+1][0] != '<')))
-			{
-				char *tmp;
-				tmp = m_fileList[j];
-				m_fileList[j] = m_fileList[j+1];
-				m_fileList[j+1] = tmp;
-			}
-		}
-	}
-}*/
-
 
 void RCTGLMenu::addToDirList(const string &filename, bool isDir, bool isFile)
 {
@@ -152,10 +98,6 @@ void RCTGLMenu::addToDirList(const string &filename, bool isDir, bool isFile)
 		itemElement = "<" + filename + ">";
 	else
 		itemElement = filename;
-
-	DebugLog::writeToLog( string("itemElement = ") + itemElement );
-	if( isDir ) DebugLog::writeToLog( "YES dir" );
-	else DebugLog::writeToLog( "NO dir" );
 
 	if(!(isDir && filename == "." && filename.size() == 1))
 		m_fileList.push_back(itemElement);
@@ -184,8 +126,6 @@ void RCTGLMenu::populateFileList(const string &path)
 	m_fileList.clear();
 	m_dirList.clear();
 
-	DebugLog::beginTask( "populateFileList" );
-
 	string tmpStr;
 
 	string tmpPath = path;
@@ -200,8 +140,6 @@ void RCTGLMenu::populateFileList(const string &path)
 
 	string dirString = tmpPath + "\\*.*";
 	//printf("dirString = %s\n", dirString);
-
-	DebugLog::writeToLog( string( "dirString = " ) + dirString );
 
 	hFind = FindFirstFile(dirString.c_str(), &FindFileData);
 	if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -222,8 +160,6 @@ void RCTGLMenu::populateFileList(const string &path)
 				addToDirList(FindFileData.cFileName, true, false);			
 		}		
 	}
-
-	DebugLog::writeToLog( "here!" );
 
 	//then add the files
 	hFind = FindFirstFile(dirString.c_str(), &FindFileData);
@@ -247,8 +183,6 @@ void RCTGLMenu::populateFileList(const string &path)
 		}		
 	}
 
-	DebugLog::writeToLog( "here2!" );
-
 	//sortDirList();
 	sort( m_fileList.begin(), m_fileList.end() );
 
@@ -263,22 +197,15 @@ void RCTGLMenu::populateFileList(const string &path)
 			m_fileList.push_back(drivestr);
 	}
 
-	DebugLog::writeToLog( "here3!" );
-
-	//printf("m_fileList\n");
-	//for(int i=0; i<m_fileList.size(); i++)
-	//	printf("- %s\n", m_fileList[i]);
-
 	m_fileListOffset = 0;
 	m_curOption = 0;
 
 
 	//now add all of the sv4 (and sv6) files
 
-	DebugLog::endTask();
 }
 
-void RCTGLMenu::drawFileLoader(const pCpw cpw)
+void RCTGLMenu::drawFileLoader(const pCpw cpw) const
 {
 	
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 15 );
@@ -326,17 +253,17 @@ void RCTGLMenu::drawFileLoader(const pCpw cpw)
 	}
 }
 
-bool RCTGLMenu::isExit(void)
+bool RCTGLMenu::isExit(void) const
 {
 	return (m_curScreen == MAINMENU && m_curOption == 3);
 }
 
-bool RCTGLMenu::isMainMenu(void)
+bool RCTGLMenu::isMainMenu(void) const
 {
 	return (m_curScreen == MAINMENU);
 }
 
-void RCTGLMenu::drawMainMenu(pCpw cpw)
+void RCTGLMenu::drawMainMenu(const pCpw cpw) const
 {
 	cpwFontMode( cpw, CPW_FONTOPT_SIZE, 45 );
 
@@ -597,7 +524,7 @@ void RCTGLMenu::restartMenu(void)
 	m_curOption = 0;
 }
 
-void RCTGLMenu::drawMenu(pCpw cpw)
+void RCTGLMenu::drawMenu(const pCpw cpw) const
 {
 	glDisable(GL_TEXTURE_2D);
 

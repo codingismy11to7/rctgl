@@ -25,10 +25,10 @@ public:
 	void movePageDown(void);
 	void selectOption(void);
 	void restartMenu(void);
-	void drawMenu(pCpw cpw);
+	void drawMenu(const pCpw cpw) const;
 	void backOneMenu(void);
-	bool isExit(void);
-	bool isMainMenu(void);
+	bool isExit(void) const;
+	bool isMainMenu(void) const;
 	RCTGLMenu(const CpwFontFace &fontFace);
 
 private:
@@ -46,9 +46,9 @@ private:
 
 	void drawRCTGLLogo(const pCpw cpw) const;
 	void drawRCTGLLogo(const pCpw cpw, const string &sideText) const;
-	void drawDetailMenu(const pCpw cpw);
-	void drawFileLoader(const pCpw cpw);
-	void drawMainMenu(const pCpw cpw);
+	void drawDetailMenu(const pCpw cpw) const;
+	void drawFileLoader(const pCpw cpw) const;
+	void drawMainMenu(const pCpw cpw) const;
 	void populateFileList(const string &path);
 	void addToDirList(const string &filename, bool isDir, bool isFile);
 	//void sortDirList(void);
