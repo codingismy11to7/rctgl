@@ -1,3 +1,11 @@
+/*
+ * DebugLog.h
+ *
+ *  $Id$
+ *
+ * class doc here
+ */
+
 #include <fstream>
 #include <sstream>
 #include <string>

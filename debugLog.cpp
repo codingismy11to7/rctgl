@@ -1,3 +1,11 @@
+/*
+ * DebugLog.cpp
+ *
+ *  $Id$
+ *
+ * class doc here
+ */
+
 #include "DebugLog.h"
 
 DebugLog *DebugLog::m_instance = 0;
@@ -53,36 +61,36 @@ void DebugLog::writeToLog(const string &msg)
 }
 
 /*static void DebugLog::writeToLog(const string &msg, const string &p1)
-{
+  {
   instance()->printTabs();
   instance()->m_outfile << msg << ": " << p1 << endl;
-	if(validLog)
-	{
-		printTabs();
-		fprintf(handle, msg, p1);
-		fflush(handle);
-	}
-}
-
-void debugLog::writeToLog(char *msg, long p1)
-{
-	if(validLog)
-	{
-		printTabs();
-		fprintf(handle, msg, p1);
-		fflush(handle);
-	}
-}
-
-void debugLog::writeToLog(char *msg, double p1)
-{
-	if(validLog)
-	{
-		printTabs();
-		fprintf(handle, msg, p1);
-		fflush(handle);
-	}
-}*/
+  if(validLog)
+  {
+  printTabs();
+  fprintf(handle, msg, p1);
+  fflush(handle);
+  }
+  }
+  
+  void debugLog::writeToLog(char *msg, long p1)
+  {
+  if(validLog)
+  {
+  printTabs();
+  fprintf(handle, msg, p1);
+  fflush(handle);
+  }
+  }
+  
+  void debugLog::writeToLog(char *msg, double p1)
+  {
+  if(validLog)
+  {
+  printTabs();
+  fprintf(handle, msg, p1);
+  fflush(handle);
+  }
+  }*/
 
 void DebugLog::closeLog()
 {
