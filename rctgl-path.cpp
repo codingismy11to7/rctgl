@@ -680,6 +680,7 @@ void RCTGLPathSystem::compile()
 
 					float texCoord[4][2];
 
+					/*
 					texCoord[0][0] = 1.0f;
 					texCoord[0][1] = 1.0f;
 
@@ -691,24 +692,90 @@ void RCTGLPathSystem::compile()
 
 					texCoord[3][0] = 0.0f;
 					texCoord[3][1] = 0.0f;
+					*/
+
+					texCoord[0][0] = xLen;
+					texCoord[0][1] = zLen;
+
+					texCoord[1][0] = 0.0f;
+					texCoord[1][1] = zLen;
+
+					texCoord[2][0] = xLen;
+					texCoord[2][1] = 0.0f;
+
+					texCoord[3][0] = 0.0f;
+					texCoord[3][1] = 0.0f;
+					
 
 					if(rotateClock)
 					{
+						float tmp[2];
+
+						tmp[0] = texCoord[2][0];
+						tmp[1] = texCoord[2][1];
+
+						// 3 -> 2
+						texCoord[2][0] = texCoord[3][0];
+						texCoord[2][1] = texCoord[3][1];
+
+						// 1 -> 3
+						texCoord[3][0] = texCoord[1][0];
+						texCoord[3][1] = texCoord[1][1];
+
+						// 0 -> 1
+						texCoord[1][0] = texCoord[0][0];
+						texCoord[1][1] = texCoord[0][1];
+
+						// 2 -> 0
+						texCoord[0][0] = tmp[0];
+						texCoord[0][1] = tmp[1];
+						
+
+						/*
+						//2 -> 0
 						texCoord[0][0] = 1.0f;
 						texCoord[0][1] = 0.0f;
 
+						//0 -> 1
 						texCoord[1][0] = 1.0f;
 						texCoord[1][1] = 1.0f;
 
+						//3 -> 2
 						texCoord[2][0] = 0.0f;
 						texCoord[2][1] = 0.0f;
 
+						//1 -> 3
 						texCoord[3][0] = 0.0f;
 						texCoord[3][1] = 1.0f;
+						*/
 					}
 
 					if(flipVert)
 					{
+						float tmp[2];
+
+						tmp[0] = texCoord[0][0];
+						tmp[1] = texCoord[0][1];
+
+						texCoord[0][0] = texCoord[1][0];
+						texCoord[0][1] = texCoord[1][1];
+
+						texCoord[1][0] = tmp[0];
+						texCoord[1][1] = tmp[1];
+
+
+
+						tmp[0] = texCoord[2][0];
+						tmp[1] = texCoord[2][1];
+
+						texCoord[2][0] = texCoord[3][0];
+						texCoord[2][1] = texCoord[3][1];
+
+						texCoord[3][0] = tmp[0];
+						texCoord[3][1] = tmp[1];
+
+						/*
+						//swap all [1] elements
 						if(texCoord[0][1] == 1.0f)
 							texCoord[0][1] = 0.0f;
 						else
@@ -728,6 +795,7 @@ void RCTGLPathSystem::compile()
 							texCoord[3][1] = 0.0f;
 						else
 							texCoord[3][1] = 1.0f;
+							*/
 
 					}
 
