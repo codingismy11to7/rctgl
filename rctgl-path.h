@@ -92,11 +92,11 @@
 class RCTGLPath
 {
 public:
-	uchar pathModifier1;
-	uchar pathModifier2;		;
-	uchar baseHeight;
-	uchar pathExtras;
-	uchar pathExtensions;
+	uchar m_pathModifier1;
+	uchar m_pathModifier2;		;
+	uchar m_baseHeight;
+	uchar m_pathExtras;
+	uchar m_pathExtensions;
 
 	RCTGLPath(void);
 	bool loadOffset(uchar *data);
