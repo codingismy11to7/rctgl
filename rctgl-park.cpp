@@ -1,30 +1,32 @@
 #include "rctgl-park.h"
 
-RCTGLPark::RCTGLPark(void)
+using namespace RCTPark;
+
+RCTGLPark::RCTGLPark()
 {	
 	//set a default for SV4 files, but add support for SV6
 	//when RCTGL gets to that point
-	sizeX = sizeZ = 128;
+	m_sizeX = m_sizeZ = 128;
 }
 
-bool RCTGLPark::clearPark(void)
+bool RCTGLPark::clearPark()
 {
-	for(unsigned int i=0; i<rideNameList.size(); i++)
-		free(rideNameList[i]);
+	/*for(unsigned int i=0; i<m_rideNameList.size(); i++)
+		free(m_rideNameList[i]);*/
 
-	rideNameList.clear();
-	landscape.clear();
-	paths.clear();
+	m_rideNameList.clear();
+	m_landscape.clear();
+	m_paths.clear();
 
 	return true;
 }
 
-char * RCTGLPark::getName(int index)
+string RCTGLPark::getName(int index) const
 {
-	if(index < 0 || index > rideNameList.size())
+	if(index < 0 || index > m_rideNameList.size())
 		return NULL;
 	else
-		return rideNameList[index];	
+		return m_rideNameList[index];	
 }
 
 bool RCTGLPark::loadNames(uchar *parkData)
@@ -37,13 +39,14 @@ bool RCTGLPark::loadNames(uchar *parkData)
 
 	long nameStart = SV4_NAME_START;
 
+	char *tmp = new char[PARK_NAME_SIZE];
 	for(i=0; i<PARK_MAX_NAMES; i++)
 	{
-		char *tmp;
+		tmp[0] = 0;
 
-		tmp = (char *)malloc(PARK_NAME_SIZE);
+		//tmp = (char *)malloc(PARK_NAME_SIZE);
 
-		if(!tmp)
+		/*if(!tmp)
 		{
 			MessageBox(NULL, "Error allocating memory for name", "ERROR", MB_SETFOREGROUND | MB_OK);
 			stringstream x;
@@ -51,7 +54,7 @@ bool RCTGLPark::loadNames(uchar *parkData)
 			DebugLog::writeToLog(x.str());
 			DebugLog::endTask();
 			return false;
-		}		
+		}*/		
 		
 		offset = PARK_NAME_SIZE * i;
 
@@ -62,8 +65,9 @@ bool RCTGLPark::loadNames(uchar *parkData)
 		if(strlen(tmp) > 0)
 			validNames++;
 
-		rideNameList.push_back(tmp);
+		m_rideNameList.push_back(tmp);
 	}
+	delete[] tmp;
 
 	stringstream x;
 	x << "Read " << validNames << " names";
@@ -74,12 +78,12 @@ bool RCTGLPark::loadNames(uchar *parkData)
 	return true;
 }
 
-void RCTGLPark::unloadNames(void)
+void RCTGLPark::unloadNames()
 {
-	for(long i=0; i<rideNameList.size(); i++)
-		free(rideNameList[i]);
+	//for(long i=0; i<rideNameList.size(); i++)
+	//	free(rideNameList[i]);
 	
-	rideNameList.clear();
+	m_rideNameList.clear();
 }
 
 bool RCTGLPark::uncompressFile(const string &inFile, const string &outFile)
@@ -147,8 +151,6 @@ bool RCTGLPark::loadPark(const string &filename)
 	//uncompress the file
 	char *uncompressedFilename = "uncomp.dat";
 
-	uchar *parkData;
-
 	if(!uncompressFile(filename, uncompressedFilename))
 		return false;	
 
@@ -165,6 +167,8 @@ bool RCTGLPark::loadPark(const string &filename)
 
 	fseek (input, 0, SEEK_END);
     fileSize=ftell (input);
+
+	uchar *parkData;
 
 	parkData = (uchar *)malloc(fileSize);
 	
@@ -193,9 +197,9 @@ bool RCTGLPark::loadPark(const string &filename)
 
 	bool lastItem;
 
-	for(i=0; i<sizeX; i++)
+	for(i=0; i<m_sizeX; i++)
 	{
-		for(int j=0; j<sizeZ; j++)
+		for(int j=0; j<m_sizeZ; j++)
 		{
 			lastItem = false;
 
@@ -223,10 +227,10 @@ bool RCTGLPark::loadPark(const string &filename)
 				switch(buffer)
 				{
 				case SEGMENT_LANDSCAPE:
-					landscape.loadOffset(parkData + offset, i, j);
+					m_landscape.loadOffset(parkData + offset, i, j);
 					break;				
 				case SEGMENT_PATH:
-					paths.loadOffset(parkData + offset, i, j);
+					m_paths.loadOffset(parkData + offset, i, j);
 					break;					
 				case SEGMENT_ELEMENT:
 					/*
@@ -301,15 +305,15 @@ bool RCTGLPark::loadPark(const string &filename)
 	free(parkData);
 
 	//compile the landscape
-	landscape.compile();
-	paths.compile();
+	m_landscape.compile();
+	m_paths.compile();
 
 	DebugLog::endTask();
 
 	displayMode = GAME;
 
 	userView.XV = 0.0f;
-	userView.YV = landscape.land[1][1].highest + 10.0f;
+	userView.YV = m_landscape.land[1][1].highest + 10.0f;
 	userView.ZV = 0.0f;
 
 	userView.XR = 0.0f;
@@ -319,15 +323,15 @@ bool RCTGLPark::loadPark(const string &filename)
 	return true;
 }
 
-void RCTGLPark::loadTextures(void)
+void RCTGLPark::loadTextures()
 {
-	landscape.loadTextures();
-	paths.loadTextures();
+	m_landscape.loadTextures();
+	m_paths.loadTextures();
 }
 
-void RCTGLPark::draw(void)
+void RCTGLPark::draw() const
 {
-	int minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
+	int minX = 0, maxX = m_sizeX, minZ = 0, maxZ = m_sizeZ;
 
 	minX = (int)(userView.XV / UNITWIDTH) - 40;
 	maxX = (int)(userView.XV / UNITWIDTH) + 40;
@@ -343,6 +347,6 @@ void RCTGLPark::draw(void)
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
-	paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
 }

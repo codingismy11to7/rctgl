@@ -285,7 +285,7 @@ void RCTGLPathSystem::compile()
 	DebugLog::endTask();
 }
 
-void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ)
+void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 {
 	uchar i, j, k;	
 

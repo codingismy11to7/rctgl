@@ -115,12 +115,12 @@ class RCTGLPathSystem
 public:	
 	vector <RCTGLPathElement> paths[128][128];
 
-	RCTGLPathSystem(void);
+	RCTGLPathSystem();
 	bool loadOffset(uchar *data, uchar x, uchar z);
-	void draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ);
-	void compile(void);
-	void clear(void);
-	void loadTextures(void);
+	void draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const;
+	void compile();
+	void clear();
+	void loadTextures();
 
 private:
 	unsigned int queueTextures[4][3];	//4 queue types, with three fundamental

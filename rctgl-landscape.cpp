@@ -652,7 +652,7 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 	surface->width = xLen;
 }
 
-void RCTGLLandscape::compileSurfaces(void)
+void RCTGLLandscape::compileSurfaces()
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compileSurfaces()");
 
@@ -916,7 +916,7 @@ void RCTGLLandscape::compileSurfaces(void)
 	DebugLog::endTask();
 }
 
-void RCTGLLandscape::compileEdges(void)
+void RCTGLLandscape::compileEdges()
 {
 	uchar i, j; //, k;
 
@@ -1095,7 +1095,7 @@ void RCTGLLandscape::compileEdges(void)
 }
 
 
-void RCTGLLandscape::compileWater(void)
+void RCTGLLandscape::compileWater()
 {
 	uchar i, j;
 
@@ -1151,7 +1151,7 @@ void RCTGLLandscape::compileWater(void)
 }
 
 
-void RCTGLLandscape::compile(void)
+void RCTGLLandscape::compile()
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compile()");
 
@@ -1171,7 +1171,7 @@ void RCTGLLandscape::compile(void)
 
 
 
-bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
+bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2) const
 {
 	//glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);

@@ -8,43 +8,47 @@
 
 #include <vector>
 
+namespace RCTPark {
+
 //determines what each 8-byte block describes
-#define SEGMENT_LANDSCAPE		0x00
-#define SEGMENT_PATH			0x01
-#define SEGMENT_ELEMENT			0x02	
-#define SEGMENT_SCENERY_SINGLE	0x03
-#define SEGMENT_ENTRANCE		0x04
-#define SEGMENT_WALL			0x05
-#define SEGMENT_SCENERY_MULTI	0x06
-#define SEGMENT_BANNER			0x07
+const uchar SEGMENT_LANDSCAPE		=0x00;
+const uchar SEGMENT_PATH			=0x01;
+const uchar SEGMENT_ELEMENT			=0x02;	
+const uchar SEGMENT_SCENERY_SINGLE	=0x03;
+const uchar SEGMENT_ENTRANCE		=0x04;
+const uchar SEGMENT_WALL			=0x05;
+const uchar SEGMENT_SCENERY_MULTI	=0x06;
+const uchar SEGMENT_BANNER			=0x07;
 
 //MSB on a single byte
-#define SEGMENT_LAST			0x80
+const uchar SEGMENT_LAST			=0x80;
 
-#define MAX_GAME_DATA			0x6000F //393231
+const unsigned int MAX_GAME_DATA	=0x6000F; //393231
 
-#define PARK_MAX_NAMES			1024
-#define PARK_NAME_SIZE			32
+const unsigned short PARK_MAX_NAMES	=1024;
+const uchar PARK_NAME_SIZE			=32;
 
-#define SV4_NAME_START			0x19B89C
+const unsigned int SV4_NAME_START	=0x19B89C;
+
+}
 
 using namespace std;
 
 class RCTGLPark
 {
 public:
-	RCTGLPark(void);
+	RCTGLPark();
 	bool loadPark(const string &filename);
-	bool clearPark(void);
-	char * getName(int index);
-	void loadTextures(void);
-	void draw(void);
+	bool clearPark();
+	string getName(int index) const;
+	void loadTextures();
+	void draw() const;
 
 private:
-	uchar sizeX, sizeZ;
+	uchar m_sizeX, m_sizeZ;
 
-	RCTGLLandscape landscape;
-	RCTGLPathSystem paths;
+	RCTGLLandscape m_landscape;
+	RCTGLPathSystem m_paths;
 	
 	/*
 	vector <RCTGLScenery> sceneryList[128][128];
@@ -53,11 +57,11 @@ private:
 	vector <RCTGLBanner> bannerList[128][128];
 	*/
 
-	vector <char*> rideNameList;
+	vector <string> m_rideNameList;
 
 	bool uncompressFile(const string &inFile, const string &outFile);
 	bool loadNames(uchar *parkData);
-	void unloadNames(void);
+	void unloadNames();
 };
 
 #endif

@@ -80,18 +80,18 @@ class RCTGLLandscape
 public:
 	landscapeElement land[128][128];
 
-	RCTGLLandscape(void);
+	RCTGLLandscape();
 
 	bool load(uchar *gameData);
 	bool loadOffset(uchar *gameData, int x, int y);
 
-	void loadTextures(void);
+	void loadTextures();
 
-	void build(void);
-	void compile(void);
+	void build();
+	void compile();
 
-	void clear(void);
-	bool draw(uchar x1, uchar z1, uchar x2, uchar z2);
+	void clear();
+	bool draw(uchar x1, uchar z1, uchar x2, uchar z2) const;
 
 private:
 
