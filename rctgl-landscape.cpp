@@ -293,6 +293,15 @@ void RCTGLLandscape::compile(void)
 				waterSurface->setTextureID(waterTexture);
 
 				land[i][j].waterSurface = waterSurface;
+
+				if(land[i][j].TR < land[i][j].waterLevel &&
+					land[i][j].BR < land[i][j].waterLevel &&
+					land[i][j].BL < land[i][j].waterLevel &&
+					land[i][j].TL < land[i][j].waterLevel)
+				{
+					land[i][j].surface = NULL;
+					delete land[i][j].surface;
+				}
 			}			
 		}
 	}
@@ -321,7 +330,8 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 	{
 		for(j=z1; j<z2; j++)
 		{
-			land[i][j].surface->draw();
+			if(land[i][j].surface)
+				land[i][j].surface->draw();
 
 			if(land[i][j].waterSurface)
 				land[i][j].waterSurface->draw();
