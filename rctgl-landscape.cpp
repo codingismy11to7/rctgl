@@ -1,6 +1,8 @@
 #include "rctgl-landscape.h"
 #include "rctgl-texman.h"
 
+//#define DETAILED_LOG
+
 
 RCTGLLandscape::RCTGLLandscape(void)
 {
@@ -234,6 +236,15 @@ bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)
 
 bool RCTGLLandscape::isFlatLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
 {
+#ifdef DETAILED_LOG
+
+	stringstream x;
+	x << "Comparing " << (unsigned int)x1 << ", " << (unsigned int)z1;
+	x << " to " << (unsigned int)x2 << ", " << (unsigned int)z2;
+	DebugLog::writeToLog(x.str());
+
+#endif
+
 	return (land[x1][z1].TL			== land[x2][z2].TL &&
 		land[x1][z1].BL				== land[x2][z2].BL &&
 		land[x1][z1].BR				== land[x2][z2].BR &&
@@ -244,9 +255,15 @@ bool RCTGLLandscape::isFlatLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
 
 bool RCTGLLandscape::isFlatRowSame(uchar startX, uchar startZ, uchar row, uchar width)
 {
+	/*
 	for(uchar z=startZ; z<(startZ + width); z++)	
 		if(!isFlatLandSame(startX, startZ, row, z))
 			return false;	
+	*/
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isFlatLandSame(startX, startZ, row, z))
+			return false;	
+
 
 	return true;
 }
@@ -271,7 +288,7 @@ void RCTGLLandscape::compileSurfaces(void)
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compileSurfaces()");
 
-	uchar i, j, k, l;
+	uchar i, j; //, k, l;
 
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
@@ -290,7 +307,7 @@ void RCTGLLandscape::compileSurfaces(void)
 
 #ifdef DETAILED_LOG
 			stringstream coords;
-			coords << "Processing " << (unsigned int)i << ", " << (unsigned int)j;
+			coords << " === Processing " << (unsigned int)i << ", " << (unsigned int)j << " ===";
 			DebugLog::writeToLog(coords.str());
 #endif
 
@@ -298,16 +315,16 @@ void RCTGLLandscape::compileSurfaces(void)
 			if(land[i][j].TL == land[i][j].TR &&
 				land[i][j].TL == land[i][j].BR &&
 				land[i][j].TL == land[i][j].BL &&
-				land[i][j].surface == NULL)			
+				!land[i][j].surface)			
 			{
-				//find out how long the land segment lasts
-				uchar baseZ = j, baseX = i;
-				uchar offsetZ = 1, offsetX = 1;
+				
 
 #ifdef DETAILED_LOG
 				DebugLog::writeToLog((string)"Optimizing flat land");
 #endif
-
+				//find out how long the land segment lasts
+				uchar baseZ = j, baseX = i;
+				uchar offsetZ = 1, offsetX = 1;
 
 				while(isFlatLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
 					baseZ + offsetZ < 128)
@@ -315,7 +332,7 @@ void RCTGLLandscape::compileSurfaces(void)
 
 				//now that we have the maximum Z for this segment, let's
 				//find how far it extends in the X direction
-				while(isFlatRowSame(baseX, baseZ, offsetX, offsetZ) &&
+				while(isFlatRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)
 					offsetX++;
 
@@ -380,19 +397,20 @@ void RCTGLLandscape::compileSurfaces(void)
 #endif
 
 				//assign the pointer to all of the appropriate surfaces
-				for(k=0; k<offsetZ; k++)
+				uchar zStep, xStep;
+				for(zStep=0; zStep<offsetZ; zStep++)
 				{
-					for(l=0; l<offsetX; l++)
+					for(xStep=0; xStep<offsetX; xStep++)
 					{
 #ifdef DETAILED_LOG
 						stringstream x;
-						x << "Setting land at " << (unsigned int)(baseX + l);
-						x << ", " << (unsigned int)(baseZ + k);
+						x << "Setting land at " << (unsigned int)(baseX + xStep);
+						x << ", " << (unsigned int)(baseZ + zStep);
 						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
 						DebugLog::writeToLog(x.str());
 #endif
 
-						land[baseX + l][baseZ + k].surface = surface;
+						land[baseX + xStep][baseZ + zStep].surface = surface;
 					}
 				}
 
@@ -402,7 +420,7 @@ void RCTGLLandscape::compileSurfaces(void)
 				numPolys++;
 				totalPolys += (offsetZ * offsetX);
 			}
-			else if(land[i][j].surface == NULL)
+			else if(!land[i][j].surface)
 			{
 #ifdef DETAILED_LOG
 				DebugLog::writeToLog((string)"NOT optimizing land");
@@ -472,7 +490,7 @@ void RCTGLLandscape::compileSurfaces(void)
 			else
 			{
 #ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Unhandled surface");
+				DebugLog::writeToLog((string)"Surface already assigned");
 #endif
 			}
 		}
@@ -483,7 +501,7 @@ void RCTGLLandscape::compileSurfaces(void)
 
 void RCTGLLandscape::compileEdges(void)
 {
-	uchar i, j, k;
+	uchar i, j; //, k;
 
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
@@ -692,7 +710,7 @@ void RCTGLLandscape::compileWater(void)
 
 				//now that we have the maximum Z for this segment, let's
 				//find how far it extends in the X direction
-				while(isWaterRowSame(baseX, baseZ, offsetX, offsetZ) &&
+				while(isWaterRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)
 					offsetX++;
 
@@ -814,7 +832,7 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 	if((x1 > x2) || (z1 > z2))
 		return false;
 	
-	uchar i, j, k;
+	uchar i, j; //, k;
 
 	//initialize all polygons
 	for(i=x1; i<x2; i++)
@@ -859,9 +877,9 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
 					(float)((land[i][j].lowest * UNITHEIGHT) - 0.1f),
 					(float)(j*UNITWIDTH),
-					(float)(land[i][j].surface->width * UNITWIDTH),
+					(float)(land[i][j].waterSurface->width * UNITWIDTH),
 					(float)((land[i][j].highest - land[i][j].lowest) * UNITHEIGHT + 0.2f),					
-					(float)(land[i][j].surface->length * UNITWIDTH)))					
+					(float)(land[i][j].waterSurface->length * UNITWIDTH)))					
 				{
 					if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
 					{
