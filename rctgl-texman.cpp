@@ -5,7 +5,7 @@ void RCTGLTextureManager::loadPathTex(char *filename, int texNum, uchar pathOpti
 
 }
 
-unsigned int RCTGLTextureManager::loadTex(char *filename, uchar texOptions)
+unsigned int RCTGLTextureManager::loadTex(const char *filename, uchar texOptions)
 {
 	enum fileTypes {TGA, PNG};
 
@@ -147,15 +147,17 @@ int RCTGLTextureManager::addPathTexture(const char *filepath, int texID, unsigne
 
 unsigned int RCTGLTextureManager::addTexture(const char *filepath, uchar texOptions)
 {
-	char *tmp = (char *)malloc(256);
+	/*char *tmp = (char *)malloc(256);
 	char tempstr[256];
+
+	tmp = strcpy(&tempstr[0], &RCTGL_Location[0]);
+	tmp = strcat(tmp, filepath);	*/
 
 	unsigned int ret;
 
-	tmp = strcpy(&tempstr[0], &RCTGL_Location[0]);
-	tmp = strcat(tmp, filepath);	
-
-	ret = loadTex(tmp, texOptions);
+	string tmp( RCTGL_Location );
+	tmp += filepath;
+	ret = loadTex(tmp.c_str(), texOptions);
 
 	//free(tmp);
 
