@@ -93,6 +93,8 @@ public:
 	bool draw(uchar x1, uchar z1, uchar x2, uchar z2);
 
 private:
+
+	unsigned int numPolys, totalPolys;
 	unsigned int surfaceTextures[16];
 	unsigned int edgeTextures[16];
 	unsigned int waterTexture;

@@ -263,7 +263,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					land[i][base].BL == land[i][base+offset].BL &&
 					land[i][base].BR == land[i][base+offset].BR &&
 					land[i][base].TR == land[i][base+offset].TR &&
-					base + offset < 128)
+					base + offset < 128 &&
+					land[i][base].surfaceLL == land[i][base+offset].surfaceLL &&
+					land[i][base].surfaceType == land[i][base+offset].surfaceType)
 					offset++;
 
 				//TL
@@ -319,7 +321,10 @@ void RCTGLLandscape::compileSurfaces(void)
 					land[i][j+k].surface = surface;
 
 				//move j
-				j+= (offset - 1);				
+				j+= (offset - 1);
+
+				numPolys++;
+				totalPolys += offset;
 			}
 			else
 			{
@@ -370,6 +375,9 @@ void RCTGLLandscape::compileSurfaces(void)
 					surface->setTextureID(surfaceTextures[land[i][j].surfaceType]);
 
 				land[i][j].surface = surface;
+
+				numPolys++;
+				totalPolys++;
 			}
 		}
 	}
@@ -469,6 +477,9 @@ void RCTGLLandscape::compileEdges(void)
 					}
 
 					land[i][j].edges[EDGE_NORTH] = tmp;
+
+					numPolys++;
+					totalPolys++;
 				}
 			}			
 
@@ -541,8 +552,10 @@ void RCTGLLandscape::compileEdges(void)
 					
 
 					land[i][j].edges[EDGE_EAST] = tmp;
-				}
 
+					numPolys++;
+					totalPolys++;
+				}
 			}
 		}
 	}
@@ -618,6 +631,10 @@ void RCTGLLandscape::compileWater(void)
 
 				land[i][j].waterSurface = waterSurface;
 
+				numPolys++;
+				totalPolys++;
+
+				/*
 				if(land[i][j].TR < land[i][j].waterLevel &&
 					land[i][j].BR < land[i][j].waterLevel &&
 					land[i][j].BL < land[i][j].waterLevel &&
@@ -626,6 +643,7 @@ void RCTGLLandscape::compileWater(void)
 					land[i][j].surface = NULL;
 					delete land[i][j].surface;
 				}
+				*/
 			}			
 		}
 	}
@@ -639,9 +657,16 @@ void RCTGLLandscape::compile(void)
 {
 	DebugLog::beginTask((string)"RCTGLLandscape::compile()");
 
+	numPolys = totalPolys = 0;
+
 	compileSurfaces();
 	compileWater();
-	compileEdges();	
+	compileEdges();
+
+	stringstream x;
+
+	x << "Landscape optimized from " << (long)totalPolys << " to " << (long)numPolys << " polygons";
+	DebugLog::writeToLog(x.str());
 
 	DebugLog::endTask();
 }
