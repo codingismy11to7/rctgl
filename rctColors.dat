@@ -1,5 +1,5 @@
 <!-- RCT Color Data for RCTGL -->
-<xml>
+<RCTGLColors>
 	<color r=0.16 g=0.25 b=0.26/>
 	<color r=0.42 g=0.52 b=0.51/>
 	<color r=0.71 g=0.76 b=0.76/>
@@ -32,5 +32,5 @@
 	<color r=0.52 g=0.81 b=0.81/>
 	<color r=1.00 g=0.91 b=0.16/>
 	<color r=0.55 g=0.83 b=0.97/>
-</xml>
+</RCTGLColors>
 		
