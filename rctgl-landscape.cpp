@@ -288,7 +288,8 @@ bool RCTGLLandscape::isFlatLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
 		land[x1][z1].BR				== land[x2][z2].BR &&
 		land[x1][z1].TR				== land[x2][z2].TR &&	
 		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
-		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);
 }
 
 bool RCTGLLandscape::isFlatRowSame(uchar startX, uchar startZ, uchar row, uchar width)
@@ -322,7 +323,8 @@ bool RCTGLLandscape::isLeftRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2
 		land[x1][z1].BR				== (land[x2][z2].BR + (z2 - z1)) &&
 		land[x1][z1].TR				== (land[x2][z2].TR + (z2 - z1)) &&	
 		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
-		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);	
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
 }
 	
 
@@ -354,7 +356,8 @@ bool RCTGLLandscape::isRightRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z
 		land[x1][z1].BR				== (land[x2][z2].BR - (z2 - z1)) &&
 		land[x1][z1].TR				== (land[x2][z2].TR - (z2 - z1)) &&	
 		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
-		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);	
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
 }
 
 bool RCTGLLandscape::isRightRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
@@ -384,7 +387,8 @@ bool RCTGLLandscape::isLowerRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z
 		land[x1][z1].BR				== (land[x2][z2].BR + (x2 - x1)) &&
 		land[x1][z1].TR				== (land[x2][z2].TR + (x2 - x1)) &&	
 		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
-		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);	
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
 }
 
 bool RCTGLLandscape::isLowerRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
@@ -413,13 +417,134 @@ bool RCTGLLandscape::isUpperRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z
 		land[x1][z1].BR				== (land[x2][z2].BR - (x2 - x1)) &&
 		land[x1][z1].TR				== (land[x2][z2].TR - (x2 - x1)) &&	
 		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
-		land[x1][z1].surfaceType	== land[x2][z2].surfaceType);	
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
 }
 
 bool RCTGLLandscape::isUpperRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
 {
 	for(uchar z=startZ; z<(startZ + width); z++)	
 		if(!isUpperRaisedLandSame(startX, startZ, row, z))
+			return false;	
+
+
+	return true;
+}
+
+bool RCTGLLandscape::isUpperRightRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+#ifdef DETAILED_LOG
+
+	stringstream x;
+	x << "Comparing " << (unsigned int)x1 << ", " << (unsigned int)z1;
+	x << " to " << (unsigned int)x2 << ", " << (unsigned int)z2;
+	DebugLog::writeToLog(x.str());
+
+#endif	
+	
+	return (land[x1][z1].TL			== (land[x2][z2].TL - (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].BL				== (land[x2][z2].BL - (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].BR				== (land[x2][z2].BR - (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].TR				== (land[x2][z2].TR - (x2 - x1) - (z2 - z1)) &&	
+		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
+}
+
+bool RCTGLLandscape::isUpperRightRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isUpperRightRaisedLandSame(startX, startZ, row, z))
+			return false;	
+
+
+	return true;
+}
+
+bool RCTGLLandscape::isLowerLeftRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+#ifdef DETAILED_LOG
+
+	stringstream x;
+	x << "Comparing " << (unsigned int)x1 << ", " << (unsigned int)z1;
+	x << " to " << (unsigned int)x2 << ", " << (unsigned int)z2;
+	DebugLog::writeToLog(x.str());
+
+#endif	
+	
+	return (land[x1][z1].TL			== (land[x2][z2].TL + (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].BL				== (land[x2][z2].BL + (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].BR				== (land[x2][z2].BR + (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].TR				== (land[x2][z2].TR + (x2 - x1) + (z2 - z1)) &&	
+		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
+}
+
+bool RCTGLLandscape::isLowerLeftRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isLowerLeftRaisedLandSame(startX, startZ, row, z))
+			return false;	
+
+
+	return true;
+}
+
+bool RCTGLLandscape::isUpperLeftRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+#ifdef DETAILED_LOG
+
+	stringstream x;
+	x << "Comparing " << (unsigned int)x1 << ", " << (unsigned int)z1;
+	x << " to " << (unsigned int)x2 << ", " << (unsigned int)z2;
+	DebugLog::writeToLog(x.str());
+
+#endif	
+	
+	return (land[x1][z1].TL			== (land[x2][z2].TL - (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].BL				== (land[x2][z2].BL - (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].BR				== (land[x2][z2].BR - (x2 - x1) + (z2 - z1)) &&
+		land[x1][z1].TR				== (land[x2][z2].TR - (x2 - x1) + (z2 - z1)) &&	
+		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
+}
+
+bool RCTGLLandscape::isUpperLeftRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isUpperLeftRaisedLandSame(startX, startZ, row, z))
+			return false;	
+
+
+	return true;
+}
+
+bool RCTGLLandscape::isLowerRightRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2)
+{
+#ifdef DETAILED_LOG
+
+	stringstream x;
+	x << "Comparing " << (unsigned int)x1 << ", " << (unsigned int)z1;
+	x << " to " << (unsigned int)x2 << ", " << (unsigned int)z2;
+	DebugLog::writeToLog(x.str());
+
+#endif	
+	
+	return (land[x1][z1].TL			== (land[x2][z2].TL + (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].BL				== (land[x2][z2].BL + (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].BR				== (land[x2][z2].BR + (x2 - x1) - (z2 - z1)) &&
+		land[x1][z1].TR				== (land[x2][z2].TR + (x2 - x1) - (z2 - z1)) &&	
+		land[x1][z1].surfaceLL		== land[x2][z2].surfaceLL &&
+		land[x1][z1].surfaceType	== land[x2][z2].surfaceType &&
+		!land[x2][z2].surface);	
+}
+
+bool RCTGLLandscape::isLowerRightRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width)
+{
+	for(uchar z=startZ; z<(startZ + width); z++)	
+		if(!isLowerRightRaisedLandSame(startX, startZ, row, z))
 			return false;	
 
 
@@ -682,6 +807,82 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isUpperRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)					
 					offsetX++;				
+			}
+			//upper right raised land
+			// 1 2
+			// 0 1
+			else if(land[i][j].BL == land[i][j].TR &&
+					land[i][j].BL == land[i][j].TL - 1 &&
+					land[i][j].BL == land[i][j].BR + 1 &&
+					!land[i][j].surface)
+			{
+				//find out how long the land segment lasts
+				while(isUpperRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+					baseZ + offsetZ < 128)
+					offsetZ++;				
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isUpperRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+					baseX + offsetX < 128)					
+					offsetX++;
+			}
+			//bottom left raised land
+			// 1 0
+			// 2 1
+			else if(land[i][j].BL == land[i][j].TR &&
+					land[i][j].BL == land[i][j].TL + 1 &&
+					land[i][j].BL == land[i][j].BR - 1 &&
+					!land[i][j].surface)
+			{
+				//find out how long the land segment lasts
+				while(isLowerLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+					baseZ + offsetZ < 128)
+					offsetZ++;				
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isLowerLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+					baseX + offsetX < 128)					
+					offsetX++;
+			}
+			//upper left raised land
+			// 2 1
+			// 1 0
+			else if(land[i][j].BR == land[i][j].TL &&
+					land[i][j].BR == land[i][j].TR + 1 &&
+					land[i][j].BR == land[i][j].BL - 1 &&
+					!land[i][j].surface) 
+			{
+				//find out how long the land segment lasts
+				while(isUpperLeftRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+					baseZ + offsetZ < 128)
+					offsetZ++;				
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isUpperLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+					baseX + offsetX < 128)					
+					offsetX++;
+			}
+			//lower right raised land
+			// 0 1
+			// 1 2
+			else if(land[i][j].BR == land[i][j].TL &&
+					land[i][j].BR == land[i][j].TR - 1 &&
+					land[i][j].BR == land[i][j].BL + 1 &&
+					!land[i][j].surface) 
+			{
+				//find out how long the land segment lasts
+				while(isLowerRightRaisedLandSame(baseX, baseZ, baseX, baseZ+offsetZ) &&
+					baseZ + offsetZ < 128)
+					offsetZ++;				
+
+				//now that we have the maximum Z for this segment, let's
+				//find how far it extends in the X direction
+				while(isLowerRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
+					baseX + offsetX < 128)					
+					offsetX++;
 			}
 			else if(land[i][j].surface)
 			{
@@ -1018,16 +1219,13 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 				{
 					if(!land[i][j].surface->wasDrawn)
 					{
-						/*
-						if(land[i][j].BL == land[i][j].TL &&
-							land[i][j].BR == land[i][j].TR &&
-							land[i][j].BL == land[i][j].BR + 1 &&
-							land[i][j].TL == land[i][j].TR + 1)
+						/*						
+						if(land[i][j].BR == land[i][j].TL &&
+							land[i][j].BR == land[i][j].TR - 1 &&
+							land[i][j].BR == land[i][j].BL + 1)
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						else
-							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-							*/
-
+						*/
+  
 						land[i][j].surface->draw();
 						land[i][j].surface->wasDrawn = true;
 

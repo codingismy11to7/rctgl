@@ -122,6 +122,18 @@ private:
 	bool isLowerRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
 	bool isLowerRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width);
 
+	bool isUpperRightRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isUpperRightRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width);
+
+	bool isUpperLeftRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isUpperLeftRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width);
+
+	bool isLowerRightRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isLowerRightRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width);
+
+	bool isLowerLeftRaisedLandSame(uchar x1, uchar z1, uchar x2, uchar z2);
+	bool isLowerLeftRaisedRowSame(uchar startX, uchar startZ, uchar row, uchar width);
+
 	bool isWaterSame(uchar x1, uchar z1, uchar x2, uchar z2);
 	bool isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width);
 

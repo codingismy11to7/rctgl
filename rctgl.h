@@ -10,6 +10,8 @@
 #include <GL\glu.h>
 #include <GL\glaux.h>
 
+
+
 #define CPWDLL_EXTERN
 #define CPWDLL_LOC "depend//cpw//cpw.h"
 
