@@ -2,6 +2,7 @@
 #include "rctgl-texman.h"
 
 //#define DETAILED_LOG
+#define OPTIMIZE_LANDSCAPE
 
 
 RCTGLLandscape::RCTGLLandscape(void)
@@ -462,13 +463,16 @@ void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ,
 	}
 }
 
-void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface)
+void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface, bool isWater)
 {
 	RCTGLVertex v, tex;
 
 	//TL
 	v.x = startX * UNITWIDTH;
-	v.y = land[startX][startZ].BR * UNITHEIGHT;
+	if(isWater)
+		v.y = land[startX][startZ].waterLevel * UNITHEIGHT;
+	else
+		v.y = land[startX][startZ].BR * UNITHEIGHT;
 	v.z = startZ * UNITWIDTH;
 
 	tex.x = 0.0f;
@@ -479,7 +483,8 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 
 	//TR
 	v.x = (startX + xLen) * UNITWIDTH;
-	v.y = land[startX+(xLen-1)][startZ].BL * UNITHEIGHT;
+	if(!isWater)
+		v.y = land[startX+(xLen-1)][startZ].BL * UNITHEIGHT;
 	v.z = startZ * UNITWIDTH;
 
 	tex.x = (float)xLen;
@@ -489,7 +494,8 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 
 	//BR
 	v.x = (startX+ xLen) * UNITWIDTH;
-	v.y = land[startX+(xLen-1)][startZ+(zLen-1)].TL * UNITHEIGHT;
+	if(!isWater)
+		v.y = land[startX+(xLen-1)][startZ+(zLen-1)].TL * UNITHEIGHT;
 	v.z = (startZ + zLen) * UNITWIDTH;
 
 	tex.x = (float)xLen;
@@ -499,7 +505,8 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 
 	//BL
 	v.x = startX * UNITWIDTH;
-	v.y = land[startX][startZ+(zLen-1)].TR * UNITHEIGHT;
+	if(!isWater)
+		v.y = land[startX][startZ+(zLen-1)].TR * UNITHEIGHT;
 	v.z = (startZ + zLen) * UNITWIDTH;
 
 	tex.x = 0.0f;
@@ -508,10 +515,13 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 	surface->addVertex(v, tex);
 	
 	//assign the texture
-	if(land[startX][startZ].surfaceLL)
-		surface->setTextureID(surfaceTextures[8 + land[startX][startZ].surfaceType]);
-	else
-		surface->setTextureID(surfaceTextures[land[startX][startZ].surfaceType]);
+	if(!isWater)
+	{
+		if(land[startX][startZ].surfaceLL)
+			surface->setTextureID(surfaceTextures[8 + land[startX][startZ].surfaceType]);
+		else
+			surface->setTextureID(surfaceTextures[land[startX][startZ].surfaceType]);
+	}
 
 	surface->length = zLen;
 	surface->width = xLen;
@@ -547,6 +557,7 @@ void RCTGLLandscape::compileSurfaces(void)
 			DebugLog::writeToLog(coords.str());
 #endif
 
+#ifdef OPTIMIZE_LANDSCAPE
 			//check for optimizations
 			//handle flat pieces
 			// 0 0
@@ -579,16 +590,6 @@ void RCTGLLandscape::compileSurfaces(void)
 					DebugLog::writeToLog(x.str());
 				}
 #endif
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);				
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
 			}
 			//handle left-raised land
 			// 1 0
@@ -612,17 +613,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isLeftRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)					
 					offsetX++;				
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
-
 			}
 			//handle right-raised land
 			// 0 1
@@ -646,17 +636,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isRightRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)					
 					offsetX++;				
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
-
 			}
 			//lower raised land
 			// 0 0
@@ -680,18 +659,6 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isLowerRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)					
 					offsetX++;				
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
-
-
 			}
 			//upper raised land
 			// 1 1
@@ -715,20 +682,16 @@ void RCTGLLandscape::compileSurfaces(void)
 				while(isUpperRaisedRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)					
 					offsetX++;				
-
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
-
-				//move j
-				j+=(offsetZ-1);
-
-				numPolys++;
-				totalPolys += (offsetZ * offsetX);
-
-
+			}
+			else if(land[i][j].surface)
+			{
+#ifdef DETAILED_LOG
+				DebugLog::writeToLog((string)"Surface already assigned");
+#endif
+				continue;
 			}
 			else if(!land[i][j].surface)
+#endif //#ifdef OPTIMIZE_LANDSCAPE
 			{
 #ifdef DETAILED_LOG
 				DebugLog::writeToLog((string)"NOT optimizing land");
@@ -736,25 +699,16 @@ void RCTGLLandscape::compileSurfaces(void)
 				y << "(" << land[i][j].BL << ", " << land[i][j].TL << ", " << land[i][j].TR << ", " << land[i][j].BR << ")";
 				DebugLog::writeToLog(y.str());
 #endif
-				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface);
-				
-				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);				
+			}
 
-				numPolys++;
-				totalPolys++;				
-			}
-			else if(!land[i][j].surface)
-			{
-#ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"NULL surface");
-#endif
-			}
-			else
-			{
-#ifdef DETAILED_LOG
-				DebugLog::writeToLog((string)"Surface already assigned");
-#endif
-			}
+			addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, false);
+			assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
+
+			//move j
+			j+=(offsetZ-1);
+
+			numPolys++;
+			totalPolys += (offsetZ * offsetX);
 		}
 	}
 
@@ -942,7 +896,7 @@ void RCTGLLandscape::compileEdges(void)
 
 void RCTGLLandscape::compileWater(void)
 {
-	uchar i, j, k, l;
+	uchar i, j;
 
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
@@ -956,8 +910,6 @@ void RCTGLLandscape::compileWater(void)
 			//create the surface
 			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;
 
-			RCTGLVertex v, tex;
-
 			surface->setBaseRGB(rgb);
 
 			//check for optimizations
@@ -966,6 +918,7 @@ void RCTGLLandscape::compileWater(void)
 				//find out how long the land segment lasts
 				uchar baseZ = j, baseX = i;
 				uchar offsetZ = 1, offsetX = 1;
+#ifdef OPTIMIZE_LANDSCAPE
 				while(isWaterSame(i, baseZ, i, baseZ+offsetZ) && 
 					baseZ + offsetZ < 128)
 					offsetZ++;
@@ -975,77 +928,13 @@ void RCTGLLandscape::compileWater(void)
 				while(isWaterRowSame(baseX, baseZ, baseX+offsetX, offsetZ) &&
 					baseX + offsetX < 128)
 					offsetX++;
+#endif //#ifdef OPTIMIZE_LANDSCAPE
 
-				//TL
-				v.x = baseX * UNITWIDTH;
-				v.y = land[baseX][baseZ].waterLevel * UNITHEIGHT;
-				v.z = baseZ * UNITWIDTH;
+				addVerticiesToSurface(baseX, offsetX, baseZ, offsetZ, surface, true);
 
-				tex.x = 0.0f;
-				tex.y = 0.0f;
-				tex.z = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//TR
-				v.x = (baseX + offsetX) * UNITWIDTH;				
-				v.z = baseZ * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = 0.0f;
-
-				surface->addVertex(v, tex);
-
-				//BR
-				v.x = (baseX+ offsetX) * UNITWIDTH;				
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = (float)offsetX;
-				tex.y = (float)offsetZ;
-				
-				surface->addVertex(v, tex);
-
-				//BL
-				v.x = baseX * UNITWIDTH;				
-				v.z = (baseZ + offsetZ) * UNITWIDTH;
-
-				tex.x = 0.0f;
-				tex.y = (float)offsetZ;
-
-				surface->addVertex(v, tex);
-				
-				//assign the texture
 				surface->setTextureID(waterTexture);
-
-				surface->length = offsetZ;
-				surface->width = offsetX;
-
-#ifdef DETAILED_LOG
-				if(offsetX > 1 && offsetZ > 1)
-				{
-					stringstream x;
-					x << "Expanding water at " << (unsigned int)i << ", " << (unsigned int)j;
-					x << " to " << (unsigned int)(i + offsetX - 1) << ", " << (unsigned int)(j + offsetZ - 1);
-					DebugLog::writeToLog(x.str());
-				}
-#endif
-
-				//assign the pointer to all of the appropriate surfaces
-				for(k=0; k<offsetZ; k++)
-				{
-					for(l=0; l<offsetX; l++)
-					{
-#ifdef DETAILED_LOG
-						stringstream x;
-						x << "Setting water at " << (unsigned int)(baseX + l);
-						x << ", " << (unsigned int)(baseZ + k);
-						x << " to value at " << (unsigned int)baseX << ", " << (unsigned int)baseZ;
-						DebugLog::writeToLog(x.str());
-#endif
-
-						land[baseX + l][baseZ + k].waterSurface = surface;
-					}
-				}
+				
+				assignSurfaceToLand(baseX, offsetX, baseZ, offsetZ, surface);
 
 				//move j
 				j+=(offsetZ-1);
