@@ -630,7 +630,7 @@ void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar start
 	//TL
 	v.x = startX * UNITWIDTH;
 	if(isWater)
-		v.y = land[startX][startZ].waterLevel * UNITHEIGHT;
+		v.y = land[startX][startZ].waterLevel * UNITHEIGHT - 0.05f;
 	else
 		v.y = land[startX][startZ].BR * UNITHEIGHT;
 	v.z = startZ * UNITWIDTH;
