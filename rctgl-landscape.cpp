@@ -171,25 +171,48 @@ bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)
 		(land[x][y].waterLevel > land[x][y].TR) &&
 		(land[x][y].waterLevel > land[x][y].BR) &&
 		(land[x][y].waterLevel > land[x][y].BL))
-		land[x][y].allLandUnderwater = true;	
+		land[x][y].allLandUnderwater = true;
+	
+	//calc lowest point
+	land[x][y].lowest = land[x][y].BR;
+	if(land[x][y].BL < land[x][y].lowest)
+		land[x][y].lowest = land[x][y].BL;
+	if(land[x][y].TL < land[x][y].lowest)
+		land[x][y].lowest = land[x][y].TL;
+	if(land[x][y].TR < land[x][y].lowest)
+		land[x][y].lowest = land[x][y].TR;
+
+	//calc highest point
+	land[x][y].highest = land[x][y].BR;
+	if(land[x][y].BL > land[x][y].highest)
+		land[x][y].highest = land[x][y].BL;
+	if(land[x][y].TL > land[x][y].highest)
+		land[x][y].highest = land[x][y].TL;
+	if(land[x][y].TR > land[x][y].highest)
+		land[x][y].highest = land[x][y].TR;
+	if(land[x][y].waterLevel > land[x][y].highest)
+		land[x][y].highest = land[x][y].waterLevel;
 
 	return true;
 }
 
-
 void RCTGLLandscape::compile(void)
 {
-	for(int i=0; i<128; i++)
+	RCTGLRGB rgb;
+	rgb.r = rgb.g = rgb.b = 1.0f;
+
+	int i, j;
+
+	//build the surfaces
+	for(i=0; i<128; i++)
 	{
-		for(int j=0; j<128; j++)
+		for(j=0; j<128; j++)
 		{
 			//create the surface
 			RCTGLPoly *surface = new RCTGLPoly;
 
 			RCTGLVertex v, tex;
 
-			RCTGLRGB rgb;
-			rgb.r = rgb.g = rgb.b = 1.0f;
 			surface->setBaseRGB(rgb);
 
 			//TL
@@ -305,6 +328,167 @@ void RCTGLLandscape::compile(void)
 			}			
 		}
 	}
+
+	/*
+	BR (0, 0)	BL (1, 0)
+	TR (0, 1)	TL (1, 1)
+	 */
+
+	//now build the edges
+	for(i=0;i<128;i++)		//x
+	{
+		for(j=0;j<128;j++)	//z
+		{
+			land[i][j].edges[EDGE_NORTH] = NULL;
+			land[i][j].edges[EDGE_SOUTH] = NULL;
+			land[i][j].edges[EDGE_EAST] = NULL;
+			land[i][j].edges[EDGE_WEST] = NULL;
+
+			//check N edge
+			if(j < 128)
+			{
+				//heights are different. make a polygon
+				if((land[i][j+1].BR != land[i][j].TR) || (land[i][j+1].BL != land[i][j].TL))
+				{
+					RCTGLPoly *tmp = new RCTGLPoly;
+					RCTGLVertex v, tex;					
+
+					tmp->setBaseRGB(rgb);
+
+					//vert1
+					v.x = UNITWIDTH * i;
+					v.y = land[i][j+1].BR * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 1.0f;
+					tex.y = land[i][j+1].BR / 2.0f;//0.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert2
+					v.x = UNITWIDTH * i;
+					v.y = land[i][j].TR * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 1.0f;
+					tex.y = land[i][j].TR / 2.0f; //1.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert3
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i][j].TL * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 0.0f;
+					tex.y = land[i][j].TL / 2.0f; //1.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert4
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i][j+1].BL * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 0.0f;
+					tex.y = land[i][j+1].BL / 2.0f; //0.0f;
+
+					tmp->addVertex(v, tex);
+
+					if((land[i][j+1].BR >= land[i][j].TR) && (land[i][j+1].BL >= land[i][j].TL))
+					{
+						if(land[i][j+1].edgeLL)
+							tmp->setTextureID(edgeTextures[8 + land[i][j+1].edgeType]);
+						else
+							tmp->setTextureID(edgeTextures[land[i][j+1].edgeType]);
+					}
+					else
+					{
+						if(land[i][j].edgeLL)
+							tmp->setTextureID(edgeTextures[8 + land[i][j].edgeType]);
+						else
+							tmp->setTextureID(edgeTextures[land[i][j].edgeType]);
+
+					}
+
+					land[i][j].edges[EDGE_NORTH] = tmp;
+				}
+			}			
+
+			//check E edge
+			if(i < 128)
+			{
+				//heights are different. make a polygon
+				if((land[i+1][j].BR != land[i][j].BL) || (land[i+1][j].TR != land[i][j].TL))
+				{
+					RCTGLPoly *tmp = new RCTGLPoly;
+					RCTGLVertex v, tex;					
+
+					tmp->setBaseRGB(rgb);
+
+					//vert1
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i+1][j].BR * UNITHEIGHT;
+					v.z = UNITWIDTH * j;
+
+					tex.x = 0.0f;
+					tex.y = land[i+1][j].BR / 2.0f;//0.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert2
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i+1][j].TR * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 1.0f;
+					tex.y = land[i+1][j].TR / 2.0f; //1.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert3
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i][j].TL * UNITHEIGHT;
+					v.z = UNITWIDTH * (j + 1);
+
+					tex.x = 1.0f;
+					tex.y = land[i][j].TL / 2.0f; //1.0f;
+
+					tmp->addVertex(v, tex);
+
+					//vert4
+					v.x = UNITWIDTH * (i + 1);
+					v.y = land[i][j].BL * UNITHEIGHT;
+					v.z = UNITWIDTH * j;
+
+					tex.x = 0.0f;
+					tex.y = land[i][j].BL / 2.0f; //0.0f;
+
+					tmp->addVertex(v, tex);
+					
+					if((land[i+1][j].BR >= land[i][j].BL) || (land[i+1][j].TR >= land[i][j].TL))
+					{
+						if(land[i+1][j].edgeLL)
+							tmp->setTextureID(edgeTextures[8 + land[i+1][j].edgeType]);
+						else
+							tmp->setTextureID(edgeTextures[land[i+1][j].edgeType]);
+					}
+					else
+					{
+						if(land[i][j].edgeLL)
+							tmp->setTextureID(edgeTextures[8 + land[i][j].edgeType]);
+						else
+							tmp->setTextureID(edgeTextures[land[i][j].edgeType]);
+
+					}
+					
+
+					land[i][j].edges[EDGE_EAST] = tmp;
+				}
+
+			}
+		}
+	}
 }
 
 
@@ -330,18 +514,45 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 	{
 		for(j=z1; j<z2; j++)
 		{
-			if(land[i][j].surface)
-				land[i][j].surface->draw();
-
-			if(land[i][j].waterSurface)
-				land[i][j].waterSurface->draw();
-
-			/*
-			for(k=0; k<4; k++)
+			
+			if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+					(float)((land[i][j].lowest * UNITHEIGHT) - 0.1f),
+					(float)(j*UNITWIDTH),
+					(float)UNITWIDTH,
+					(float)((land[i][j].highest - land[i][j].lowest) * UNITHEIGHT + 0.2f),					
+					(float)(UNITWIDTH)))
+					
 			{
-				land[i][j].edge[k]->draw();
+				if(land[i][j].surface)
+					land[i][j].surface->draw();
+
+				if(land[i][j].waterSurface)
+					land[i][j].waterSurface->draw();
 			}
-			*/			
+
+			//now we only care about elements 0 and 2			
+			if(land[i][j].edges[EDGE_NORTH])
+			{
+				if(theFrustum.isCubeInFrustum((float)(i*UNITWIDTH),
+					(float)(land[i][j].lowest * UNITHEIGHT),
+					(float)(((j + 1)*UNITWIDTH) - 0.1f),
+					(float)UNITWIDTH,
+					(float)((land[i][j+1].highest - land[i][j].lowest) * UNITHEIGHT),					
+					(float)0.2f))
+					land[i][j].edges[EDGE_NORTH]->draw();
+
+			}
+
+			if(land[i][j].edges[EDGE_EAST])
+			{
+				if(theFrustum.isCubeInFrustum((float)((i+1)*UNITWIDTH),
+					(float)(land[i][j].lowest * UNITHEIGHT),
+					(float)((j*UNITWIDTH) - 0.1f),
+					(float)0.2f,
+					(float)((land[i+1][j].highest - land[i][j].lowest) * UNITHEIGHT),					
+					(float)UNITWIDTH))					
+					land[i][j].edges[EDGE_EAST]->draw();
+			}						
 		}
 	}
 

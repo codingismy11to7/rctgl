@@ -60,7 +60,7 @@ struct landscapeElement
 
 	RCTGLPoly *surface;
 	RCTGLPoly *waterSurface;
-	vector<RCTGLPoly> edges[4];
+	RCTGLPoly *edges[4];
 
 	bool drawWater;			//this may save some time when rendering
 	bool allLandUnderwater;	//this may save some time when rendering
