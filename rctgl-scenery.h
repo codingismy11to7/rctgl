@@ -12,15 +12,15 @@
 class RCTGLScenery
 {
 public:
-	unsigned char baseQuad;
-	unsigned char faceDirection;
-	unsigned char baseHeight;
-	unsigned char sceneryType;
-	unsigned char index;
-	unsigned char color;
+	uchar baseQuad;
+	uchar faceDirection;
+	uchar baseHeight;
+	uchar sceneryType;
+	uchar index;
+	uchar color;
 
 	RCTGLScenery(void);
-	bool loadOffset(unsigned char *data);
+	bool loadOffset(uchar *data);
 private:
 
 };

@@ -17,16 +17,16 @@
 class RCTGLTextureManager
 {
 public:
-	void loadPathTex(char *filename, int texNum, unsigned char pathOptions);
-	unsigned int loadTex(char *filename, unsigned char texOptions);		
+	void loadPathTex(char *filename, int texNum, uchar pathOptions);
+	unsigned int loadTex(char *filename, uchar texOptions);		
 
-	unsigned int addTexture(const char *filepath, unsigned char texOptions);
+	unsigned int addTexture(const char *filepath, uchar texOptions);
 
 private:
-	void BGRA2RGBA(unsigned char *pixels, int w, int h);
-	void BGR2RGB(unsigned char *pixels, int w, int h);
+	void BGRA2RGBA(uchar *pixels, int w, int h);
+	void BGR2RGB(uchar *pixels, int w, int h);
 
-	void buildPathTex(unsigned char *pixels, int w, int h, unsigned int pathOptions);
+	void buildPathTex(uchar *pixels, int w, int h, unsigned int pathOptions);
 
 	int addPathTexture(const char *filepath, int texID, unsigned int options);	
 	

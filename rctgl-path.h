@@ -1,3 +1,5 @@
+#include "rctgl.h"
+
 // Structure of pathModifier1
 // Bits 0-1: Path subtype
 // Bits 2-4: Path type
@@ -90,14 +92,14 @@
 class RCTGLPath
 {
 public:
-	unsigned char pathModifier1;
-	unsigned char pathModifier2;		;
-	unsigned char baseHeight;
-	unsigned char pathExtras;
-	unsigned char pathExtensions;
+	uchar pathModifier1;
+	uchar pathModifier2;		;
+	uchar baseHeight;
+	uchar pathExtras;
+	uchar pathExtensions;
 
 	RCTGLPath(void);
-	bool loadOffset(unsigned char *data);
+	bool loadOffset(uchar *data);
 	
 private:
 };

@@ -1,11 +1,11 @@
 #include "rctgl-texman.h"
 
-void RCTGLTextureManager::loadPathTex(char *filename, int texNum, unsigned char pathOptions)
+void RCTGLTextureManager::loadPathTex(char *filename, int texNum, uchar pathOptions)
 {
 
 }
 
-unsigned int RCTGLTextureManager::loadTex(char *filename, unsigned char texOptions)
+unsigned int RCTGLTextureManager::loadTex(char *filename, uchar texOptions)
 {
 	enum fileTypes {TGA, PNG};
 
@@ -58,7 +58,7 @@ unsigned int RCTGLTextureManager::loadTex(char *filename, unsigned char texOptio
 	switch (format) {
 		case corona::PF_B8G8R8A8:
 			//printf("BGRA \n");
-			BGRA2RGBA((unsigned char *)pixels, width, height);
+			BGRA2RGBA((uchar *)pixels, width, height);
 			//break;
 		//	image = corona::CloneImage(image, corona::PF_R8G8B8A8);
 		case corona::PF_R8G8B8A8:  // process image data
@@ -70,11 +70,11 @@ unsigned int RCTGLTextureManager::loadTex(char *filename, unsigned char texOptio
 			gluBuild2DMipmaps(GL_TEXTURE_2D, 4, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 			//glTexImage2D ( GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
-			//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)pixels);
+			//gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, width, height, GL_RGBA, GL_UNSIGNED_BYTE, (uchar *)pixels);
 			break;
 		case corona::PF_B8G8R8:
 			//printf("BGR \n");
-			BGR2RGB((unsigned char *)pixels, width, height);
+			BGR2RGB((uchar *)pixels, width, height);
 			//break;
 		//	image = corona::CloneImage(image, corona::PF_R8G8B8);
 		case corona::PF_R8G8B8:    // process image data
@@ -100,9 +100,9 @@ unsigned int RCTGLTextureManager::loadTex(char *filename, unsigned char texOptio
 
 }
 
-void RCTGLTextureManager::BGRA2RGBA(unsigned char *pixels, int w, int h)
+void RCTGLTextureManager::BGRA2RGBA(uchar *pixels, int w, int h)
 {
-	unsigned char oldR, oldG, oldB, oldA;
+	uchar oldR, oldG, oldB, oldA;
 
 	for(int i=0; i<(w*h*4); i+=4)
 	{
@@ -118,9 +118,9 @@ void RCTGLTextureManager::BGRA2RGBA(unsigned char *pixels, int w, int h)
 	}
 }
 
-void RCTGLTextureManager::BGR2RGB(unsigned char *pixels, int w, int h)
+void RCTGLTextureManager::BGR2RGB(uchar *pixels, int w, int h)
 {
-	unsigned char oldR, oldG, oldB;
+	uchar oldR, oldG, oldB;
 
 	for(int i=0; i<(w*h*3); i+=3)
 	{
@@ -135,7 +135,7 @@ void RCTGLTextureManager::BGR2RGB(unsigned char *pixels, int w, int h)
 	}
 }
 
-void RCTGLTextureManager::buildPathTex(unsigned char *pixels, int w, int h, unsigned int pathOptions)
+void RCTGLTextureManager::buildPathTex(uchar *pixels, int w, int h, unsigned int pathOptions)
 {
 
 }
@@ -145,7 +145,7 @@ int RCTGLTextureManager::addPathTexture(const char *filepath, int texID, unsigne
 	return 0;
 }
 
-unsigned int RCTGLTextureManager::addTexture(const char *filepath, unsigned char texOptions)
+unsigned int RCTGLTextureManager::addTexture(const char *filepath, uchar texOptions)
 {
 	char *tmp = (char *)malloc(256);
 	char tempstr[256];

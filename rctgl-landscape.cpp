@@ -84,9 +84,9 @@ void RCTGLLandscape::clear(void)
 	RCTGLLog.endTask();
 }
 
-bool RCTGLLandscape::loadOffset(unsigned char *gameData, int x, int y)
+bool RCTGLLandscape::loadOffset(uchar *gameData, int x, int y)
 {
-	unsigned char buffer;
+	uchar buffer;
 
 	buffer = gameData[0];
 
@@ -227,7 +227,7 @@ void RCTGLLandscape::compile(void)
 
 
 
-bool RCTGLLandscape::draw(unsigned char x1, unsigned char z1, unsigned char x2, unsigned char z2)
+bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 {
 	//glEnable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
@@ -240,7 +240,7 @@ bool RCTGLLandscape::draw(unsigned char x1, unsigned char z1, unsigned char x2, 
 	if((x1 > x2) || (z1 > z2))
 		return false;
 	
-	unsigned char i, j, k;
+	uchar i, j, k;
 	
 
 	// draw the map

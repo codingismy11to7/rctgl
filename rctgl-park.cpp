@@ -27,7 +27,7 @@ char * RCTGLPark::getName(int index)
 		return rideNameList[index];	
 }
 
-bool RCTGLPark::loadNames(unsigned char *parkData)
+bool RCTGLPark::loadNames(uchar *parkData)
 {
 	long i, offset;
 
@@ -35,7 +35,7 @@ bool RCTGLPark::loadNames(unsigned char *parkData)
 
 	int validNames = 0;
 
-	unsigned char nameStart = SV4_NAME_START;
+	uchar nameStart = SV4_NAME_START;
 
 	for(i=0; i<PARK_MAX_NAMES; i++)
 	{
@@ -73,7 +73,7 @@ bool RCTGLPark::loadNames(unsigned char *parkData)
 bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 {
 	char countbyte;
-	unsigned char databyte;
+	uchar databyte;
 
 	int i;
 
@@ -112,7 +112,7 @@ bool RCTGLPark::uncompressFile(char *inFile, char *outFile)
 			// now we duplicate data
 			for(i=0; i<=countbyte; i++)
 			{
-				databyte = (unsigned char)fgetc(input);
+				databyte = (uchar)fgetc(input);
 
 				fputc(databyte, output);
 			}
@@ -133,7 +133,7 @@ bool RCTGLPark::loadPark(char *filename)
 	//uncompress the file
 	char *uncompressedFilename = "uncomp.dat";
 
-	unsigned char *parkData;
+	uchar *parkData;
 
 	if(!uncompressFile(filename, uncompressedFilename))
 		return false;	
@@ -152,7 +152,7 @@ bool RCTGLPark::loadPark(char *filename)
 	fseek (input, 0, SEEK_END);
     fileSize=ftell (input);
 
-	parkData = (unsigned char *)malloc(fileSize);
+	parkData = (uchar *)malloc(fileSize);
 	
 	if(parkData == NULL)
 	{
@@ -175,7 +175,7 @@ bool RCTGLPark::loadPark(char *filename)
 	long offset = 0x10;
 	long nextSegment = 0x10;
 
-	unsigned char buffer, buf1;
+	uchar buffer, buf1;
 
 	bool lastItem;
 
@@ -284,7 +284,7 @@ void RCTGLPark::loadTextures(void)
 
 void RCTGLPark::draw(void)
 {
-	unsigned char minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
+	uchar minX = 0, maxX = sizeX, minZ = 0, maxZ = sizeZ;
 
 	landscape.draw(minX, minZ, maxX, maxZ);
 }

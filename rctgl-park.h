@@ -41,7 +41,7 @@ public:
 	void draw(void);
 
 private:
-	unsigned char sizeX, sizeZ;
+	uchar sizeX, sizeZ;
 
 	RCTGLLandscape landscape;
 
@@ -56,7 +56,7 @@ private:
 	vector <char*> rideNameList;
 
 	bool uncompressFile(char *inFile, char *outFile);
-	bool loadNames(unsigned char *parkData);
+	bool loadNames(uchar *parkData);
 };
 
 #endif

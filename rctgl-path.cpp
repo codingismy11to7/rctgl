@@ -6,7 +6,7 @@ RCTGLPath::RCTGLPath(void)
 }
 
 
-bool RCTGLPath::loadOffset(unsigned char *data)
+bool RCTGLPath::loadOffset(uchar *data)
 {	
 	pathModifier1 = 0;
 	pathModifier2 = 0;
@@ -16,7 +16,7 @@ bool RCTGLPath::loadOffset(unsigned char *data)
 
 	//lower 2 bits of byte 0 are path qualifier
 	//mask with 00000011
-	unsigned char tmp = (data[0] & 0x03);
+	uchar tmp = (data[0] & 0x03);
 	pathModifier1 = tmp;
 
 	//middle 2 bits of upper nibble of bit 1 are support type

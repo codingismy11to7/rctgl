@@ -25,7 +25,7 @@ private:
 	vector<RCTGLRGB> RGBList;
 	vector<RCTGLVertex> vertexList;
 	vector<RCTGLVertex> texCoordList;
-	unsigned char vertexCount;
+	uchar vertexCount;
 	unsigned int texID;
 
 	RCTGLRGB baseRGB;

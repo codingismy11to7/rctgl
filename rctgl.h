@@ -23,6 +23,8 @@
 #define UNITWIDTH	3.2
 #define UNITHEIGHT	1.3
 
+typedef unsigned char uchar;
+
 extern float RCTColorsR[RCT_NUM_COLORS];
 extern float RCTColorsG[RCT_NUM_COLORS];
 extern float RCTColorsB[RCT_NUM_COLORS];
