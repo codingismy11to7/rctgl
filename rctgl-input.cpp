@@ -243,6 +243,7 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 		val = calcLightFactor(-1.0f, 0.0f, 0.0f);
 		calcColor(white, val, &edgeLighting[3][0], &edgeLighting[3][1], &edgeLighting[3][2]);
 	}
+	*/
 	
 
 	float moveStep = WALK_SPEED * 0.1f;
@@ -250,36 +251,53 @@ void systemKeyboardCallback( pCpw cpw, uint_32 windowid, uint_32 keycode, uint_3
 	//up arrow, in game
 	if(keycode == CPW_KEY_UP && displayMode == GAME)
 	{
-		ZV+=(float)(-moveStep * cos(XR * M_PI / 180.0f));
-		XV-=(float)(-moveStep * sin(XR * M_PI / 180.0f));
+		userView.setPosOffset((float)(moveStep * sin(userView.XR * M_PI / 180.0f)),
+								0.0f,
+								(float)(-moveStep * cos(userView.XR * M_PI / 180.0f)));
+
+		//ZV+=(float)(-moveStep * cos(XR * M_PI / 180.0f));
+		//XV-=(float)(-moveStep * sin(XR * M_PI / 180.0f));
 	}
 	//down arrow, in game
 	if(keycode == CPW_KEY_DOWN && displayMode == GAME)
 	{
-		ZV-=(float)(-moveStep * cos(XR * M_PI / 180.0f));
-		XV+=(float)(-moveStep * sin(XR * M_PI / 180.0f));
+		userView.setPosOffset((float)(-moveStep * sin(userView.XR * M_PI / 180.0f)),
+								0.0f,
+								(float)(moveStep * cos(userView.XR * M_PI / 180.0f)));
+		//ZV-=(float)(-moveStep * cos(XR * M_PI / 180.0f));
+		//XV+=(float)(-moveStep * sin(XR * M_PI / 180.0f));
 	}
 	//left arrow, in game
 	if(keycode == CPW_KEY_LEFT && displayMode == GAME)
 	{
-		ZV+=(float)(-moveStep * cos((XR - 90.0f) * M_PI / 180.0f));
-		XV-=(float)(-moveStep * sin((XR - 90.0f) * M_PI / 180.0f));
+		userView.setPosOffset((float)(moveStep * sin((userView.XR - 90.0f) * M_PI / 180.0f)),
+								0.0f,
+								(float)(-moveStep * cos((userView.XR - 90.0f) * M_PI / 180.0f)));
+		//ZV+=(float)(-moveStep * cos((XR - 90.0f) * M_PI / 180.0f));
+		//XV-=(float)(-moveStep * sin((XR - 90.0f) * M_PI / 180.0f));
 	}
 	//right arrow, in game
 	if(keycode == CPW_KEY_RIGHT && displayMode == GAME)
 	{
-		ZV+=(float)(-moveStep * cos((XR + 90.0f) * M_PI / 180.0f));
-		XV-=(float)(-moveStep * sin((XR + 90.0f) * M_PI / 180.0f));
+		userView.setPosOffset((float)(moveStep * sin((userView.XR + 90.0f) * M_PI / 180.0f)),
+								0.0f,
+								(float)(-moveStep * cos((userView.XR + 90.0f) * M_PI / 180.0f)));		
+
+		//ZV+=(float)(-moveStep * cos((XR + 90.0f) * M_PI / 180.0f));
+		//XV-=(float)(-moveStep * sin((XR + 90.0f) * M_PI / 180.0f));
 	}
 
 	//page up
 	if(keycode == CPW_KEY_PAGEUP && displayMode == GAME)
-		YV += moveStep;
+	{
+		userView.setPosOffset(0.0f, moveStep, 0.0f);
+		//YV += moveStep;
+	}
 	if(keycode == CPW_KEY_PAGEDOWN && displayMode == GAME)
-		YV -= moveStep;
-	*/
-
-
+	{
+		userView.setPosOffset(0.0f, -1.0f * moveStep, 0.0f);
+		//YV -= moveStep;
+	}
 
 
 
@@ -300,8 +318,7 @@ int lastMouseX = -1;
 int lastMouseY = -1;
 
 void mouseMoveCallback(pCpw cpw, uint_32 windowid, uint_32 cursorxpos, uint_32 cursorypos)
-{
-	/*
+{	
 	int mouseXDiff=0, mouseYDiff=0;
 
 	if(lastMouseX != -1)
@@ -317,14 +334,17 @@ void mouseMoveCallback(pCpw cpw, uint_32 windowid, uint_32 cursorxpos, uint_32 c
 	lastMouseY = 240;
 	
 
-	//if(displayMode == GAME) // || DisplayMode == MapMode)
+	if(displayMode == GAME) // || DisplayMode == MapMode)
 	{
-		XR += 0.5f * mouseXDiff;
-		YR += 0.5f * mouseYDiff;
+		userView.setRotOffset(0.5f * mouseXDiff, 0.5f * mouseYDiff, 0.0f);
+
+		//XR += 0.5f * mouseXDiff;
+		//YR += 0.5f * mouseYDiff;
 
 		cpwCenterCursor(cpw, windowid);
 	}
 
+	/*
 	if(XR < 0.0f)
 		XR += 360.0f;
 	else if(XR > 360.0f)
@@ -333,7 +353,7 @@ void mouseMoveCallback(pCpw cpw, uint_32 windowid, uint_32 cursorxpos, uint_32 c
 	if(YR < 0.0f)
 		YR += 360.0f;
 	else if(XR > 360.0f)
-		YR -= 360.0f;
+		YR -= 360.0f;	
 	*/
 }
 

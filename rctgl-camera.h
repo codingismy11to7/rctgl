@@ -1,3 +1,6 @@
+#ifndef RCTGL_CAMERA_H
+#define RCTGL_CAMERA_H
+
 class RCTGLCamera
 {
 public:
@@ -9,10 +12,13 @@ public:
 
 	void getPos(float *xv, float *yv, float *zv);
 	void getRot(float *xr, float *yr, float *zr);
-private:
+
 	float XR, YR, ZR;
 	float XV, YV, ZV;
 
+private:
 	void fixRot(bool xChanged, bool yChanged, bool zChanged);
 	void fixAngle(float *angle);
 };
+
+#endif

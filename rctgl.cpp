@@ -8,10 +8,6 @@
 
 #include CPWDLL_LOC
 
-
-
-
-
 //#include "GLFont.h"
 //#include "bbVertex.h"
 //#include "skyDome.h"
@@ -112,6 +108,68 @@ void printCpwError(pCpw cpw)
 	}
 }
 
+void displayGame(pCpw cpw)
+{
+	glDisable (GL_BLEND);
+	glEnable(GL_NORMALIZE);
+
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
+	//glClearDepth(1.0f);
+	glLoadIdentity();									// Reset The Current Modelview Matrix
+	glPushMatrix();
+
+
+	if(displayMode == MAP)
+		gluLookAt(userView.XV, 200, userView.ZV,
+			userView.XV, 0, userView.ZV,
+			cos((userView.XR - 90.0f) * 3.14f / 180.0f), 0, sin((userView.XR - 90.0f) * 3.14f / 180.0f));
+	else
+	{
+		glRotated(userView.YR, 1.0f, 0.0f, 0.0f);
+		glRotated(userView.XR, 0.0f, 1.0f, 0.0f);
+		glTranslated(-userView.XV, -userView.YV, -userView.ZV);		
+	}
+
+	float objHeight = 32.0f;
+
+	/*
+	double startX, endX;
+	double startZ, endZ;
+
+	calcViewArea(&startX, &endX, &startZ, &endZ);	
+	
+	ExtractFrustum();
+
+	glEnable(GL_BLEND);
+	glDisable(GL_ALPHA_TEST);			
+
+	if(displayMode != MAP)
+	{
+		if(fogLevel != M_FOG_NONE)
+			glDisable(GL_FOG);
+
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glPushMatrix();
+			glTranslatef(XV, YV, ZV);
+			mySkyDome->draw();			
+		glPopMatrix();
+
+		glDepthMask(GL_TRUE);
+
+		//DrawSkyBox();
+
+		if(fogLevel != M_FOG_NONE)
+			glEnable(GL_FOG);
+	}
+	*/
+
+	thePark->draw();
+
+	glPopMatrix();
+}
+
 
 /****************************************************/
 /*  OpenGL 2D Matrix Setup                          */
@@ -147,8 +205,16 @@ void drawWindowOne( pCpw cpw )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     set3DMatrix();
 
-	set2DMatrix();
-	gameMenu->drawMenu(cpw);
+	switch(displayMode)
+	{
+	case MENU:
+		set2DMatrix();
+		gameMenu->drawMenu(cpw);
+		break;
+	case GAME:
+		displayGame(cpw);
+		break;
+	}
 }
 
 /****************************************************/

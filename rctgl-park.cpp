@@ -297,7 +297,12 @@ bool RCTGLPark::loadPark(char *filename)
 	//release the uncompressed data
 	free(parkData);
 
+	//compile the landscape
+	landscape.compile();
+
 	DebugLog::endTask();
+
+	displayMode = GAME;
 
 	return true;
 }

@@ -1,5 +1,6 @@
 #include "rctgl.h"
 #include "rctgl-displaymodes.h"
+#include "rctgl-camera.h"
 
 
 float RCTColorsR[RCT_NUM_COLORS];
@@ -34,5 +35,6 @@ displayModes displayMode;
 
 NavModes navMode;
 
+RCTGLCamera userView;
 
 
