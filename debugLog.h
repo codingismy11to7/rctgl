@@ -33,7 +33,7 @@ public:
 
  protected:
   DebugLog();
-  static DebugLog m_instance;
+  static DebugLog *m_instance;
 
 private:
   ofstream m_outfile;
