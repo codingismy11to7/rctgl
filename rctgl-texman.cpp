@@ -2,9 +2,9 @@
 
 using namespace RCTTextureManager;
 
-void RCTGLTextureManager::loadPathTex(const string &filename, int texNum, uchar pathOptions)
+unsigned int RCTGLTextureManager::loadPathTex(const string &filename, uchar pathOptions)
 {
-
+	return 0;
 }
 
 unsigned int RCTGLTextureManager::loadTex(const string &filename, uchar texOptions)
@@ -142,9 +142,9 @@ void RCTGLTextureManager::buildPathTex(uchar *pixels, int w, int h, unsigned int
 
 }
 
-int RCTGLTextureManager::addPathTexture(const string &filepath, int texID, unsigned int options)
+unsigned int RCTGLTextureManager::addPathTexture(const string &filepath, unsigned int options)
 {
-	return 0;
+	return loadPathTex((RCTGL_Location + filepath).c_str(), options);
 }
 
 unsigned int RCTGLTextureManager::addTexture(const string &filepath, uchar texOptions)

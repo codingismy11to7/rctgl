@@ -75,19 +75,11 @@ void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex in
 void RCTGLPoly::draw(void)
 {
 	if(texID > 0)
-	{
 		glBindTexture(GL_TEXTURE_2D, texID);
-		stringstream x;
-		x << "TexID=" << (long)texID;
-
-		//DebugLog::writeToLog(x.str());
-	}
-	//else	
-		//DebugLog::writeToLog((string)"No Texture ID");
 
 	glColor3f(baseRGB.r, baseRGB.g, baseRGB.b);
 
-	glBegin(GL_QUADS);
+	glBegin(GL_QUADS);	
 
 	if(texID > 0)
 	{
@@ -101,7 +93,6 @@ void RCTGLPoly::draw(void)
 		for(int i=0; i<vertexCount; i++)
 			glVertex3f(vertexList[i].x, vertexList[i].y, vertexList[i].z);
 	
-
 	glEnd();
 
 }

@@ -44,8 +44,8 @@ private:
 	uchar sizeX, sizeZ;
 
 	RCTGLLandscape landscape;
-
-	vector <RCTGLPath> pathList[128][128];
+	RCTGLPathSystem paths;
+	
 	/*
 	vector <RCTGLScenery> sceneryList[128][128];
 	vector <RCTGLElement> elementList[128][128];

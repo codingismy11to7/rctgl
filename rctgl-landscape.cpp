@@ -567,7 +567,7 @@ bool RCTGLLandscape::isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar
 }
 
 
-void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface)
+void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface)
 {
 	//assign the pointer to all of the appropriate surfaces
 	uchar zStep, xStep;
@@ -588,7 +588,7 @@ void RCTGLLandscape::assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ,
 	}
 }
 
-void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface, bool isWater)
+void RCTGLLandscape::addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface, bool isWater)
 {
 	RCTGLVertex v, tex;
 
@@ -669,7 +669,7 @@ void RCTGLLandscape::compileSurfaces(void)
 		for(j=0; j<128; j++)
 		{
 			//create the surface
-			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;			
+			RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;			
 
 			surface->setBaseRGB(rgb);
 
@@ -941,12 +941,12 @@ void RCTGLLandscape::compileEdges(void)
 			land[i][j].edges[EDGE_WEST] = NULL;
 
 			//check N edge
-			if(j < 128)
+			if(j < 127)
 			{
 				//heights are different. make a polygon				
 				if((land[i][j+1].BR != land[i][j].TR) || (land[i][j+1].BL != land[i][j].TL))
 				{
-					RCTGLLandscapePoly *tmp = new RCTGLLandscapePoly;
+					RCTGLExtendedPoly *tmp = new RCTGLExtendedPoly;
 					RCTGLVertex v, tex;					
 
 					tmp->setBaseRGB(rgb);
@@ -1015,12 +1015,12 @@ void RCTGLLandscape::compileEdges(void)
 			}			
 
 			//check E edge
-			if(i < 128)
+			if(i < 127)
 			{
 				//heights are different. make a polygon
 				if((land[i+1][j].BR != land[i][j].BL) || (land[i+1][j].TR != land[i][j].TL))
 				{
-					RCTGLLandscapePoly *tmp = new RCTGLLandscapePoly;
+					RCTGLExtendedPoly *tmp = new RCTGLExtendedPoly;
 					RCTGLVertex v, tex;					
 
 					tmp->setBaseRGB(rgb);
@@ -1109,7 +1109,7 @@ void RCTGLLandscape::compileWater(void)
 		for(j=0; j<128; j++)
 		{
 			//create the surface
-			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;
+			RCTGLExtendedPoly *surface = new RCTGLExtendedPoly;
 
 			surface->setBaseRGB(rgb);
 

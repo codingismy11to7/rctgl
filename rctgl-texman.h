@@ -20,7 +20,7 @@ const uchar TEXTURE_CLAMP	=1;
 class RCTGLTextureManager
 {
 public:
-	void loadPathTex(const string &filename, int texNum, uchar pathOptions);
+	unsigned int loadPathTex(const string &filename, uchar pathOptions);
 	unsigned int loadTex(const string &filename, uchar texOptions);		
 
 	unsigned int addTexture(const string &filepath, uchar texOptions);
@@ -31,6 +31,6 @@ private:
 
 	void buildPathTex(uchar *pixels, int w, int h, unsigned int pathOptions);
 
-	int addPathTexture(const string &filepath, int texID, unsigned int options);	
+	unsigned int addPathTexture(const string &filepath, unsigned int options);	
 	
 };

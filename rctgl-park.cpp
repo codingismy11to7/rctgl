@@ -13,8 +13,8 @@ bool RCTGLPark::clearPark(void)
 		free(rideNameList[i]);
 
 	rideNameList.clear();
-
 	landscape.clear();
+	paths.clear();
 
 	return true;
 }
@@ -226,15 +226,8 @@ bool RCTGLPark::loadPark(const string &filename)
 					landscape.loadOffset(parkData + offset, i, j);
 					break;				
 				case SEGMENT_PATH:
-					/*
-					{
-						RCTGLPath *path = new RCTGLPath;
-						path->loadOffset(parkData + offset);
-
-						pathList[i][j].push_back(path);
-					}
-					break;				
-					*/
+					paths.loadOffset(parkData + offset, i, j);
+					break;					
 				case SEGMENT_ELEMENT:
 					/*
 					{
@@ -309,6 +302,7 @@ bool RCTGLPark::loadPark(const string &filename)
 
 	//compile the landscape
 	landscape.compile();
+	paths.compile();
 
 	DebugLog::endTask();
 
@@ -328,6 +322,7 @@ bool RCTGLPark::loadPark(const string &filename)
 void RCTGLPark::loadTextures(void)
 {
 	landscape.loadTextures();
+	paths.loadTextures();
 }
 
 void RCTGLPark::draw(void)
@@ -348,5 +343,6 @@ void RCTGLPark::draw(void)
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
+	landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+	paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
 }

@@ -1,4 +1,9 @@
 #include "rctgl.h"
+#include "rctgl-texman.h"
+#include "rctgl-poly.h"
+#include <vector>
+
+using namespace std;
 
 namespace RCTPath {
 
@@ -26,12 +31,15 @@ const uchar CRAZY_TILE	=	0;			//xxxxxx00
 const uchar BROWN_DIRT	=	0;			//xxxxxx00
 const uchar BLACK_DIRT	=	1;			//xxxxxx01
 
+const uchar PATH_SUBTYPE_MASK = 3;		//xxxxxx11
+
 const uchar PATH_STYLE_QUEUE		=0;	//xxxx000xx
 const uchar PATH_STYLE_TARMAC		=4;	//xxxx001xx
 const uchar PATH_STYLE_DIRT			=8;	//xxxx010xx
-const uchar	PATH_STYLE_CRAZY_TILE	=12;	//xxxx011xx
-const uchar PATH_STYLE_ROAD			=16;	//xxxx100xx
-const uchar PATH_STYLE_TILE			=20;	//xxxx101xx
+const uchar	PATH_STYLE_CRAZY_TILE	=12;//xxxx011xx
+const uchar PATH_STYLE_ROAD			=16;//xxxx100xx
+const uchar PATH_STYLE_TILE			=20;//xxxx101xx
+const uchar PATH_STYLE_MASK			=28;//xxxx111xx
 
 // Structure of pathModifier2
 // Bits 0-1: Support type
@@ -92,19 +100,32 @@ const uchar PATH_EXTEND_W	=	1;		//00000001
 
 }
 
-class RCTGLPath
-{
-public:
+struct RCTGLPathElement {
 	uchar m_pathModifier1;
 	uchar m_pathModifier2;		;
 	uchar m_baseHeight;
 	uchar m_pathExtras;
 	uchar m_pathExtensions;
 
-	RCTGLPath(void);
-	bool loadOffset(uchar *data);
-	
+	RCTGLExtendedPoly *surface;
+};
+
+class RCTGLPathSystem
+{
+public:	
+	vector <RCTGLPathElement> paths[128][128];
+
+	RCTGLPathSystem(void);
+	bool loadOffset(uchar *data, uchar x, uchar z);
+	void draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ);
+	void compile(void);
+	void clear(void);
+	void loadTextures(void);
+
 private:
+	unsigned int queueTextures[4][3];	//4 queue types, with three fundamental
+										//tiles per queue type
+	unsigned int otherTextures[6][4][1];
 };
 
 

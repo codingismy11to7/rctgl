@@ -1,3 +1,6 @@
+#ifndef RCTGL_POLY_H
+#define RCTGL_POLY_H
+
 #include "rctgl.h"
 
 #include <vector>
@@ -32,3 +35,12 @@ private:
 
 	RCTGLRGB baseRGB;
 };
+
+class RCTGLExtendedPoly : public RCTGLPoly
+{
+public:
+	bool wasDrawn;
+	uchar length, width;
+};
+
+#endif

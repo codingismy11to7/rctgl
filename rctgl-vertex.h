@@ -1,3 +1,6 @@
+#ifndef RCTGL_VERTEX_H
+#define RCTGL_VERTEX_H
+
 class RCTGLVertex
 {
 public:
@@ -5,3 +8,5 @@ public:
 
 	void copy(RCTGLVertex inVertex);
 };
+
+#endif

@@ -67,9 +67,9 @@ struct landscapeElement
 	int waterLevel;
 	int lowest, highest;
 
-	RCTGLLandscapePoly *surface;
-	RCTGLLandscapePoly *waterSurface;
-	RCTGLLandscapePoly *edges[4];
+	RCTGLExtendedPoly *surface;
+	RCTGLExtendedPoly *waterSurface;
+	RCTGLExtendedPoly *edges[4];
 
 	bool drawWater;			//this may save some time when rendering
 	bool allLandUnderwater;	//this may save some time when rendering
@@ -137,8 +137,8 @@ private:
 	bool isWaterSame(uchar x1, uchar z1, uchar x2, uchar z2);
 	bool isWaterRowSame(uchar startX, uchar startZ, uchar row, uchar width);
 
-	void assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface);
-	void addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLLandscapePoly *surface, bool isWater);
+	void assignSurfaceToLand(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface);
+	void addVerticiesToSurface(uchar startX, uchar xLen, uchar startZ, uchar zLen, RCTGLExtendedPoly *surface, bool isWater);
 };
 
 
