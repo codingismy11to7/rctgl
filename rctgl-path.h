@@ -111,6 +111,8 @@ struct RCTGLPathElement {
 	uchar pathExtensions;
 
 	RCTGLExtendedPoly *surface;
+
+	bool compiled;
 };
 
 class RCTGLPathSystem
@@ -134,6 +136,8 @@ private:
 
 	bool isPathLinear(uchar i, uchar j, uchar k) const;
 	bool isPathTwoPronged(uchar i, uchar j, uchar k) const;
+
+	bool isPathSame(uchar x1, uchar z1, uchar idx1, uchar x2, uchar z2, uchar idx2) const;
 
 	uchar numCardinals(uchar i, uchar j, uchar k) const;
 	uchar numDiagonals(uchar i, uchar j, uchar k) const;

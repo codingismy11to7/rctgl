@@ -150,6 +150,26 @@ bool RCTGLPathSystem::isPathLinear(uchar i, uchar j, uchar k) const
 			thePath.pathExtensions & PATH_EXTEND_W));
 }
 
+bool RCTGLPathSystem::isPathSame(uchar x1, uchar z1, uchar idx1, uchar x2, uchar z2, uchar idx2) const
+{
+	switch((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK))
+	{
+	case PATH_SLOPE_NONE:
+		return (paths[x1][z1][idx1].baseHeight								== paths[x2][z2][idx2].baseHeight) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&
+			(paths[x1][z1][idx1].baseHeight								== paths[x2][z2][idx2].baseHeight) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
+	case PATH_SLOPE_NORTH:
+	case PATH_SLOPE_SOUTH:
+	case PATH_SLOPE_EAST:
+	case PATH_SLOPE_WEST:
+	default:
+		return false;
+	}
+}
+
 void RCTGLPathSystem::compile()
 {
 	DebugLog::beginTask("RCTGLPathSystem::compile");
@@ -163,564 +183,656 @@ void RCTGLPathSystem::compile()
 	RCTGLRGB rgb;
 	rgb.r = rgb.g = rgb.b = 1.0f;
 
+	for(i=0; i<128; i++)	
+		for(j=0; j<128; j++)		
+			for(k=0; k<paths[i][j].size(); k++)
+				paths[i][j][k].compiled = false;
+
 	for(i=0; i<128; i++)
 	{
 		for(j=0; j<128; j++)
 		{
 			for(k=0; k<paths[i][j].size(); k++)
 			{
-				paths[i][j][k].surface = NULL;
-				rotateClock = false;
-				flipVert = false;
-				flipHoriz = false;
-
-				RCTGLExtendedPoly *pathPoly = new RCTGLExtendedPoly;
-				
-				uchar topOffset = 0, bottomOffset = 0, leftOffset = 0, rightOffset = 0;
-				uchar startX, startZ, xLen, zLen;
-
-				startX = i;
-				startZ = j;
-
-				xLen = 1;
-				zLen = 1;
-
-				unsigned int texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];
-
-				if((paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) == PATH_STYLE_QUEUE)
+				if(!paths[i][j][k].compiled)
 				{
-					texID = m_queueTextures[YELLOW_QUEUE][0];
+					paths[i][j][k].surface = NULL;
+					rotateClock = false;
+					flipVert = false;
+					flipHoriz = false;
 
-					//search for the linear path
-					if(isPathLinear(i, j, k))
+					RCTGLExtendedPoly *pathPoly = new RCTGLExtendedPoly;
+					
+					uchar topOffset = 0, bottomOffset = 0, leftOffset = 0, rightOffset = 0;
+					uchar startX, startZ, xLen, zLen;
+
+					startX = i;
+					startZ = j;
+
+					xLen = 1;
+					zLen = 1;
+
+					//find out what kind of path we have
+					unsigned int texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];
+					//unsigned int texID = m_otherTextures[PATH_STYLE_TARMAC >> 2][GRAY_TARMAC][6];
+
+					
+					if((paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) == PATH_STYLE_QUEUE)
 					{
-						texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][1];
+						texID = m_queueTextures[YELLOW_QUEUE][0];
 
-						if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
-							rotateClock = true;						
-					}
-					else if(isPathTwoPronged(i, j, k))
-					{
-						//standard for N & W
-						texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][2];
-
-						if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
-						{
-							//do nothing
-						}						
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N && paths[i][j][k].pathExtensions & PATH_EXTEND_E)
-							flipVert = true;
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S && paths[i][j][k].pathExtensions & PATH_EXTEND_W)
-							flipHoriz = true;
-						else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S && paths[i][j][k].pathExtensions & PATH_EXTEND_E)
-						{
-							flipHoriz = true;
-							flipVert = true;
-						}							
-					}
-				}
-				else
-				{
-					texID = m_otherTextures
-							[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-							[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-							[0];
-
-					if(numDiagonals(i, j, k) == 0)
-					{
-						//linear paths, no corners
+						//search for the linear path
 						if(isPathLinear(i, j, k))
 						{
-							texID = m_otherTextures
-								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[1];
+							texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][1];
 
 							if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 								rotateClock = true;						
 						}
-						//two pronged paths, no corners
-						else if(numCardinals(i, j, k) == 2)
+						else if(isPathTwoPronged(i, j, k))
 						{
 							//standard for N & W
-							texID = m_otherTextures
-								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[2];
+							texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][2];
 
 							if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 							{
 								//do nothing
 							}						
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N && paths[i][j][k].pathExtensions & PATH_EXTEND_E)
 								flipVert = true;
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S && paths[i][j][k].pathExtensions & PATH_EXTEND_W)
 								flipHoriz = true;
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S && paths[i][j][k].pathExtensions & PATH_EXTEND_E)
 							{
 								flipHoriz = true;
 								flipVert = true;
 							}							
 						}
-						else if(numCardinals(i, j, k) == 3)
-						{
-							texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[3];
-
-							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S))
-								rotateClock = true;
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N))
-							{
-								rotateClock = true;
-								flipVert = true;
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-							
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
-								flipVert = true;
-						}
-						else if(numCardinals(i, j, k) == 4)
-						{
-							texID = m_otherTextures
-								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[5];
-						}
-						else if(numCardinals(i, j, k) == 1)
-						{
-							texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[4];
-
-							if((paths[i][j][k].pathExtensions & PATH_EXTEND_S))
-								rotateClock = true;
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_N))
-							{
-								rotateClock = true;
-								flipVert = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-							
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W))
-								flipVert = true;
-						}
-						//we should never get to this point
-
 					}
 					else
 					{
-						//full pieces
-						if(numCardinals(i, j, k) == 4 &&
-							numDiagonals(i, j, k) == 4)
-							texID = m_otherTextures
+						texID = m_otherTextures
 								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
 								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[6];
-						//half of a path
-						else if(numCardinals(i, j, k) == 3 &&
-							numDiagonals(i, j, k) ==2)
-						{
-							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
-							{
-								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[7];
-								rotateClock = true;
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
-							{
-								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[7];
-								rotateClock = true;
-								flipVert = true;
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
-							{
-								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[7];
-								//rotateClock = true;
-								//flipVert = true;
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
-								!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
-							{
-								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[7];
-								//rotateClock = true;
-								flipVert = true;
-							}							
-						}
-						//one corner notched out
-						else if(numCardinals(i, j, k) == 4 &&
-							numDiagonals(i, j, k) == 3)
-						{
-							texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[8];
+								[0];
 
-							if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
-							{
-							}
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
-								flipHoriz = true;
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
-								flipVert = true;
-							else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
-							{
-								flipHoriz = true;
-								flipVert = true;
-							}
-						}
-						//an extended corner (2, 1)
-						else if(numCardinals(i, j, k) == 2 &&
-							numDiagonals(i, j, k) == 1)
+						if(numDiagonals(i, j, k) == 0)
 						{
-							texID = m_otherTextures
-								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[9];
-
-							if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
-								flipHoriz = true;
-
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
-							{
-								flipHoriz = true;
-								flipVert = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
-								flipVert = true;
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
-							{
-							}
-						}
-						//opposite corners and big T pieces
-						else if(numCardinals(i, j, k) == 4 &&
-							numDiagonals(i, j, k) == 2)
-						{
-							
-							if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+							//linear paths, no corners
+							if(isPathLinear(i, j, k))
 							{
 								texID = m_otherTextures
 									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
 									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[11];
-								//flipHoriz = true;
+									[1];
 
-							}							
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+								if (paths[i][j][k].pathExtensions & PATH_EXTEND_E &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+									rotateClock = true;						
+							}
+							//two pronged paths, no corners
+							else if(numCardinals(i, j, k) == 2)
+							{
+								//standard for N & W
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[2];
+
+								if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+								{
+									//do nothing
+								}						
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_N &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+									flipVert = true;
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_W)
+									flipHoriz = true;
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_S &&paths[i][j][k].pathExtensions & PATH_EXTEND_E)
+								{
+									flipHoriz = true;
+									flipVert = true;
+								}							
+							}
+							else if(numCardinals(i, j, k) == 3)
 							{
 								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[11];
-								flipHoriz = true;
-							}
-							else
-							{								
-								texID = m_otherTextures
-									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[10];
-									
-								if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
-									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[3];
+
+								if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S))
 									rotateClock = true;
-								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N))
+								{
+									rotateClock = true;
+									flipVert = true;
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+								
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+									flipVert = true;
+							}
+							else if(numCardinals(i, j, k) == 4)
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[5];
+							}
+							else if(numCardinals(i, j, k) == 1)
+							{
+								texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[4];
+
+								if((paths[i][j][k].pathExtensions & PATH_EXTEND_S))
+									rotateClock = true;
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_N))
+								{
+									rotateClock = true;
+									flipVert = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+								
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+									flipVert = true;
+							}
+							//we should never get to this point
+
+						}
+						else
+						{
+							//full pieces
+							if(numCardinals(i, j, k) == 4 &&
+								numDiagonals(i, j, k) == 4)
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[6];
+							//half of a path
+							else if(numCardinals(i, j, k) == 3 &&
+								numDiagonals(i, j, k) ==2)
+							{
+								if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[7];
+									rotateClock = true;
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
 									!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
 								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[7];
 									rotateClock = true;
 									flipVert = true;
 								}
-								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
-									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
-									flipVert = true;
-								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
 									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[7];
+									//rotateClock = true;
+									//flipVert = true;
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+									!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[7];
+									//rotateClock = true;
+									flipVert = true;
+								}							
+							}
+							//one corner notched out
+							else if(numCardinals(i, j, k) == 4 &&
+								numDiagonals(i, j, k) == 3)
+							{
+								texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[8];
+
+								if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+								{
+								}
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+									flipHoriz = true;
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+									flipVert = true;
+								else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+								{
+									flipHoriz = true;
+									flipVert = true;
+								}
+							}
+							//an extended corner (2, 1)
+							else if(numCardinals(i, j, k) == 2 &&
+								numDiagonals(i, j, k) == 1)
+							{
+								texID = m_otherTextures
+									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+									[9];
+
+								if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+									flipHoriz = true;
+
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+								{
+									flipHoriz = true;
+									flipVert = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+									flipVert = true;
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_E) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
 								{
 								}
 							}
-						}
-						//T with a diagonal piece
-						else if(numCardinals(i, j, k) == 3 &&
-							numDiagonals(i, j, k) == 1)
-						{
-							texID = m_otherTextures
+							//opposite corners and big T pieces
+							else if(numCardinals(i, j, k) == 4 &&
+								numDiagonals(i, j, k) == 2)
+							{
+								
+								if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[11];
+									//flipHoriz = true;
+
+								}							
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_SE))
+								{
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[11];
+									flipHoriz = true;
+								}
+								else
+								{								
+									texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[10];
+										
+									if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+										!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+										rotateClock = true;
+									else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+										!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW))
+									{
+										rotateClock = true;
+										flipVert = true;
+									}
+									else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+										!(paths[i][j][k].pathExtensions & PATH_EXTEND_NE))
+										flipVert = true;
+									else if(!(paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+										!(paths[i][j][k].pathExtensions & PATH_EXTEND_NW))
+									{
+									}
+								}
+							}
+							//T with a diagonal piece
+							else if(numCardinals(i, j, k) == 3 &&
+								numDiagonals(i, j, k) == 1)
+							{
+								texID = m_otherTextures
+										[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
+										[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
+										[12];
+
+								if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{								
+									rotateClock = true;
+									flipVert = true;
+									flipHoriz = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+									rotateClock = true;
+									flipVert = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+									rotateClock = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+									rotateClock = true;
+									flipHoriz = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+									flipVert = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
+								{
+									flipHoriz = true;
+									flipVert = true;
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+								{
+								}
+								else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
+									(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
+								{
+									flipHoriz = true;
+								}
+							}
+							else if(numCardinals(i, j, k) == 4 &&
+								numDiagonals(i, j, k) == 1)
+							{
+								texID = m_otherTextures
 									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
 									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-									[12];
+									[13];
 
-							if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{								
-								rotateClock = true;
-								flipVert = true;
-								flipHoriz = true;
+								if(paths[i][j][k].pathExtensions & PATH_EXTEND_NE)
+									flipVert = true;
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_NW)
+								{
+								}
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SW)
+									flipHoriz = true;
+								else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SE)
+								{
+									flipVert = true;
+									flipHoriz = true;
+								}
 							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-								rotateClock = true;
-								flipVert = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-								rotateClock = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-								rotateClock = true;
-								flipHoriz = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NE) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-								flipVert = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SE) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_E))
-							{
-								flipHoriz = true;
-								flipVert = true;
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_NW) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
-							{
-							}
-							else if((paths[i][j][k].pathExtensions & PATH_EXTEND_SW) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_N) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_S) &&
-								(paths[i][j][k].pathExtensions & PATH_EXTEND_W))
-							{
-								flipHoriz = true;
-							}
-						}
-						else if(numCardinals(i, j, k) == 4 &&
-							numDiagonals(i, j, k) == 1)
+						}					
+					}
+					
+
+
+					//see how far this piece stretches
+					//currently, this will only support flat land and only go in one dimension
+					bool canContinue = true;
+					uchar saveOffset = 255;
+					
+					while(canContinue)
+					{
+						canContinue = false;
+
+						//loop through all of the entries in the next section
+						for(uchar l=0; l<paths[i][j + zLen].size(); l++)
 						{
-							texID = m_otherTextures
-								[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
-								[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
-								[13];
-
-							if(paths[i][j][k].pathExtensions & PATH_EXTEND_NE)
-								flipVert = true;
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_NW)
+							if(isPathSame(i, j, k, i, j + zLen, l))
 							{
+								canContinue = true;
+								saveOffset = l;
 							}
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SW)
-								flipHoriz = true;
-							else if(paths[i][j][k].pathExtensions & PATH_EXTEND_SE)
+
+							if(canContinue)
 							{
-								flipVert = true;
-								flipHoriz = true;
+								//assign the path to this pointer
+								paths[i][j + zLen][saveOffset].surface = pathPoly;
+
+								//mark the path as compiled
+								paths[i][j + zLen][saveOffset].compiled = true;
+
+								zLen++;
 							}
 						}
-					}					
-				}				
+					}
 
+					vector <uchar> offsets;
 
-				float texCoord[4][2];
+					//now expand in the other direction
+					bool goodLoop = true;
+					while(goodLoop)
+					{
+						goodLoop = true;
+						offsets.clear();
 
-				texCoord[0][0] = 1.0f;
-				texCoord[0][1] = 1.0f;
+						//loop through all entries in a row
+						for(uchar off=0; off<zLen; off++)
+						{
+							canContinue = false;
 
-				texCoord[1][0] = 0.0f;
-				texCoord[1][1] = 1.0f;
+							//loop through all of the entries in the next section
+							for(uchar l=0; l<paths[i + xLen][j + off].size(); l++)
+							{
+								if(isPathSame(i, j, k, i + xLen, j + off, l))
+								{
+									canContinue = true;
+									saveOffset = l;
+								}
 
-				texCoord[2][0] = 1.0f;
-				texCoord[2][1] = 0.0f;
+								if(canContinue)
+									offsets.push_back(saveOffset);								
+							}
 
-				texCoord[3][0] = 0.0f;
-				texCoord[3][1] = 0.0f;
+							if(!canContinue)
+								goodLoop = false;
+						}
 
-				if(rotateClock)
-				{
+						if(goodLoop)
+						{
+							//if we're in here, then every entry in the next row
+							//is the same as the original path
+							for(off=0; off<zLen; off++)
+							{
+								//assign the path to this pointer
+								paths[i + xLen][j + off][offsets[off]].surface = pathPoly;
+
+								//mark the path as compiled
+								paths[i + xLen][j + off][offsets[off]].compiled = true;
+							}
+
+							xLen++;
+						}
+					}
+
+					float texCoord[4][2];
+
 					texCoord[0][0] = 1.0f;
-					texCoord[0][1] = 0.0f;
+					texCoord[0][1] = 1.0f;
 
-					texCoord[1][0] = 1.0f;
+					texCoord[1][0] = 0.0f;
 					texCoord[1][1] = 1.0f;
 
-					texCoord[2][0] = 0.0f;
+					texCoord[2][0] = 1.0f;
 					texCoord[2][1] = 0.0f;
 
 					texCoord[3][0] = 0.0f;
-					texCoord[3][1] = 1.0f;
-				}
+					texCoord[3][1] = 0.0f;
 
-				if(flipVert)
-				{
-					if(texCoord[0][1] == 1.0f)
+					if(rotateClock)
+					{
+						texCoord[0][0] = 1.0f;
 						texCoord[0][1] = 0.0f;
-					else
-						texCoord[0][1] = 1.0f;
 
-					if(texCoord[1][1] == 1.0f)
-						texCoord[1][1] = 0.0f;
-					else
+						texCoord[1][0] = 1.0f;
 						texCoord[1][1] = 1.0f;
 
-					if(texCoord[2][1] == 1.0f)
-						texCoord[2][1] = 0.0f;
-					else
-						texCoord[2][1] = 1.0f;
-
-					if(texCoord[3][1] == 1.0f)
-						texCoord[3][1] = 0.0f;
-					else
-						texCoord[3][1] = 1.0f;
-
-				}
-
-				if(flipHoriz)
-				{
-					if(texCoord[0][0] == 1.0f)
-						texCoord[0][0] = 0.0f;
-					else
-						texCoord[0][0] = 1.0f;
-
-					if(texCoord[1][0] == 1.0f)
-						texCoord[1][0] = 0.0f;
-					else
-						texCoord[1][0] = 1.0f;
-
-					if(texCoord[2][0] == 1.0f)
 						texCoord[2][0] = 0.0f;
-					else
-						texCoord[2][0] = 1.0f;
+						texCoord[2][1] = 0.0f;
 
-					if(texCoord[3][0] == 1.0f)
 						texCoord[3][0] = 0.0f;
-					else
-						texCoord[3][0] = 1.0f;
+						texCoord[3][1] = 1.0f;
+					}
+
+					if(flipVert)
+					{
+						if(texCoord[0][1] == 1.0f)
+							texCoord[0][1] = 0.0f;
+						else
+							texCoord[0][1] = 1.0f;
+
+						if(texCoord[1][1] == 1.0f)
+							texCoord[1][1] = 0.0f;
+						else
+							texCoord[1][1] = 1.0f;
+
+						if(texCoord[2][1] == 1.0f)
+							texCoord[2][1] = 0.0f;
+						else
+							texCoord[2][1] = 1.0f;
+
+						if(texCoord[3][1] == 1.0f)
+							texCoord[3][1] = 0.0f;
+						else
+							texCoord[3][1] = 1.0f;
+
+					}
+
+					if(flipHoriz)
+					{
+						if(texCoord[0][0] == 1.0f)
+							texCoord[0][0] = 0.0f;
+						else
+							texCoord[0][0] = 1.0f;
+
+						if(texCoord[1][0] == 1.0f)
+							texCoord[1][0] = 0.0f;
+						else
+							texCoord[1][0] = 1.0f;
+
+						if(texCoord[2][0] == 1.0f)
+							texCoord[2][0] = 0.0f;
+						else
+							texCoord[2][0] = 1.0f;
+
+						if(texCoord[3][0] == 1.0f)
+							texCoord[3][0] = 0.0f;
+						else
+							texCoord[3][0] = 1.0f;
+					}
+
+					RCTGLVertex v, tex;
+
+					//figure out which direction the path slopes
+					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+					{				
+					case PATH_SLOPE_NORTH:
+						rightOffset++;
+						break;
+					case PATH_SLOPE_SOUTH:
+						leftOffset++;
+						break;				
+					case PATH_SLOPE_EAST:
+						bottomOffset++;
+						break;
+					case PATH_SLOPE_WEST:
+						topOffset++;
+						break;					
+					}
+
+					//TL
+					v.x = startX * UNITWIDTH;
+					v.y = (paths[i][j][k].baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
+					v.z = startZ * UNITWIDTH;
+
+					//originally 0,0
+					tex.x = texCoord[3][0] * (float)xLen;
+					tex.y = texCoord[3][1] * (float)zLen;
+					tex.z = 0.0f;
+
+					pathPoly->addVertex(v, tex);
+
+					//TR
+					v.x = (startX + xLen) * UNITWIDTH;
+					v.y = (paths[i][j][k].baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
+					v.z = startZ * UNITWIDTH;
+
+					//orginally 1,0
+					tex.x = texCoord[2][0] * (float)xLen;
+					tex.y = texCoord[2][1] * (float)zLen;
+
+					pathPoly->addVertex(v, tex);
+
+					//BR
+					v.x = (startX+ xLen) * UNITWIDTH;
+					v.y = (paths[i][j][k].baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
+					v.z = (startZ + zLen) * UNITWIDTH;
+
+					//originally 1,1
+					tex.x = texCoord[0][0] * (float)xLen;
+					tex.y = texCoord[0][1] * (float)zLen;
+					
+					pathPoly->addVertex(v, tex);
+
+					//BL
+					v.x = startX * UNITWIDTH;
+					v.y = (paths[i][j][k].baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
+					v.z = (startZ + zLen) * UNITWIDTH;
+
+					//originally 0,1
+					tex.x = texCoord[1][0] * (float)xLen;
+					tex.y = texCoord[1][1] * (float)zLen;
+
+					pathPoly->addVertex(v, tex);
+
+								
+					
+					pathPoly->setTextureID(texID);
+					
+					pathPoly->length = 1;
+					pathPoly->width = 1;
+
+					pathPoly->setBaseRGB(rgb);
+
+					paths[i][j][k].surface = pathPoly;
+					paths[i][j][k].compiled = true;
+
+					actualPolys+=zLen;
+					renderedPolys++;
 				}
-
-				RCTGLVertex v, tex;
-
-				//figure out which direction the path slopes
-				switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
-				{				
-				case PATH_SLOPE_NORTH:
-					rightOffset++;
-					break;
-				case PATH_SLOPE_SOUTH:
-					leftOffset++;
-					break;				
-				case PATH_SLOPE_EAST:
-					bottomOffset++;
-					break;
-				case PATH_SLOPE_WEST:
-					topOffset++;
-					break;					
-				}
-
-				//TL
-				v.x = startX * UNITWIDTH;
-				v.y = (paths[i][j][k].baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
-				v.z = startZ * UNITWIDTH;
-
-				//originally 0,0
-				tex.x = texCoord[3][0] * (float)xLen;
-				tex.y = texCoord[3][1] * (float)zLen;
-				tex.z = 0.0f;
-
-				pathPoly->addVertex(v, tex);
-
-				//TR
-				v.x = (startX + xLen) * UNITWIDTH;
-				v.y = (paths[i][j][k].baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
-				v.z = startZ * UNITWIDTH;
-
-				//orginally 1,0
-				tex.x = texCoord[2][0] * (float)xLen;
-				tex.y = texCoord[2][1] * (float)zLen;
-
-				pathPoly->addVertex(v, tex);
-
-				//BR
-				v.x = (startX+ xLen) * UNITWIDTH;
-				v.y = (paths[i][j][k].baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
-				v.z = (startZ + zLen) * UNITWIDTH;
-
-				//originally 1,1
-				tex.x = texCoord[0][0] * (float)xLen;
-				tex.y = texCoord[0][1] * (float)zLen;
-				
-				pathPoly->addVertex(v, tex);
-
-				//BL
-				v.x = startX * UNITWIDTH;
-				v.y = (paths[i][j][k].baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
-				v.z = (startZ + zLen) * UNITWIDTH;
-
-				//originally 0,1
-				tex.x = texCoord[1][0] * (float)xLen;
-				tex.y = texCoord[1][1] * (float)zLen;
-
-				pathPoly->addVertex(v, tex);
-
-							
-				
-				pathPoly->setTextureID(texID);
-				
-				pathPoly->length = 1;
-				pathPoly->width = 1;
-
-				pathPoly->setBaseRGB(rgb);
-
-				paths[i][j][k].surface = pathPoly;
-
-				actualPolys++;
-				renderedPolys++;
 			}
 		}
 	}

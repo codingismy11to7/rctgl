@@ -343,10 +343,12 @@ void RCTGLPark::draw() const
 	if(minZ < 0)	minZ = 0;
 	if(maxX > 127)	maxX = 127;
 	if(maxZ > 127)	maxZ = 127;
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
 }
