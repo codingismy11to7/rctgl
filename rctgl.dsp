@@ -66,7 +66,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "TIXML_USE_STL" /YX /FD /GZ /c
+# ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "TIXML_USE_STL" /FD /GZ /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -107,6 +108,10 @@ SOURCE=".\rctgl-camera.cpp"
 # End Source File
 # Begin Source File
 
+SOURCE=".\rctgl-element.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=".\rctgl-frustum.cpp"
 # End Source File
 # Begin Source File
@@ -140,6 +145,10 @@ SOURCE=".\rctgl-path.cpp"
 # Begin Source File
 
 SOURCE=".\rctgl-poly.cpp"
+# End Source File
+# Begin Source File
+
+SOURCE=".\rctgl-rides.cpp"
 # End Source File
 # Begin Source File
 
@@ -211,6 +220,10 @@ SOURCE=".\rctgl-displaymodes.h"
 # End Source File
 # Begin Source File
 
+SOURCE=".\rctgl-element.h"
+# End Source File
+# Begin Source File
+
 SOURCE=".\rctgl-frustum.h"
 # End Source File
 # Begin Source File
@@ -244,6 +257,10 @@ SOURCE=".\rctgl-poly.h"
 # Begin Source File
 
 SOURCE=".\rctgl-rgb.h"
+# End Source File
+# Begin Source File
+
+SOURCE=".\rctgl-rides.h"
 # End Source File
 # Begin Source File
 

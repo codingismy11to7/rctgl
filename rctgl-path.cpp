@@ -952,6 +952,7 @@ void RCTGLPathSystem::compile()
 	x << "Optimized from " << actualPolys << " to " << renderedPolys << " polygons";
 	DebugLog::writeToLog(x.str());
 
+	/*
 	for(uchar m=0; m<128; m++)
 	{
 		for(uchar n=0; n<128; n++)
@@ -964,6 +965,7 @@ void RCTGLPathSystem::compile()
 			}
 		}
 	}
+	*/
 	
 
 	DebugLog::endTask();

@@ -6,6 +6,8 @@
 #include "rctgl-path.h"
 #include "rctgl-scenery.h"
 #include "rctgl-texman.h"
+#include "rctgl-rides.h"
+#include "rctgl-element.h"
 #include "skyDome.h"
 
 #include <vector>
@@ -53,6 +55,8 @@ private:
 	RCTGLLandscape m_landscape;
 	RCTGLPathSystem m_paths;
 	RCTGLScenerySystem m_scenery;
+	RCTGLElementSystem m_elements;
+	RCTGLRideSystem m_rides;
 	
 	/*
 	vector <RCTGLScenery> sceneryList[128][128];

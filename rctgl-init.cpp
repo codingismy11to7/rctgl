@@ -103,5 +103,14 @@ bool initRCTGL(RCTGLPark *thePark)
 
 	thePark->loadTextures();
 
+	GLfloat fogColor[4]= {0.65f, 0.65f, 0.60f, 1.0f};
+	glFogi(GL_FOG_MODE, GL_LINEAR);		// Fog Mode
+	glFogfv(GL_FOG_COLOR, fogColor);			// Set Fog Color
+	glFogf(GL_FOG_DENSITY, 0.45f);				// How Dense Will The Fog Be
+	glHint(GL_FOG_HINT, GL_DONT_CARE);			// Fog Hint Value
+	glFogf(GL_FOG_START, 1.0f);				// Fog Start Depth
+	glFogf(GL_FOG_END, 500.0f);				// Fog End Depth
+	glEnable(GL_FOG);
+
 	return true;
 }

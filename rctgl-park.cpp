@@ -21,6 +21,7 @@ bool RCTGLPark::clearPark()
 	m_landscape.clear();
 	m_paths.clear();
 	m_scenery.clear();
+	m_elements.clear();
 
 	xWaterOffset1 = zWaterOffset1 = 0.0f;
 	xWaterOffset2 = zWaterOffset2 = 0.1f;
@@ -242,14 +243,7 @@ bool RCTGLPark::loadPark(const string &filename)
 					m_paths.loadOffset(parkData + offset, i, j);
 					break;					
 				case SEGMENT_ELEMENT:
-					/*
-					{
-						RCTGLElement *element = new RCTGLElement;
-						element->loadOffset(parkData + offset);
-
-						elementList[i][j].push_back(element);
-					}					
-					*/
+					m_elements.loadOffset(parkData + offset, i, j);
 					break;
 				case SEGMENT_SCENERY_SINGLE:
 					m_scenery.loadOffset(parkData + offset, i, j, RCTScenery::SINGLE_TILE);
@@ -304,6 +298,8 @@ bool RCTGLPark::loadPark(const string &filename)
 		}
 	}
 
+	m_rides.load(parkData + 0x1A38A0);
+
 	//release the uncompressed data
 	free(parkData);
 
@@ -311,6 +307,7 @@ bool RCTGLPark::loadPark(const string &filename)
 	m_landscape.compile();
 	m_paths.compile();
 	m_scenery.compile();
+	m_elements.compile(m_rides);
 
 	DebugLog::endTask();
 
@@ -332,6 +329,7 @@ void RCTGLPark::loadTextures()
 	m_landscape.loadTextures();
 	m_paths.loadTextures();
 	m_scenery.loadTextures();
+	m_elements.loadTextures();
 
 	unsigned int texID;
 	RCTGLTextureManager texMan;
@@ -376,9 +374,14 @@ void RCTGLPark::draw()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	glEnable(GL_FOG);
+
 	m_landscape.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
 	m_paths.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);	
 	m_scenery.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+	m_elements.draw((uchar)minX, (uchar)minZ, (uchar)maxX, (uchar)maxZ);
+
+	glDisable(GL_FOG);
 
 }
 

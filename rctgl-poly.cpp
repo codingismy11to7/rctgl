@@ -180,6 +180,8 @@ void RCTGLPoly::draw() const
 	}
 	else
 	{
+		glBegin(GL_QUADS);	
+
 		for(int i=0; i<m_vertexCount; i++)
 			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
 
