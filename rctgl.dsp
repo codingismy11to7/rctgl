@@ -94,6 +94,10 @@ SOURCE=.\guicon.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=".\rctgl-camera.cpp"
+# End Source File
+# Begin Source File
+
 SOURCE=".\rctgl-globals.cpp"
 # End Source File
 # Begin Source File
@@ -163,6 +167,10 @@ SOURCE=.\depend\corona\corona.h
 # Begin Source File
 
 SOURCE=.\debugLog.h
+# End Source File
+# Begin Source File
+
+SOURCE=".\rctgl-camera.h"
 # End Source File
 # Begin Source File
 
