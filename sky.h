@@ -10,15 +10,10 @@
 #include <math.h>
 using namespace std;
 
-#define M_PI	3.14159265358979323846
-#define M_PI_2	1.57079632679489661923
-
-#define M_E     0.911e-27       /* mass of electron */
-
 
 typedef struct {
 
-   double X, Y, Z;   // CIE XYZ colour values
+   double X, Y, Z;   // CIE XYZ color values
    double theta;     // angle from zenith
    double v[3];      // normalised direction vector from
                      // viewer at 'p' to sky element
@@ -89,28 +84,44 @@ class Sky
       Sky();
       ~Sky();
 
-      void setTurbidity(double);
-      void setSVector(double, double);
-      void computeColour(SkyElement *);
-      map<int, SkyElement> getSkyElements(void);
+      inline void setTurbidity(double t)
+	  { m_T = (t < 1.0) ? 1.0 : t; }
+
+	  inline void setSVector(double theta, double phi)
+	  {
+		  m_sun[0] = cos(phi)*sin(theta);
+		  m_sun[1] = sin(phi)*sin(theta);
+		  m_sun[2] = cos(theta);
+
+		  m_thetaS = theta;
+		  m_phiS = phi;
+	  }
+
+      void computeColor(SkyElement *) const;
+      map<int, SkyElement> getSkyElements();
 
    private:
 
       double computeDistribution(double, double, double,
                                  double, double, double,
-                                 double);
+                                 double) const;
 
-      void XYZtoRGB(double, double, double,
-                    double *, double *, double *);
+	  inline void XYZtoRGB(double X, double Y, double Z,
+		  double *r, double *g, double *b) const
+	  {
+		  *r = CM[0][0]*X + CM[0][1]*Y + CM[0][2]*Z;
+		  *g = CM[1][0]*X + CM[1][1]*Y + CM[1][2]*Z;
+		  *b = CM[2][0]*X + CM[2][1]*Y + CM[2][2]*Z;
+	  }
 
-      double computeChromaticity(double [][4]);
-      double thetaS;
-      double phiS;
+      double computeChromaticity(double [][4]) const;
+      double m_thetaS;
+      double m_phiS;
 
-      double sun[3];   // normalised direction vector from
+      double m_sun[3]; // normalized direction vector from
                        // viewer at 'p' to the Sun
 
-      double T;   // Turbidity T is the ratio of the
+      double m_T; // Turbidity T is the ratio of the
                   // thickness of haze atmosphere (haze and
                   // air) to the atmosphere (air) alone.
                   //
@@ -118,38 +129,9 @@ class Sky
                   // foggy and/or polluted atmospheres have
                   // turbidities in the range from two to ten.
 
-      map<int, SkyElement> skyElement;
+      map<int, SkyElement> m_skyElement;
 
 };
 
-inline void Sky::setTurbidity(double t)
-{
-
-   T = (t < 1.0) ? 1.0 : t;
-
-}
-
-inline void Sky::setSVector(double theta, double phi)
-{
-
-   sun[0] = cos(phi)*sin(theta);
-   sun[1] = sin(phi)*sin(theta);
-   sun[2] = cos(theta);
-
-   thetaS = theta;
-   phiS = phi;
-
-}
-
-inline void Sky::XYZtoRGB(double X, double Y, double Z,
-			  double *r, double *g,
-			  double *b)
-{
-
-   *r = CM[0][0]*X + CM[0][1]*Y + CM[0][2]*Z;
-   *g = CM[1][0]*X + CM[1][1]*Y + CM[1][2]*Z;
-   *b = CM[2][0]*X + CM[2][1]*Y + CM[2][2]*Z;
-
-}
 
 #endif // __SKY_H__

@@ -170,6 +170,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\moon.cpp">
+			</File>
+			<File
+				RelativePath=".\observer.cpp">
+			</File>
+			<File
 				RelativePath="rctgl-camera.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -404,6 +410,15 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\sky.cpp">
+			</File>
+			<File
+				RelativePath=".\skyDome.cpp">
+			</File>
+			<File
+				RelativePath=".\sun.cpp">
+			</File>
+			<File
 				RelativePath="depend\tinyxml\tinyxml.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -468,6 +483,12 @@
 				RelativePath="debugLog.h">
 			</File>
 			<File
+				RelativePath=".\moon.h">
+			</File>
+			<File
+				RelativePath=".\observer.h">
+			</File>
+			<File
 				RelativePath="rctgl-camera.h">
 			</File>
 			<File
@@ -508,6 +529,15 @@
 			</File>
 			<File
 				RelativePath="rctgl.h">
+			</File>
+			<File
+				RelativePath=".\sky.h">
+			</File>
+			<File
+				RelativePath=".\skyDome.h">
+			</File>
+			<File
+				RelativePath=".\sun.h">
 			</File>
 			<File
 				RelativePath="depend\tinyxml\tinyxml.h">

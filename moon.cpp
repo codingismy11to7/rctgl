@@ -5,11 +5,10 @@
 // (c) 1998
 // ----------------------------------------------------------
 
-//#include "stdafx.h"
 #include "Moon.h"
 
-Moon::Moon(void) { }
-Moon::~Moon(void) { }
+Moon::Moon() { }
+Moon::~Moon() { }
 
 void Moon::computeMoonPosition(Observer *o)
 {
@@ -18,11 +17,11 @@ void Moon::computeMoonPosition(Observer *o)
    double rads = M_PI / 180.0;
 
    // get time and date
-   double h = o->getHour();
-   h = h + o->getMinute() / 60.0;
+   double h = o->hour;
+   h = h + o->minute / 60.0;
 
-   double d = getDays(o->getYear(), o->getMonth(),
-                      o->getDay(), h);
+   double d = getDays(o->year, o->month,
+                      o->day, h);
 
    // Moon elements
    // longitude of the Moon's node
@@ -146,17 +145,17 @@ void Moon::computeMoonPosition(Observer *o)
    // geocentric right ascension and declination
    double ra = getAngle(ye, xe);
    double dec = atan(ze / sqrt(xe * xe + ye * ye));
-   rightAscensionGEO = ra * degs / 15.0;
-   declinationGEO = dec * degs;
+   m_rightAscensionGEO = ra * degs / 15.0;
+   m_declinationGEO = dec * degs;
 
    // topocentric right ascension and declination
    double lst = 100.46 + 0.985647352 * d + h * 15.0 +
-                o->getLongtitude();
+                o->longitude;
 
    lst = getRange(lst * rads);
 
-   double glat = o->getLatitude() * rads;
-   double glong = o->getLongtitude() * rads;
+   double glat = o->latitude * rads;
+   double glong = o->longitude * rads;
 
    double xtop = xe - cos(glat) * cos(lst);
    double ytop = ye - cos(glat) * sin(lst);
@@ -165,7 +164,7 @@ void Moon::computeMoonPosition(Observer *o)
    double dectop = atan(ztop / sqrt(xtop * xtop +
                         ytop * ytop));
 
-    rightAscensionTOPO = ratop * degs / 15.0;
-    declinationTOPO = dectop * degs;
+    m_rightAscensionTOPO = ratop * degs / 15.0;
+    m_declinationTOPO = dectop * degs;
 
 }

@@ -1,25 +1,25 @@
 #include <stdio.h>
 #include <windows.h>
-#include <GL\gl.h>
-#include <GL\glu.h>
-#include <GL\glaux.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glaux.h>
 
 #include <math.h>
 
-#define PI     3.14159265358979
-#define TWOPI  6.28318530717958
-#define PIDIV2 1.57079632679489
+const double PI     = 3.14159265358979;
+const double TWOPI  = 6.28318530717958;
+const double PIDIV2 = 1.57079632679489;
 
 #include "skyDome.h"
 
-int skyDome::random(int low, int high)
+int skyDome::random(int low, int high) const
 {
     int r = rand();
     int mapped = (((long)r * (high - low)) /RAND_MAX) + low;
     return mapped;
 }
 
-unsigned int skyDome::calcStarCoords(int size, int hollow)
+unsigned int skyDome::calcStarCoords(int size, int hollow) const
 {
 	int x,y,z;
 	int i;
@@ -32,9 +32,9 @@ unsigned int skyDome::calcStarCoords(int size, int hollow)
 		glBegin(GL_POINTS);
 			for(i=0; i<1000; i++) {
 				x=0; y=0; z=0;
-				while( (fabs(x)<hollow)&&  // make hollow center
-					(fabs(y)<hollow)&&
-					(fabs(z)<hollow)) {
+				while( (fabs((float)x)<hollow)&&  // make hollow center
+					(fabs((float)y)<hollow)&&
+					(fabs((float)z)<hollow)) {
 					//&& x >= 0.0f) {
 					x=random(0, size2) - size;
 					y=random(0, size2) - size;
@@ -59,7 +59,7 @@ unsigned int skyDome::calcStarCoords(int size, int hollow)
 	return gpoints;
 }
 
-void skyDome::calcCloudDomeCoords(void)
+void skyDome::calcCloudDomeCoords()
 {
 	//x^2 + y^2 + z^2 = r^2
 
@@ -81,16 +81,16 @@ void skyDome::calcCloudDomeCoords(void)
 
 			zSq = radSq - xSq - ySq;
 
-			cloudDomeCoords[x][y].x = (float)((x - 4) * 100);
-			cloudDomeCoords[x][y].y = (float)(sqrt(zSq));
-			cloudDomeCoords[x][y].z = (float)((y - 4) * 100);
+			m_cloudDomeCoords[x][y].x = (float)((x - 4) * 100);
+			m_cloudDomeCoords[x][y].y = (float)(sqrt((float)zSq));
+			m_cloudDomeCoords[x][y].z = (float)((y - 4) * 100);
 
-			//printf("cloud coord = %5.3f %5.3f %5.3f\n", cloudDomeCoords[x][y].x, cloudDomeCoords[x][y].y, cloudDomeCoords[x][y].z);
+			//printf("cloud coord = %5.3f %5.3f %5.3f\n", m_cloudDomeCoords[x][y].x, m_cloudDomeCoords[x][y].y, m_cloudDomeCoords[x][y].z);
 		}
 	}
 }
 
-void skyDome::calcSkyDomeCoords(void)
+void skyDome::calcSkyDomeCoords()
 {
 	int heightSections = 16;
 	int numSegments = 18;
@@ -114,174 +114,169 @@ void skyDome::calcSkyDomeCoords(void)
 
 		for(int j=0; j<=numSegments; j++)
 		{
-			sphereCoords[i][j].x = (float)(tempRadius * cos(j * radiusStep));
-			sphereCoords[i][j].y = (float)(tempRadius * sin(j * radiusStep));
-			sphereCoords[i][j].z = (float)(tempZ);
+			m_sphereCoords[i][j].x = (float)(tempRadius * cos(j * radiusStep));
+			m_sphereCoords[i][j].y = (float)(tempRadius * sin(j * radiusStep));
+			m_sphereCoords[i][j].z = (float)(tempZ);
 		}
 	}	
 }
 
-skyDome::skyDome(void)
+skyDome::skyDome()
+: m_minute(540), m_counter(0), m_skyTexID(-1), m_cloudTexID(-1)
 {
-	minute = 540;
-	counter = 0;
-
 	calcSkyDomeCoords();
 	calcCloudDomeCoords();
 
-	starfieldDisplayListA = calcStarCoords(1000, 800);
-	starfieldDisplayListB = calcStarCoords(1000, 800);
+	m_starfieldDisplayListA = calcStarCoords(1000, 800);
+	m_starfieldDisplayListB = calcStarCoords(1000, 800);
 
-	skyTexID = -1;
-	cloudTexID = -1;
+	m_lightRData[0] = 106.0f/255.0f;
+	m_lightGData[0] = 90.0f/255.0f;
+	m_lightBData[0] = 135.0f/255.0f;
 
-	lightRData[0] = 106.0f/255.0f;
-	lightGData[0] = 90.0f/255.0f;
-	lightBData[0] = 135.0f/255.0f;
+	m_lightRData[1] = 182.0f/255.0f;
+	m_lightGData[1] = 195.0f/255.0f;
+	m_lightBData[1] = 210.0f/255.0f;
 
-	lightRData[1] = 182.0f/255.0f;
-	lightGData[1] = 195.0f/255.0f;
-	lightBData[1] = 210.0f/255.0f;
+	m_lightRData[2] = 222.0f/255.0f;
+	m_lightGData[2] = 249.0f/255.0f;
+	m_lightBData[2] = 254.0f/255.0f;
 
-	lightRData[2] = 222.0f/255.0f;
-	lightGData[2] = 249.0f/255.0f;
-	lightBData[2] = 254.0f/255.0f;
+	m_lightRData[3] = 224.0f/255.0f;
+	m_lightGData[3] = 250.0f/255.0f;
+	m_lightBData[3] = 255.0f/255.0f;
 
-	lightRData[3] = 224.0f/255.0f;
-	lightGData[3] = 250.0f/255.0f;
-	lightBData[3] = 255.0f/255.0f;
+	m_lightRData[4] = 224.0f/255.0f;
+	m_lightGData[4] = 250.0f/255.0f;
+	m_lightBData[4] = 255.0f/255.0f;
 
-	lightRData[4] = 224.0f/255.0f;
-	lightGData[4] = 250.0f/255.0f;
-	lightBData[4] = 255.0f/255.0f;
+	m_lightRData[5] = 224.0f/255.0f;
+	m_lightGData[5] = 250.0f/255.0f;
+	m_lightBData[5] = 255.0f/255.0f;
 
-	lightRData[5] = 224.0f/255.0f;
-	lightGData[5] = 250.0f/255.0f;
-	lightBData[5] = 255.0f/255.0f;
+	m_lightRData[6] = 223.0f/255.0f;
+	m_lightGData[6] = 249.0f/255.0f;
+	m_lightBData[6] = 215.0f/255.0f;
 
-	lightRData[6] = 223.0f/255.0f;
-	lightGData[6] = 249.0f/255.0f;
-	lightBData[6] = 215.0f/255.0f;
+	m_lightRData[7] = 255.0f/255.0f;
+	m_lightGData[7] = 124.0f/255.0f;
+	m_lightBData[7] = 38.0f/255.0f;
 
-	lightRData[7] = 255.0f/255.0f;
-	lightGData[7] = 124.0f/255.0f;
-	lightBData[7] = 38.0f/255.0f;
+	m_lightRData[8] = 106.0f/255.0f;
+	m_lightGData[8] = 90.0f/255.0f;
+	m_lightBData[8] = 104.0f/255.0f;
 
-	lightRData[8] = 106.0f/255.0f;
-	lightGData[8] = 90.0f/255.0f;
-	lightBData[8] = 104.0f/255.0f;
+	m_lightRData[9] = 51.0f/255.0f;
+	m_lightGData[9] = 52.0f/255.0f;
+	m_lightBData[9] = 84.0f/255.0f;
 
-	lightRData[9] = 51.0f/255.0f;
-	lightGData[9] = 52.0f/255.0f;
-	lightBData[9] = 84.0f/255.0f;
+	m_lightRData[10] = 27.0f/255.0f;
+	m_lightGData[10] = 44.0f/255.0f;
+	m_lightBData[10] = 57.0f/255.0f;
 
-	lightRData[10] = 27.0f/255.0f;
-	lightGData[10] = 44.0f/255.0f;
-	lightBData[10] = 57.0f/255.0f;
+	m_lightRData[11] = 27.0f/255.0f;
+	m_lightGData[11] = 44.0f/255.0f;
+	m_lightBData[11] = 57.0f/255.0f;
 
-	lightRData[11] = 27.0f/255.0f;
-	lightGData[11] = 44.0f/255.0f;
-	lightBData[11] = 57.0f/255.0f;
+	m_lightRData[12] = 27.0f/255.0f;
+	m_lightGData[12] = 44.0f/255.0f;
+	m_lightBData[12] = 57.0f/255.0f;
 
-	lightRData[12] = 27.0f/255.0f;
-	lightGData[12] = 44.0f/255.0f;
-	lightBData[12] = 57.0f/255.0f;
+	m_lightRData[13] = 27.0f/255.0f;
+	m_lightGData[13] = 44.0f/255.0f;
+	m_lightBData[13] = 57.0f/255.0f;
 
-	lightRData[13] = 27.0f/255.0f;
-	lightGData[13] = 44.0f/255.0f;
-	lightBData[13] = 57.0f/255.0f;
+	m_lightRData[14] = 27.0f/255.0f;
+	m_lightGData[14] = 44.0f/255.0f;
+	m_lightBData[14] = 57.0f/255.0f;
 
-	lightRData[14] = 27.0f/255.0f;
-	lightGData[14] = 44.0f/255.0f;
-	lightBData[14] = 57.0f/255.0f;
+	m_lightRData[15] = 27.0f/255.0f;
+	m_lightGData[15] = 44.0f/255.0f;
+	m_lightBData[15] = 57.0f/255.0f;
 
-	lightRData[15] = 27.0f/255.0f;
-	lightGData[15] = 44.0f/255.0f;
-	lightBData[15] = 57.0f/255.0f;
-
-	lightRData[16] = 106.0f/255.0f;
-	lightGData[16] = 90.0f/255.0f;
-	lightBData[16] = 135.0f/255.0f;
+	m_lightRData[16] = 106.0f/255.0f;
+	m_lightGData[16] = 90.0f/255.0f;
+	m_lightBData[16] = 135.0f/255.0f;
 
 
-	ambientRData[0] = 90.0f/255.0f;
-	ambientGData[0] = 90.0f/255.0f;
-	ambientBData[0] = 90.0f/255.0f;
+	m_ambientRData[0] = 90.0f/255.0f;
+	m_ambientGData[0] = 90.0f/255.0f;
+	m_ambientBData[0] = 90.0f/255.0f;
 
-	ambientRData[1] = 150.0f/255.0f;
-	ambientGData[1] = 150.0f/255.0f;
-	ambientBData[1] = 150.0f/255.0f;
+	m_ambientRData[1] = 150.0f/255.0f;
+	m_ambientGData[1] = 150.0f/255.0f;
+	m_ambientBData[1] = 150.0f/255.0f;
 
-	ambientRData[2] = 220.0f/255.0f;
-	ambientGData[2] = 220.0f/255.0f;
-	ambientBData[2] = 220.0f/255.0f;
+	m_ambientRData[2] = 220.0f/255.0f;
+	m_ambientGData[2] = 220.0f/255.0f;
+	m_ambientBData[2] = 220.0f/255.0f;
 
-	ambientRData[3] = 220.0f/255.0f;
-	ambientGData[3] = 220.0f/255.0f;
-	ambientBData[3] = 220.0f/255.0f;
+	m_ambientRData[3] = 220.0f/255.0f;
+	m_ambientGData[3] = 220.0f/255.0f;
+	m_ambientBData[3] = 220.0f/255.0f;
 
-	ambientRData[4] = 220.0f/255.0f;
-	ambientGData[4] = 220.0f/255.0f;
-	ambientBData[4] = 220.0f/255.0f;
+	m_ambientRData[4] = 220.0f/255.0f;
+	m_ambientGData[4] = 220.0f/255.0f;
+	m_ambientBData[4] = 220.0f/255.0f;
 
-	ambientRData[5] = 220.0f/255.0f;
-	ambientGData[5] = 220.0f/255.0f;
-	ambientBData[5] = 220.0f/255.0f;
+	m_ambientRData[5] = 220.0f/255.0f;
+	m_ambientGData[5] = 220.0f/255.0f;
+	m_ambientBData[5] = 220.0f/255.0f;
 
-	ambientRData[6] = 215.0f/255.0f;
-	ambientGData[6] = 215.0f/255.0f;
-	ambientBData[6] = 215.0f/255.0f;
+	m_ambientRData[6] = 215.0f/255.0f;
+	m_ambientGData[6] = 215.0f/255.0f;
+	m_ambientBData[6] = 215.0f/255.0f;
 
-	ambientRData[7] = 150.0f/255.0f;
-	ambientGData[7] = 150.0f/255.0f;
-	ambientBData[7] = 150.0f/255.0f;
+	m_ambientRData[7] = 150.0f/255.0f;
+	m_ambientGData[7] = 150.0f/255.0f;
+	m_ambientBData[7] = 150.0f/255.0f;
 
-	ambientRData[8] = 90.0f/255.0f;
-	ambientGData[8] = 90.0f/255.0f;
-	ambientBData[8] = 90.0f/255.0f;
+	m_ambientRData[8] = 90.0f/255.0f;
+	m_ambientGData[8] = 90.0f/255.0f;
+	m_ambientBData[8] = 90.0f/255.0f;
 
-	ambientRData[9] = 51.0f/255.0f;
-	ambientGData[9] = 51.0f/255.0f;
-	ambientBData[9] = 51.0f/255.0f;
+	m_ambientRData[9] = 51.0f/255.0f;
+	m_ambientGData[9] = 51.0f/255.0f;
+	m_ambientBData[9] = 51.0f/255.0f;
 
-	ambientRData[10] = 27.0f/255.0f;
-	ambientGData[10] = 27.0f/255.0f;
-	ambientBData[10] = 27.0f/255.0f;
+	m_ambientRData[10] = 27.0f/255.0f;
+	m_ambientGData[10] = 27.0f/255.0f;
+	m_ambientBData[10] = 27.0f/255.0f;
 
-	ambientRData[11] = 27.0f/255.0f;
-	ambientGData[11] = 27.0f/255.0f;
-	ambientBData[11] = 27.0f/255.0f;
+	m_ambientRData[11] = 27.0f/255.0f;
+	m_ambientGData[11] = 27.0f/255.0f;
+	m_ambientBData[11] = 27.0f/255.0f;
 
-	ambientRData[12] = 27.0f/255.0f;
-	ambientGData[12] = 27.0f/255.0f;
-	ambientBData[12] = 27.0f/255.0f;
+	m_ambientRData[12] = 27.0f/255.0f;
+	m_ambientGData[12] = 27.0f/255.0f;
+	m_ambientBData[12] = 27.0f/255.0f;
 
-	ambientRData[13] = 27.0f/255.0f;
-	ambientGData[13] = 27.0f/255.0f;
-	ambientBData[13] = 27.0f/255.0f;
+	m_ambientRData[13] = 27.0f/255.0f;
+	m_ambientGData[13] = 27.0f/255.0f;
+	m_ambientBData[13] = 27.0f/255.0f;
 
-	ambientRData[14] = 27.0f/255.0f;
-	ambientGData[14] = 27.0f/255.0f;
-	ambientBData[14] = 27.0f/255.0f;
+	m_ambientRData[14] = 27.0f/255.0f;
+	m_ambientGData[14] = 27.0f/255.0f;
+	m_ambientBData[14] = 27.0f/255.0f;
 
-	ambientRData[15] = 27.0f/255.0f;
-	ambientGData[15] = 27.0f/255.0f;
-	ambientBData[15] = 27.0f/255.0f;
+	m_ambientRData[15] = 27.0f/255.0f;
+	m_ambientGData[15] = 27.0f/255.0f;
+	m_ambientBData[15] = 27.0f/255.0f;
 
-	ambientRData[16] = 90.0f/255.0f;
-	ambientGData[16] = 90.0f/255.0f;
-	ambientBData[16] = 90.0f/255.0f;
+	m_ambientRData[16] = 90.0f/255.0f;
+	m_ambientGData[16] = 90.0f/255.0f;
+	m_ambientBData[16] = 90.0f/255.0f;
 
 }
 
 void skyDome::setSkyTexture(unsigned int texID)
 {
-	skyTexID = texID;
+	m_skyTexID = texID;
 }
 
 void skyDome::setCloudTexture(unsigned int texID)
 {
-	cloudTexID = texID;
+	m_cloudTexID = texID;
 }
 
 void skyDome::setTime(int minutes)
@@ -291,7 +286,7 @@ void skyDome::setTime(int minutes)
 	else if(minutes > 1440)
 		setTime(minutes - 1440);
 	else
-		minute = minutes;
+		m_minute = minutes;
 }
 
 void skyDome::setTime(float hours)
@@ -301,20 +296,20 @@ void skyDome::setTime(float hours)
 	else if(hours > 1440)
 		setTime(hours - 24.0f);
 	else
-		minute = (int)(60.0f * hours);
+		m_minute = (int)(60.0f * hours);
 }
 
-void skyDome::getTime(int *minutes)
+void skyDome::getTime(int *minutes) const
 {
-	*minutes = minute;
+	*minutes = m_minute;
 }
 
-void skyDome::getTime(float *hours)
+void skyDome::getTime(float *hours) const
 {
-	*hours = minute / 60.0f;
+	*hours = m_minute / 60.0f;
 }
 
-void skyDome::drawSkyDome(void) const
+void skyDome::drawSkyDome() const
 {
 	int heightSections = 16;
 	int numSegments = 18;
@@ -327,13 +322,13 @@ void skyDome::drawSkyDome(void) const
 	//full nighttime (little opacity) = 20 -> 6
 
 	//calculate the alpha values of the sky
-	if((minute / 60.0f) >= 8.0f && (minute / 60.0f) <= 16.0f)
+	if((m_minute / 60.0f) >= 8.0f && (m_minute / 60.0f) <= 16.0f)
 	{
 		//printf("drawing daytime\n");
 		for(int i=0; i<17; i++)
 			alphaVals[i] = 1.0f;
 	}
-	else if((minute / 60.0f) >= 20.0f || (minute / 60.0f) <= 6.0f)
+	else if((m_minute / 60.0f) >= 20.0f || (m_minute / 60.0f) <= 6.0f)
 	{
 		//printf("drawing nighttime\n");
 		alphaVals[0] = 0.99f;
@@ -344,11 +339,11 @@ void skyDome::drawSkyDome(void) const
 		for(int i=4; i<17; i++)
 			alphaVals[i] = 0.19f;
 	}
-	else if((minute / 60.0f) > 16.0f && (minute / 60.0f) < 20.0f)
+	else if((m_minute / 60.0f) > 16.0f && (m_minute / 60.0f) < 20.0f)
 	{
-		int stopVal = 17 - (((minute / 60) - 16) / 4) * 17;
+		int stopVal = 17 - (((m_minute / 60) - 16) / 4) * 17;
 
-		float tempA = 1.2f - (((minute / 60.0f) - 16) / 4.0f) * 0.8f;
+		float tempA = 1.2f - (((m_minute / 60.0f) - 16) / 4.0f) * 0.8f;
 
 		//printf("drawing sunset (%d)\n", stopVal);
 
@@ -394,7 +389,7 @@ void skyDome::drawSkyDome(void) const
 	{
 		//printf("drawing sunrise\n");
 
-		float tempA = 0.2f + (((minute / 60.0f) - 6) / 2.0f) * 0.8f;
+		float tempA = 0.2f + (((m_minute / 60.0f) - 6) / 2.0f) * 0.8f;
 
 		if(tempA < 0.99f)
 			alphaVals[0] =0.99f;
@@ -433,7 +428,7 @@ void skyDome::drawSkyDome(void) const
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glShadeModel(GL_SMOOTH);
-	glBindTexture(GL_TEXTURE_2D, skyTexID);
+	glBindTexture(GL_TEXTURE_2D, m_skyTexID);
 	
 
 	for(int i=1; i<=heightSections; i++)
@@ -445,23 +440,23 @@ void skyDome::drawSkyDome(void) const
 
 				glColor4f(1.0f, 1.0f, 1.0f, alphaVals[i-1]);
 
-				glTexCoord2d(0.75f + (minute / 1440.0f), (i-1) * zStep);
-				glVertex3d(sphereCoords[i-1][j-1].x, sphereCoords[i-1][j-1].y, sphereCoords[i-1][j-1].z);
+				glTexCoord2d(0.75f + (m_minute / 1440.0f), (i-1) * zStep);
+				glVertex3d(m_sphereCoords[i-1][j-1].x, m_sphereCoords[i-1][j-1].y, m_sphereCoords[i-1][j-1].z);
 
 				glColor4f(1.0f, 1.0f, 1.0f, alphaVals[i]);
 
-				glTexCoord2d(0.75f + (minute / 1440.0f), (i) * zStep);
-				glVertex3d(sphereCoords[i][j-1].x, sphereCoords[i][j-1].y, sphereCoords[i][j-1].z);
+				glTexCoord2d(0.75f + (m_minute / 1440.0f), (i) * zStep);
+				glVertex3d(m_sphereCoords[i][j-1].x, m_sphereCoords[i][j-1].y, m_sphereCoords[i][j-1].z);
 
 				glColor4f(1.0f, 1.0f, 1.0f, alphaVals[i]);
 
-				glTexCoord2d(0.75f + (minute / 1440.0f), (i) * zStep);
-				glVertex3d(sphereCoords[i][j].x, sphereCoords[i][j].y, sphereCoords[i][j].z);
+				glTexCoord2d(0.75f + (m_minute / 1440.0f), (i) * zStep);
+				glVertex3d(m_sphereCoords[i][j].x, m_sphereCoords[i][j].y, m_sphereCoords[i][j].z);
 
 				glColor4f(1.0f, 1.0f, 1.0f, alphaVals[i-1]);
 
-				glTexCoord2d(0.75f + (minute / 1440.0f), (i-1) * zStep);
-				glVertex3d(sphereCoords[i-1][j].x, sphereCoords[i-1][j].y, sphereCoords[i-1][j].z);
+				glTexCoord2d(0.75f + (m_minute / 1440.0f), (i-1) * zStep);
+				glVertex3d(m_sphereCoords[i-1][j].x, m_sphereCoords[i-1][j].y, m_sphereCoords[i-1][j].z);
 			glEnd();
 		}
 	}
@@ -474,24 +469,24 @@ void skyDome::drawSkyDome(void) const
 
 }
 
-void skyDome::drawStars(void) const
+void skyDome::drawStars() const
 {
 	glDisable(GL_TEXTURE_2D);					
 
 	glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
 	//draw starfields
 	glPointSize(1);
-	glCallList(starfieldDisplayListA);
+	glCallList(m_starfieldDisplayListA);
 	//glPushMatrix();
 	//	glRotatef(180,0,1,0);// flip over and reuse stars at double size
 		glPointSize(2);
-		glCallList(starfieldDisplayListB);
+		glCallList(m_starfieldDisplayListB);
 	//glPopMatrix();
 
 	glEnable(GL_TEXTURE_2D);
 }
 
-void skyDome::drawClouds(void)
+void skyDome::drawClouds() const
 {
 	int cloudHeight = 100;
 	int cloudWidth = 500;
@@ -504,7 +499,7 @@ void skyDome::drawClouds(void)
 
 	getAmbientColor(&r, &g, &b);
 
-	glBindTexture(GL_TEXTURE_2D, cloudTexID);
+	glBindTexture(GL_TEXTURE_2D, m_cloudTexID);
 
 	glDepthFunc(GL_ZERO);
 
@@ -522,17 +517,17 @@ void skyDome::drawClouds(void)
 		for(int y=0; y<8; y++)
 		{
 			glBegin(GL_QUADS);
-				glTexCoord2d(0.0f + (counter * 0.0005f), 0.0f + (counter * 0.001f));
-				glVertex3f(cloudDomeCoords[x][y].x,     cloudDomeCoords[x][y].y,     cloudDomeCoords[x][y].z);
+				glTexCoord2d(0.0f + (m_counter * 0.0005f), 0.0f + (m_counter * 0.001f));
+				glVertex3f(m_cloudDomeCoords[x][y].x,     m_cloudDomeCoords[x][y].y,     m_cloudDomeCoords[x][y].z);
 
-				glTexCoord2d(1.0f + (counter * 0.0005f), 0.0f + (counter * 0.001f));
-				glVertex3f(cloudDomeCoords[x+1][y].x,   cloudDomeCoords[x+1][y].y,   cloudDomeCoords[x+1][y].z);
+				glTexCoord2d(1.0f + (m_counter * 0.0005f), 0.0f + (m_counter * 0.001f));
+				glVertex3f(m_cloudDomeCoords[x+1][y].x,   m_cloudDomeCoords[x+1][y].y,   m_cloudDomeCoords[x+1][y].z);
 
-				glTexCoord2d(1.0f + (counter * 0.0005f), 1.0f + (counter * 0.001f));
-				glVertex3f(cloudDomeCoords[x+1][y+1].x, cloudDomeCoords[x+1][y+1].y, cloudDomeCoords[x+1][y+1].z);
+				glTexCoord2d(1.0f + (m_counter * 0.0005f), 1.0f + (m_counter * 0.001f));
+				glVertex3f(m_cloudDomeCoords[x+1][y+1].x, m_cloudDomeCoords[x+1][y+1].y, m_cloudDomeCoords[x+1][y+1].z);
 
-				glTexCoord2d(0.0f + (counter * 0.0005f), 1.0f + (counter * 0.001f));
-				glVertex3f(cloudDomeCoords[x][y+1].x,   cloudDomeCoords[x][y+1].y,   cloudDomeCoords[x][y+1].z);
+				glTexCoord2d(0.0f + (m_counter * 0.0005f), 1.0f + (m_counter * 0.001f));
+				glVertex3f(m_cloudDomeCoords[x][y+1].x,   m_cloudDomeCoords[x][y+1].y,   m_cloudDomeCoords[x][y+1].z);
 			glEnd();
 		}
 	}
@@ -546,7 +541,7 @@ void skyDome::drawClouds(void)
 
 }
 
-void skyDome::draw(void)
+void skyDome::draw() const
 {
 	glEnable(GL_BLEND);
 	drawStars();
@@ -554,16 +549,16 @@ void skyDome::draw(void)
 	drawClouds();
 	glDisable(GL_BLEND);
 
-	counter++;
-	if(counter == 1000)
-		counter = 0;
+	m_counter++;
+	if(m_counter == 1000)
+		m_counter = 0;
 
 }
 
-void skyDome::getLightOffset(int *intOffset, float *floatOffset)
+void skyDome::getLightOffset(int *intOffset, float *floatOffset) const
 {
-	int iOff = (int)((minute / 1440.0f) * 16.0f);
-	float fOff = ((minute / 1440.0f) * 16.0f) - iOff;
+	int iOff = (int)((m_minute / 1440.0f) * 16.0f);
+	float fOff = ((m_minute / 1440.0f) * 16.0f) - iOff;
 
 	iOff -=4;
 	fOff -= 0.5f;
@@ -581,7 +576,7 @@ void skyDome::getLightOffset(int *intOffset, float *floatOffset)
 	*floatOffset = fOff;
 }
 
-void skyDome::getAmbientColor(double *r, double *g, double *b)
+void skyDome::getAmbientColor(double *r, double *g, double *b) const
 {
 	//recalculate ambient lighting
 	int intOffset;
@@ -589,19 +584,19 @@ void skyDome::getAmbientColor(double *r, double *g, double *b)
 
 	getLightOffset(&intOffset, &floatOffset);
 
-	*r = (1.0f - floatOffset) * ambientRData[intOffset] + (floatOffset) * ambientRData[intOffset + 1];
-	*g = (1.0f - floatOffset) * ambientGData[intOffset] + (floatOffset) * ambientGData[intOffset + 1];
-	*b = (1.0f - floatOffset) * ambientBData[intOffset] + (floatOffset) * ambientBData[intOffset + 1];	
+	*r = (1.0f - floatOffset) * m_ambientRData[intOffset] + (floatOffset) * m_ambientRData[intOffset + 1];
+	*g = (1.0f - floatOffset) * m_ambientGData[intOffset] + (floatOffset) * m_ambientGData[intOffset + 1];
+	*b = (1.0f - floatOffset) * m_ambientBData[intOffset] + (floatOffset) * m_ambientBData[intOffset + 1];	
 }
 
-void skyDome::getLightColor(double *r, double *g, double *b)
+void skyDome::getLightColor(double *r, double *g, double *b) const
 {
 	int intOffset;
 	float floatOffset;
 
 	getLightOffset(&intOffset, &floatOffset);
 
-	*r = (1.0f - floatOffset) * lightRData[intOffset] + (floatOffset) * lightRData[intOffset + 1];
-	*g = (1.0f - floatOffset) * lightGData[intOffset] + (floatOffset) * lightGData[intOffset + 1];
-	*b = (1.0f - floatOffset) * lightBData[intOffset] + (floatOffset) * lightBData[intOffset + 1];	
+	*r = (1.0f - floatOffset) * m_lightRData[intOffset] + (floatOffset) * m_lightRData[intOffset + 1];
+	*g = (1.0f - floatOffset) * m_lightGData[intOffset] + (floatOffset) * m_lightGData[intOffset + 1];
+	*b = (1.0f - floatOffset) * m_lightBData[intOffset] + (floatOffset) * m_lightBData[intOffset + 1];	
 }
