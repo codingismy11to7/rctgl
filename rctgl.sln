@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "installer", "installer.vcproj", "{7787B407-1BB2-4E72-ACF7-DD7DB92B7FB9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rctgl", "rctgl.vcproj", "{3DD58398-5E04-4975-9F92-79A7CB2B7E6B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{7787B407-1BB2-4E72-ACF7-DD7DB92B7FB9}.Debug.ActiveCfg = Debug|Win32
+		{7787B407-1BB2-4E72-ACF7-DD7DB92B7FB9}.Debug.Build.0 = Debug|Win32
+		{7787B407-1BB2-4E72-ACF7-DD7DB92B7FB9}.Release.ActiveCfg = Release|Win32
+		{7787B407-1BB2-4E72-ACF7-DD7DB92B7FB9}.Release.Build.0 = Release|Win32
+		{3DD58398-5E04-4975-9F92-79A7CB2B7E6B}.Debug.ActiveCfg = Debug|Win32
+		{3DD58398-5E04-4975-9F92-79A7CB2B7E6B}.Debug.Build.0 = Debug|Win32
+		{3DD58398-5E04-4975-9F92-79A7CB2B7E6B}.Release.ActiveCfg = Release|Win32
+		{3DD58398-5E04-4975-9F92-79A7CB2B7E6B}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

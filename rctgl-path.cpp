@@ -175,7 +175,7 @@ void RCTGLPathSystem::compile()
 
 				unsigned int texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];
 
-				if(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK == PATH_STYLE_QUEUE)
+				if((paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) == PATH_STYLE_QUEUE)
 				{
 					texID = m_queueTextures[YELLOW_QUEUE][0];
 

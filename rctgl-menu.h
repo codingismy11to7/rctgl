@@ -32,13 +32,13 @@ public:
 	RCTGLMenu(const CpwFontFace &fontFace);
 
 private:
-	int m_scrnht;
-	int m_scrnwid;
+	unsigned int m_scrnht;
+	unsigned int m_scrnwid;
 	menuScreens m_curScreen;
-	int m_curOption;
+	unsigned int m_curOption;
 	CpwFontFace m_menuFont;
 
-	int m_fileListOffset;
+	unsigned int m_fileListOffset;
 
 	vector<string> m_fileList;
 	vector<string> m_dirList;

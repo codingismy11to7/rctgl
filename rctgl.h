@@ -10,12 +10,14 @@
 #include <GL\glu.h>
 #include <GL\glaux.h>
 
-
+#include <fstream>
+#include <iostream>
+#include <string>
 
 #define CPWDLL_EXTERN
-#define CPWDLL_LOC "depend//cpw//cpw.h"
+#define CPWDLL_LOC "depend/cpw/cpw.h"
 
-#pragma comment(lib, "depend//corona//corona.lib")
+#pragma comment(lib, "depend/corona/corona.lib")
 
 #pragma warning(disable:4786)
 #pragma warning(disable:4503)

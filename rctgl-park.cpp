@@ -21,7 +21,7 @@ bool RCTGLPark::clearPark()
 	return true;
 }
 
-string RCTGLPark::getName(int index) const
+string RCTGLPark::getName(unsigned int index) const
 {
 	if(index < 0 || index > m_rideNameList.size())
 		return NULL;
@@ -197,9 +197,9 @@ bool RCTGLPark::loadPark(const string &filename)
 
 	bool lastItem;
 
-	for(i=0; i<m_sizeX; i++)
+	for(uchar ii=0; i<m_sizeX; i++)
 	{
-		for(int j=0; j<m_sizeZ; j++)
+		for(uchar j=0; j<m_sizeZ; j++)
 		{
 			lastItem = false;
 
@@ -212,7 +212,7 @@ bool RCTGLPark::loadPark(const string &filename)
 					stringstream x;
 
 					x << "Aborting. Landscape loader went beyond the game map. offset=0x" << hex << offset << dec;
-					x << "i=" << i << " j=" << j;
+					x << "ii=" << ii << " j=" << j;
 					DebugLog::writeToLog(x.str());
 
 					return false;
@@ -227,10 +227,10 @@ bool RCTGLPark::loadPark(const string &filename)
 				switch(buffer)
 				{
 				case SEGMENT_LANDSCAPE:
-					m_landscape.loadOffset(parkData + offset, i, j);
+					m_landscape.loadOffset(parkData + offset, ii, j);
 					break;				
 				case SEGMENT_PATH:
-					m_paths.loadOffset(parkData + offset, i, j);
+					m_paths.loadOffset(parkData + offset, ii, j);
 					break;					
 				case SEGMENT_ELEMENT:
 					/*
@@ -238,7 +238,7 @@ bool RCTGLPark::loadPark(const string &filename)
 						RCTGLElement *element = new RCTGLElement;
 						element->loadOffset(parkData + offset);
 
-						elementList[i][j].push_back(element);
+						elementList[ii][j].push_back(element);
 					}
 					break;
 					*/
@@ -249,7 +249,7 @@ bool RCTGLPark::loadPark(const string &filename)
 						RCTGLScenery *scenery = new RCTGLScenery;
 						scenery->loadOffset(parkData + offset);
 
-						sceneryList[i][j].push_back(scenery);
+						sceneryList[ii][j].push_back(scenery);
 					}
 					break;
 					*/
@@ -259,7 +259,7 @@ bool RCTGLPark::loadPark(const string &filename)
 						RCTGLEntrance *ent = new RCTGLEntrance;
 						ent->loadOffset(parkData + offset);
 
-						entranceList[i][j].push_back(ent);
+						entranceList[ii][j].push_back(ent);
 					}
 					break;
 					*/
@@ -269,7 +269,7 @@ bool RCTGLPark::loadPark(const string &filename)
 						RCTGLWall *wall = new RCTGLWall;
 						wall->loadOffset(parkData + offset);
 
-						wallList[i][j].push_back(wall);
+						wallList[ii][j].push_back(wall);
 					}
 					break;
 					*/
@@ -280,7 +280,7 @@ bool RCTGLPark::loadPark(const string &filename)
 						RCTGLBanner *banner = new RCTGLBanner;
 						banner->loadOffset(parkData + offset);
 
-						bannerList[i][j].push_back(banner);
+						bannerList[ii][j].push_back(banner);
 					}
 					*/
 					break;				

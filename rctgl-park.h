@@ -40,7 +40,7 @@ public:
 	RCTGLPark();
 	bool loadPark(const string &filename);
 	bool clearPark();
-	string getName(int index) const;
+	string getName(unsigned int index) const;
 	void loadTextures();
 	void draw() const;
 
