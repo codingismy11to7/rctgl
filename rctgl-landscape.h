@@ -46,6 +46,14 @@
 #define EDGE_WEST	3
 
 
+//this class has an extra modifier so we can draw
+//large polygons instead of drawing every one individually
+class RCTGLLandscapePoly : public RCTGLPoly
+{
+public:
+	bool wasDrawn;
+};
+
 struct landscapeElement
 {
 	int edgeType;
@@ -58,9 +66,9 @@ struct landscapeElement
 	int waterLevel;
 	int lowest, highest;
 
-	RCTGLPoly *surface;
-	RCTGLPoly *waterSurface;
-	RCTGLPoly *edges[4];
+	RCTGLLandscapePoly *surface;
+	RCTGLLandscapePoly *waterSurface;
+	RCTGLLandscapePoly *edges[4];
 
 	bool drawWater;			//this may save some time when rendering
 	bool allLandUnderwater;	//this may save some time when rendering
@@ -93,3 +101,5 @@ private:
 	float getLowestPoint(int i, int j);
 	float getHighestPoint(int i, int j);
 };
+
+

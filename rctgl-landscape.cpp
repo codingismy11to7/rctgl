@@ -245,7 +245,7 @@ void RCTGLLandscape::compile(void)
 		for(j=0; j<128; j++)
 		{
 			//create the surface
-			RCTGLPoly *surface = new RCTGLPoly;
+			RCTGLLandscapePoly *surface = new RCTGLLandscapePoly;
 
 			RCTGLVertex v, tex;
 
@@ -307,7 +307,7 @@ void RCTGLLandscape::compile(void)
 				land[i][j].BL < land[i][j].waterLevel ||
 				land[i][j].TL < land[i][j].waterLevel)
 			{
-				RCTGLPoly *waterSurface = new RCTGLPoly;
+				RCTGLLandscapePoly *waterSurface = new RCTGLLandscapePoly;
 
 				waterSurface->setBaseRGB(rgb);
 
@@ -386,7 +386,7 @@ void RCTGLLandscape::compile(void)
 				//heights are different. make a polygon
 				if((land[i][j+1].BR != land[i][j].TR) || (land[i][j+1].BL != land[i][j].TL))
 				{
-					RCTGLPoly *tmp = new RCTGLPoly;
+					RCTGLLandscapePoly *tmp = new RCTGLLandscapePoly;
 					RCTGLVertex v, tex;					
 
 					tmp->setBaseRGB(rgb);
@@ -457,7 +457,7 @@ void RCTGLLandscape::compile(void)
 				//heights are different. make a polygon
 				if((land[i+1][j].BR != land[i][j].BL) || (land[i+1][j].TR != land[i][j].TL))
 				{
-					RCTGLPoly *tmp = new RCTGLPoly;
+					RCTGLLandscapePoly *tmp = new RCTGLLandscapePoly;
 					RCTGLVertex v, tex;					
 
 					tmp->setBaseRGB(rgb);
@@ -543,6 +543,18 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 		return false;
 	
 	uchar i, j, k;
+
+	//initialize all polygons
+	for(i=x1; i<x2; i++)
+	{
+		for(j=z1; j<z2; j++)
+		{
+			if(land[i][j].surface)
+				land[i][j].surface->wasDrawn = false;
+			if(land[i][j].waterSurface)
+				land[i][j].waterSurface->wasDrawn = false;
+		}
+	}
 	
 
 	// draw the map
@@ -559,11 +571,17 @@ bool RCTGLLandscape::draw(uchar x1, uchar z1, uchar x2, uchar z2)
 					(float)(UNITWIDTH)))
 					
 			{
-				if(land[i][j].surface)
+				if(land[i][j].surface && !land[i][j].surface->wasDrawn)
+				{
 					land[i][j].surface->draw();
+					land[i][j].surface->wasDrawn = true;
+				}
 
-				if(land[i][j].waterSurface)
+				if(land[i][j].waterSurface && !land[i][j].waterSurface->wasDrawn)
+				{
 					land[i][j].waterSurface->draw();
+					land[i][j].waterSurface->wasDrawn = true;
+				}
 			}
 
 			//now we only care about elements 0 and 2			
