@@ -78,18 +78,16 @@ bool initRCTGL(RCTGLPark *thePark)
 	displayMode = MENU;
 
 	DWORD temp;
-	char EXELoc[256];
+	char EXELoc[1024];
 
 	// get current directory so we can restore later
-	temp = GetModuleFileName(NULL, EXELoc, 256);
+	temp = GetModuleFileName(NULL, EXELoc, 1024);
 	printf("program location: %s\n", EXELoc);
 
-	int len = strlen(&EXELoc[0]);
+	RCTGL_Location = EXELoc;
+	RCTGL_Location.resize( RCTGL_Location.rfind( '\\' ) );
 
-	EXELoc[len - 10] = '\0';
-
-	printf("program dir: %s\n", &EXELoc[0]);
-	char *dum = strcpy(&RCTGL_Location[0], &EXELoc[0]);
+	printf("program dir: %s\n", RCTGL_Location.c_str());
 
 	if(!loadRCTColors())
 		return false;

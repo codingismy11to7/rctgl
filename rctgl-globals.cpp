@@ -12,8 +12,8 @@ float sinTable[360];
 float cosTable[360];
 float tanTable[360];
 
-char RCTGL_Location[256];
-char RCTGL_TempFile[256];
+string RCTGL_Location;
+string RCTGL_TempFile;
 string RCTGL_InFile;
 
 bool LoadedEdgeTex;

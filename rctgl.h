@@ -38,8 +38,8 @@ extern float sinTable[360];
 extern float cosTable[360];
 extern float tanTable[360];
 
-extern char RCTGL_Location[256];
-extern char RCTGL_TempFile[256];
+extern string RCTGL_Location;
+extern string RCTGL_TempFile;
 extern string RCTGL_InFile;
 
 extern bool LoadedEdgeTex;

@@ -1,11 +1,13 @@
 #include "rctgl-texman.h"
 
-void RCTGLTextureManager::loadPathTex(const char *filename, int texNum, uchar pathOptions)
+using namespace RCTTextureManager;
+
+void RCTGLTextureManager::loadPathTex(const string &filename, int texNum, uchar pathOptions)
 {
 
 }
 
-unsigned int RCTGLTextureManager::loadTex(const char *filename, uchar texOptions)
+unsigned int RCTGLTextureManager::loadTex(const string &filename, uchar texOptions)
 {
 	enum fileTypes {TGA, PNG};
 
@@ -24,7 +26,7 @@ unsigned int RCTGLTextureManager::loadTex(const char *filename, uchar texOptions
 	glGenTextures (1, &texID);
 	glPixelStorei ( GL_UNPACK_ALIGNMENT, 1 );	
 
-	corona::Image* image = corona::OpenImage(filename);
+	corona::Image* image = corona::OpenImage(filename.c_str());
 	if (!image) {
 		DebugLog::writeToLog(string("Error loading image ") + filename);
 		return -1;
@@ -140,15 +142,12 @@ void RCTGLTextureManager::buildPathTex(uchar *pixels, int w, int h, unsigned int
 
 }
 
-int RCTGLTextureManager::addPathTexture(const char *filepath, int texID, unsigned int options)
+int RCTGLTextureManager::addPathTexture(const string &filepath, int texID, unsigned int options)
 {
 	return 0;
 }
 
-unsigned int RCTGLTextureManager::addTexture(const char *filepath, uchar texOptions)
+unsigned int RCTGLTextureManager::addTexture(const string &filepath, uchar texOptions)
 {
-	static const string tmp( RCTGL_Location );  //RCTGL_Location can't change during the execution, so
-												//let's only allocate this string one time
-	
-	return loadTex((tmp + filepath).c_str(), texOptions);
+	return loadTex((RCTGL_Location + filepath).c_str(), texOptions);
 }
