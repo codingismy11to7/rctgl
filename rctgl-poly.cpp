@@ -3,36 +3,36 @@
 RCTGLPoly::RCTGLPoly(void)
 {
 	//clear out the lists
-	vertexList.clear();
-	texCoordList.clear();
+	m_vertexList.clear();
+	m_texCoordList.clear();
 
-	vertexCount = 0;
-	texID = 0;
+	m_vertexCount = 0;
+	m_texID = 0;
 
-	baseRGB.r = baseRGB.g = baseRGB.b = -1;
+	m_baseRGB.r = m_baseRGB.g = m_baseRGB.b = -1;
 }
 
-void RCTGLPoly::setBaseRGB(RCTGLRGB baseRGB)
+void RCTGLPoly::setBaseRGB(const RCTGLRGB &baseRGB)
 {
-	this->baseRGB.r = baseRGB.r;
-	this->baseRGB.g = baseRGB.g;
-	this->baseRGB.b = baseRGB.b;
+	m_baseRGB.r = baseRGB.r;
+	m_baseRGB.g = baseRGB.g;
+	m_baseRGB.b = baseRGB.b;
 }
 
-void RCTGLPoly::addVertex(RCTGLVertex inVertex)
-{
-	RCTGLVertex vert; // = new RCTGLVertex;
-	vert.copy(inVertex);
-	vertexList.push_back(vert);
-
-	vertexCount++;
-}
-
-void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor)
+void RCTGLPoly::addVertex(const RCTGLVertex &inVertex)
 {
 	RCTGLVertex vert; // = new RCTGLVertex;
 	vert.copy(inVertex);
-	vertexList.push_back(vert);
+	m_vertexList.push_back(vert);
+
+	m_vertexCount++;
+}
+
+void RCTGLPoly::addVertex(const RCTGLVertex &inVertex, const RCTGLRGB &inColor)
+{
+	RCTGLVertex vert; // = new RCTGLVertex;
+	vert.copy(inVertex);
+	m_vertexList.push_back(vert);
 
 	RCTGLRGB newRGB; // = new RCTGLRGB;
 
@@ -40,26 +40,26 @@ void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor)
 	newRGB.g = inColor.g;
 	newRGB.b = inColor.b;
 
-	RGBList.push_back(newRGB);
+	m_RGBList.push_back(newRGB);
 
-	vertexCount++;
+	m_vertexCount++;
 }
 
-void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLVertex inTexVertex)
+void RCTGLPoly::addVertex(const RCTGLVertex &inVertex, const RCTGLVertex &inTexVertex)
 {
 	RCTGLVertex vert; // = new RCTGLVertex;
 	vert.copy(inVertex);
-	vertexList.push_back(vert);
+	m_vertexList.push_back(vert);
 
 	RCTGLVertex newTexVert; // = new RCTGLRGB;
 	newTexVert.copy(inTexVertex);	
 
-	texCoordList.push_back(newTexVert);
+	m_texCoordList.push_back(newTexVert);
 
-	vertexCount++;
+	m_vertexCount++;
 }
 
-void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex inTexVert)
+void RCTGLPoly::addVertex(const RCTGLVertex &inVertex, const RCTGLRGB &inColor, const RCTGLVertex &inTexVert)
 {
 	addVertex(inVertex, inColor);
 
@@ -69,29 +69,29 @@ void RCTGLPoly::addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex in
 	vert.y = inTexVert.y;
 	vert.z = 0.0f;
 
-	texCoordList.push_back(vert);
+	m_texCoordList.push_back(vert);
 }
 
-void RCTGLPoly::draw(void)
+void RCTGLPoly::draw() const
 {
-	if(texID > 0)
-		glBindTexture(GL_TEXTURE_2D, texID);
+	if(m_texID > 0)
+		glBindTexture(GL_TEXTURE_2D, m_texID);
 
-	glColor3f(baseRGB.r, baseRGB.g, baseRGB.b);
+	glColor3f(m_baseRGB.r, m_baseRGB.g, m_baseRGB.b);
 
 	glBegin(GL_QUADS);	
 
-	if(texID > 0)
+	if(m_texID > 0)
 	{
-		for(int i=0; i<vertexCount; i++)
+		for(int i=0; i<m_vertexCount; i++)
 		{
-			glTexCoord2f(texCoordList[i].x, texCoordList[i].y);
-			glVertex3f(vertexList[i].x, vertexList[i].y, vertexList[i].z);
+			glTexCoord2f(m_texCoordList[i].x, m_texCoordList[i].y);
+			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
 		}
 	}
 	else
-		for(int i=0; i<vertexCount; i++)
-			glVertex3f(vertexList[i].x, vertexList[i].y, vertexList[i].z);
+		for(int i=0; i<m_vertexCount; i++)
+			glVertex3f(m_vertexList[i].x, m_vertexList[i].y, m_vertexList[i].z);
 	
 	glEnd();
 
@@ -99,12 +99,12 @@ void RCTGLPoly::draw(void)
 
 void RCTGLPoly::setTextureID(unsigned int texID)
 {
-	this->texID = texID;
+	m_texID = texID;
 }
 
 RCTGLPoly::~RCTGLPoly()
 {			
-	RGBList.clear();
-	vertexList.clear();
-	texCoordList.clear();
+	m_RGBList.clear();
+	m_vertexList.clear();
+	m_texCoordList.clear();
 }

@@ -15,25 +15,25 @@ public:
 
 	RCTGLPoly(void);
 	~RCTGLPoly();
-	void addVertex(RCTGLVertex inVertex);
-	void addVertex(RCTGLVertex inVertex, RCTGLRGB inColor);
-	void addVertex(RCTGLVertex inVertex, RCTGLVertex inTexVertex);
-	void addVertex(RCTGLVertex inVertex, RCTGLRGB inColor, RCTGLVertex inTexVert);
+	void addVertex(const RCTGLVertex &inVertex);
+	void addVertex(const RCTGLVertex &inVertex, const RCTGLRGB &inColor);
+	void addVertex(const RCTGLVertex &inVertex, const RCTGLVertex &inTexVertex);
+	void addVertex(const RCTGLVertex &inVertex, const RCTGLRGB &inColor, const RCTGLVertex &inTexVert);
 
-	void setBaseRGB(RCTGLRGB baseRGB);
+	void setBaseRGB(const RCTGLRGB &baseRGB);
 
-	void draw(void);
+	void draw() const;
 
 	void setTextureID(unsigned int texID);
 
 private:
-	vector<RCTGLRGB> RGBList;
-	vector<RCTGLVertex> vertexList;
-	vector<RCTGLVertex> texCoordList;
-	uchar vertexCount;
-	unsigned int texID;
+	vector<RCTGLRGB> m_RGBList;
+	vector<RCTGLVertex> m_vertexList;
+	vector<RCTGLVertex> m_texCoordList;
+	uchar m_vertexCount;
+	unsigned int m_texID;
 
-	RCTGLRGB baseRGB;
+	RCTGLRGB m_baseRGB;
 };
 
 class RCTGLExtendedPoly : public RCTGLPoly
