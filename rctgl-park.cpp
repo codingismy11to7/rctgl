@@ -251,8 +251,8 @@ bool RCTGLPark::loadPark(char *filename)
 
 				*/
 				default:
-					RCTGLLog.writeToLog("Unrecognized item type (%d)", buffer);
-					RCTGLLog.writeToLog(" at byte %ld\n", parkData + offset);
+					RCTGLLog.writeToLog("Unrecognized item type (%d)", (double)buffer);
+					RCTGLLog.writeToLog(" at byte %ld\n", (double)(offset));
 					break;
 				}
 
