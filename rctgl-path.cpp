@@ -3,6 +3,8 @@
 using namespace RCTPath;  //import path constants
 using namespace RCTTextureManager;
 
+//#define TEST_OPTIMIZATION
+
 RCTGLPathSystem::RCTGLPathSystem()
 {
 
@@ -155,16 +157,39 @@ bool RCTGLPathSystem::isPathSame(uchar x1, uchar z1, uchar idx1, uchar x2, uchar
 	switch((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK))
 	{
 	case PATH_SLOPE_NONE:
-		return (paths[x1][z1][idx1].baseHeight								== paths[x2][z2][idx2].baseHeight) &&
-			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&
-			(paths[x1][z1][idx1].baseHeight								== paths[x2][z2][idx2].baseHeight) &&
+		return (paths[x1][z1][idx1].baseHeight							== paths[x2][z2][idx2].baseHeight) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&			
 			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
 			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
 			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
 	case PATH_SLOPE_NORTH:
+		return (paths[x1][z1][idx1].baseHeight							== paths[x2][z2][idx2].baseHeight - (x2 - x1)) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&			
+			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
+
 	case PATH_SLOPE_SOUTH:
+		return (paths[x1][z1][idx1].baseHeight							== paths[x2][z2][idx2].baseHeight + (x2 - x1)) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&			
+			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
+
 	case PATH_SLOPE_EAST:
+		return (paths[x1][z1][idx1].baseHeight							== paths[x2][z2][idx2].baseHeight - (z2 - z1)) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&			
+			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
+
 	case PATH_SLOPE_WEST:
+		return (paths[x1][z1][idx1].baseHeight							== paths[x2][z2][idx2].baseHeight + (z2 - z1)) &&
+			(paths[x1][z1][idx1].pathExtensions							== paths[x2][z2][idx2].pathExtensions) &&			
+			((paths[x1][z1][idx1].pathModifier1 & PATH_STYLE_MASK)		== (paths[x2][z2][idx2].pathModifier1 & PATH_STYLE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier1 & PATH_SUBTYPE_MASK)	== (paths[x2][z2][idx2].pathModifier1 & PATH_SUBTYPE_MASK)) &&
+			((paths[x1][z1][idx1].pathModifier2 & PATH_SLOPE_MASK)		== ((paths[x2][z2][idx2].pathModifier2 & PATH_SLOPE_MASK)));
+
 	default:
 		return false;
 	}
@@ -205,6 +230,7 @@ void RCTGLPathSystem::compile()
 					
 					uchar topOffset = 0, bottomOffset = 0, leftOffset = 0, rightOffset = 0;
 					uchar startX, startZ, xLen, zLen;
+					uchar xTexOffset, zTexOffset;
 
 					startX = i;
 					startZ = j;
@@ -213,8 +239,12 @@ void RCTGLPathSystem::compile()
 					zLen = 1;
 
 					//find out what kind of path we have
+#ifdef TEST_OPTIMIZATION
+					unsigned int texID = m_otherTextures[PATH_STYLE_TARMAC >> 2][GRAY_TARMAC][6];
+#else
 					unsigned int texID = m_queueTextures[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK][0];
-					//unsigned int texID = m_otherTextures[PATH_STYLE_TARMAC >> 2][GRAY_TARMAC][6];
+					
+
 
 					
 					if((paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) == PATH_STYLE_QUEUE)
@@ -349,10 +379,13 @@ void RCTGLPathSystem::compile()
 							//full pieces
 							if(numCardinals(i, j, k) == 4 &&
 								numDiagonals(i, j, k) == 4)
+							{
 								texID = m_otherTextures
 									[(paths[i][j][k].pathModifier1 & PATH_STYLE_MASK) >> 2]
 									[paths[i][j][k].pathModifier1 & PATH_SUBTYPE_MASK]
 									[6];
+								//rotateClock = true;
+							}
 							//half of a path
 							else if(numCardinals(i, j, k) == 3 &&
 								numDiagonals(i, j, k) ==2)
@@ -596,13 +629,17 @@ void RCTGLPathSystem::compile()
 							}
 						}					
 					}
-					
 
+#endif //#ifndef TEST_OPTIMIZATION
+					
 
 					//see how far this piece stretches
 					//currently, this will only support flat land and only go in one dimension
 					bool canContinue = true;
 					uchar saveOffset = 255;
+					uchar zLenOffset, xLenOffset, otherOffset;
+
+					zLenOffset = xLenOffset = otherOffset = k;
 					
 					while(canContinue)
 					{
@@ -611,24 +648,25 @@ void RCTGLPathSystem::compile()
 						//loop through all of the entries in the next section
 						for(uchar l=0; l<paths[i][j + zLen].size(); l++)
 						{
-							if(isPathSame(i, j, k, i, j + zLen, l))
+							if(isPathSame(i, j, k, i, j + zLen, l) && 
+								!paths[i][j + zLen][l].compiled)
 							{
 								canContinue = true;
-								saveOffset = l;
-							}
-
-							if(canContinue)
-							{
+								
 								//assign the path to this pointer
-								paths[i][j + zLen][saveOffset].surface = pathPoly;
+								paths[i][j + zLen][l].surface = pathPoly;
 
 								//mark the path as compiled
-								paths[i][j + zLen][saveOffset].compiled = true;
+								paths[i][j + zLen][l].compiled = true;
 
 								zLen++;
+
+								zLenOffset = l;
+
+								break;
 							}
 						}
-					}
+					}					
 
 					vector <uchar> offsets;
 
@@ -647,14 +685,13 @@ void RCTGLPathSystem::compile()
 							//loop through all of the entries in the next section
 							for(uchar l=0; l<paths[i + xLen][j + off].size(); l++)
 							{
-								if(isPathSame(i, j, k, i + xLen, j + off, l))
+								if(isPathSame(i, j, k, i + xLen, j + off, l) &&
+									!paths[i + xLen][j + off][l].compiled)
 								{
 									canContinue = true;
-									saveOffset = l;
+									
+									offsets.push_back(l);								
 								}
-
-								if(canContinue)
-									offsets.push_back(saveOffset);								
 							}
 
 							if(!canContinue)
@@ -674,107 +711,65 @@ void RCTGLPathSystem::compile()
 								paths[i + xLen][j + off][offsets[off]].compiled = true;
 							}
 
+							otherOffset = offsets[0];
+
+							xLenOffset = off;
+
 							xLen++;
 						}
 					}
+					
 
 					float texCoord[4][2];
 
-					/*
-					texCoord[0][0] = 1.0f;
-					texCoord[0][1] = 1.0f;
+					texCoord[0][0] = 0.0f;
+					texCoord[0][1] = 0.0f;
 
-					texCoord[1][0] = 0.0f;
-					texCoord[1][1] = 1.0f;
+					texCoord[1][0] = 1.0f;
+					texCoord[1][1] = 0.0f;
 
 					texCoord[2][0] = 1.0f;
-					texCoord[2][1] = 0.0f;
+					texCoord[2][1] = 1.0f;
 
 					texCoord[3][0] = 0.0f;
-					texCoord[3][1] = 0.0f;
-					*/
+					texCoord[3][1] = 1.0f;
 
-					texCoord[0][0] = xLen;
-					texCoord[0][1] = zLen;
-
-					texCoord[1][0] = 0.0f;
-					texCoord[1][1] = zLen;
-
-					texCoord[2][0] = xLen;
-					texCoord[2][1] = 0.0f;
-
-					texCoord[3][0] = 0.0f;
-					texCoord[3][1] = 0.0f;
-					
+					xTexOffset = xLen;
+					zTexOffset = zLen;					
 
 					if(rotateClock)
 					{
 						float tmp[2];
 
-						tmp[0] = texCoord[2][0];
-						tmp[1] = texCoord[2][1];
-
-						// 3 -> 2
-						texCoord[2][0] = texCoord[3][0];
-						texCoord[2][1] = texCoord[3][1];
-
-						// 1 -> 3
-						texCoord[3][0] = texCoord[1][0];
-						texCoord[3][1] = texCoord[1][1];
+						tmp[0] = texCoord[3][0];
+						tmp[1] = texCoord[3][1];
 
 						// 0 -> 1
-						texCoord[1][0] = texCoord[0][0];
-						texCoord[1][1] = texCoord[0][1];
+						texCoord[1][0] = 0.0f; //texCoord[0][0];
+						texCoord[1][1] = 0.0f; //texCoord[0][1];
 
-						// 2 -> 0
-						texCoord[0][0] = tmp[0];
-						texCoord[0][1] = tmp[1];
+						// 1 -> 2
+						texCoord[2][0] = 1.0f; //texCoord[1][0];
+						texCoord[2][1] = 0.0f; //texCoord[1][1];
+
+						// 2 -> 3
+						texCoord[3][0] = 1.0f; //texCoord[2][0];
+						texCoord[3][1] = 1.0f; //texCoord[2][1];
+
+						// 3 -> 0
+						texCoord[0][0] = 0.0f; //tmp[0];
+						texCoord[0][1] = 1.0f; //tmp[1];
 						
+						uchar temp;
+						temp = xTexOffset;
+						xTexOffset = zTexOffset;
+						zTexOffset = temp;
+											
 
-						/*
-						//2 -> 0
-						texCoord[0][0] = 1.0f;
-						texCoord[0][1] = 0.0f;
-
-						//0 -> 1
-						texCoord[1][0] = 1.0f;
-						texCoord[1][1] = 1.0f;
-
-						//3 -> 2
-						texCoord[2][0] = 0.0f;
-						texCoord[2][1] = 0.0f;
-
-						//1 -> 3
-						texCoord[3][0] = 0.0f;
-						texCoord[3][1] = 1.0f;
-						*/
 					}
 
 					if(flipVert)
 					{
-						float tmp[2];
-
-						tmp[0] = texCoord[0][0];
-						tmp[1] = texCoord[0][1];
-
-						texCoord[0][0] = texCoord[1][0];
-						texCoord[0][1] = texCoord[1][1];
-
-						texCoord[1][0] = tmp[0];
-						texCoord[1][1] = tmp[1];
-
-
-
-						tmp[0] = texCoord[2][0];
-						tmp[1] = texCoord[2][1];
-
-						texCoord[2][0] = texCoord[3][0];
-						texCoord[2][1] = texCoord[3][1];
-
-						texCoord[3][0] = tmp[0];
-						texCoord[3][1] = tmp[1];
-
-						/*
 						//swap all [1] elements
 						if(texCoord[0][1] == 1.0f)
 							texCoord[0][1] = 0.0f;
@@ -795,7 +790,7 @@ void RCTGLPathSystem::compile()
 							texCoord[3][1] = 0.0f;
 						else
 							texCoord[3][1] = 1.0f;
-							*/
+							
 
 					}
 
@@ -820,85 +815,133 @@ void RCTGLPathSystem::compile()
 							texCoord[3][0] = 0.0f;
 						else
 							texCoord[3][0] = 1.0f;
+							
 					}
 
-					RCTGLVertex v, tex;
+					RCTGLVertex v, tex;					
 
-					//figure out which direction the path slopes
-					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
-					{				
-					case PATH_SLOPE_NORTH:
-						rightOffset++;
-						break;
-					case PATH_SLOPE_SOUTH:
-						leftOffset++;
-						break;				
-					case PATH_SLOPE_EAST:
-						bottomOffset++;
-						break;
-					case PATH_SLOPE_WEST:
-						topOffset++;
-						break;					
-					}
-
-					//TL
-					v.x = startX * UNITWIDTH;
-					v.y = (paths[i][j][k].baseHeight + topOffset + leftOffset) * UNITHEIGHT + 0.1f;
+					//TL					
+					v.x = startX * UNITWIDTH;					
 					v.z = startZ * UNITWIDTH;
 
+					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+					{						
+					case PATH_SLOPE_WEST:
+					case PATH_SLOPE_SOUTH:
+						v.y = (paths[i][j][k].baseHeight + 1) * UNITHEIGHT + 0.1f;
+						break;					
+					case PATH_SLOPE_NORTH:
+					case PATH_SLOPE_EAST:
+					default:
+						v.y = (paths[i][j][k].baseHeight) * UNITHEIGHT + 0.1f;
+						break;
+					}	
+
 					//originally 0,0
-					tex.x = texCoord[3][0] * (float)xLen;
-					tex.y = texCoord[3][1] * (float)zLen;
+					tex.x = texCoord[0][0] * (float)xTexOffset;
+					tex.y = texCoord[0][1] * (float)zTexOffset;
+					
 					tex.z = 0.0f;
 
 					pathPoly->addVertex(v, tex);
 
 					//TR
 					v.x = (startX + xLen) * UNITWIDTH;
-					v.y = (paths[i][j][k].baseHeight + topOffset + rightOffset) * UNITHEIGHT + 0.1f;
 					v.z = startZ * UNITWIDTH;
 
+					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+					{
+					case PATH_SLOPE_NORTH:
+						v.y = (paths[i][j][k].baseHeight + xLen) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_SOUTH:
+						v.y = (paths[i][j][k].baseHeight - xLen + 1) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_WEST:
+						v.y = (paths[i][j][k].baseHeight + 1) * UNITHEIGHT + 0.1f;
+						break;						
+					case PATH_SLOPE_EAST:
+					default:
+						v.y = (paths[i][j][k].baseHeight) * UNITHEIGHT + 0.1f;
+						break;
+					}	
+					
 					//orginally 1,0
-					tex.x = texCoord[2][0] * (float)xLen;
-					tex.y = texCoord[2][1] * (float)zLen;
-
+					tex.x = texCoord[1][0] * (float)xTexOffset;
+					tex.y = texCoord[1][1] * (float)zTexOffset;
+					
 					pathPoly->addVertex(v, tex);
 
 					//BR
-					v.x = (startX+ xLen) * UNITWIDTH;
-					v.y = (paths[i][j][k].baseHeight + bottomOffset + rightOffset) * UNITHEIGHT + 0.1f;
+					v.x = (startX+ xLen) * UNITWIDTH;					
 					v.z = (startZ + zLen) * UNITWIDTH;
 
+					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+					{
+					case PATH_SLOPE_NORTH:
+						v.y = (paths[i][j][k].baseHeight + xLen) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_SOUTH:
+						v.y = (paths[i][j][k].baseHeight - xLen + 1) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_EAST:
+						v.y = (paths[i][j][k].baseHeight + zLen) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_WEST:
+						v.y = (paths[i][j][k].baseHeight - zLen + 1) * UNITHEIGHT + 0.1f;
+						break;
+					default:
+						v.y = (paths[i][j][k].baseHeight) * UNITHEIGHT + 0.1f;
+						break;
+					}	
+
 					//originally 1,1
-					tex.x = texCoord[0][0] * (float)xLen;
-					tex.y = texCoord[0][1] * (float)zLen;
+					tex.x = texCoord[2][0] * (float)xTexOffset;
+					tex.y = texCoord[2][1] * (float)zTexOffset;
+					
 					
 					pathPoly->addVertex(v, tex);
 
 					//BL
-					v.x = startX * UNITWIDTH;
-					v.y = (paths[i][j][k].baseHeight + bottomOffset + leftOffset) * UNITHEIGHT + 0.1f;
+					v.x = startX * UNITWIDTH;					
 					v.z = (startZ + zLen) * UNITWIDTH;
 
+					switch(paths[i][j][k].pathModifier2 & PATH_SLOPE_MASK)
+					{
+					case PATH_SLOPE_EAST:
+						v.y = (paths[i][j][k].baseHeight + zLen) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_SOUTH:
+						v.y = (paths[i][j][k].baseHeight + 1) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_WEST:
+						v.y = (paths[i][j][k].baseHeight - zLen + 1) * UNITHEIGHT + 0.1f;
+						break;
+					case PATH_SLOPE_NORTH:
+					default:
+						v.y = (paths[i][j][k].baseHeight) * UNITHEIGHT + 0.1f;
+						break;
+					}	
+
 					//originally 0,1
-					tex.x = texCoord[1][0] * (float)xLen;
-					tex.y = texCoord[1][1] * (float)zLen;
-
+					tex.x = texCoord[3][0] * (float)xTexOffset;
+					tex.y = texCoord[3][1] * (float)zTexOffset;
+					
+					
 					pathPoly->addVertex(v, tex);
-
 								
 					
 					pathPoly->setTextureID(texID);
 					
-					pathPoly->length = 1;
-					pathPoly->width = 1;
+					pathPoly->length = xLen;
+					pathPoly->width = zLen;
 
 					pathPoly->setBaseRGB(rgb);
 
 					paths[i][j][k].surface = pathPoly;
 					paths[i][j][k].compiled = true;
 
-					actualPolys+=zLen;
+					actualPolys+= (zLen * xLen);
 					renderedPolys++;
 				}
 			}
@@ -922,6 +965,18 @@ void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 	glEnable(GL_TEXTURE_2D);
 	//glDisable(GL_CULL_FACE);
 
+#ifdef TEST_OPTIMIZATION
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
+
+	//initialize all polygons
+	for(i=minX; i<maxX; i++)	
+		for(j=minZ; j<maxZ; j++)
+			for(k=0; k<paths[i][j].size(); k++)
+				paths[i][j][k].surface->wasDrawn = false;	
+	
+
+
 	for(i=minX; i<maxX; i++)
 	{
 		for(j=minZ; j<maxZ; j++)
@@ -929,10 +984,20 @@ void RCTGLPathSystem::draw(uchar minX, uchar minZ, uchar maxX, uchar maxZ) const
 			for(k=0; k<paths[i][j].size(); k++)
 			{
 				if(paths[i][j][k].surface)
-					paths[i][j][k].surface->draw();
+				{
+					if(!paths[i][j][k].surface->wasDrawn)
+					{
+						paths[i][j][k].surface->draw();
+						paths[i][j][k].surface->wasDrawn = true;
+					}
+				}
 			}
 		}
 	}
+
+#ifdef TEST_OPTIMIZATION
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 	glDisable(GL_ALPHA_TEST);
 }
