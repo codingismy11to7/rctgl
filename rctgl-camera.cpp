@@ -59,14 +59,14 @@ void RCTGLCamera::fixRot(bool xChanged, bool yChanged, bool zChanged)
 		fixAngle(&ZR);	
 }
 
-void RCTGLCamera::getPos(float *xv, float *yv, float *zv)
+void RCTGLCamera::getPos(float *xv, float *yv, float *zv) const
 {
 	*xv = XV;
 	*yv = YV;
 	*zv = ZV;
 }
 
-void RCTGLCamera::getRot(float *xr, float *yr, float *zr)
+void RCTGLCamera::getRot(float *xr, float *yr, float *zr) const
 {
 	*xr = XR;
 	*yr = YR;

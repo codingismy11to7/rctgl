@@ -10,8 +10,8 @@ public:
 	void setPosOffset(float xvOff, float yvOff, float zvOff);
 	void setRotOffset(float xrOff, float yrOff, float zrOff);
 
-	void getPos(float *xv, float *yv, float *zv);
-	void getRot(float *xr, float *yr, float *zr);
+	void getPos(float *xv, float *yv, float *zv) const;
+	void getRot(float *xr, float *yr, float *zr) const;
 
 	float XR, YR, ZR;
 	float XV, YV, ZV;
