@@ -1,1 +1,0 @@
-enum displayModes {NOTHING, MENU, GAME, INIT, LOADPARK, PAUSED, MAP};
